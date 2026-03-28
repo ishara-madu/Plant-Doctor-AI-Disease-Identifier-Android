@@ -56,6 +56,8 @@ android {
 }
 
 dependencies {
+    // Fix Guava ListenableFuture conflict (AdMob vs CameraX)
+    implementation("com.google.guava:guava:31.1-android")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -84,6 +86,9 @@ dependencies {
 
     // Play Services Location
     implementation(libs.play.services.location)
+
+    // Google AdMob
+    implementation("com.google.android.gms:play-services-ads:23.0.0")
 
     // Navigation Compose
     implementation(libs.androidx.navigation.compose)

@@ -51,6 +51,7 @@ import com.pixeleye.plantdoctor.utils.LocationHelper
 import com.pixeleye.plantdoctor.data.local.AppDatabase
 import com.pixeleye.plantdoctor.data.api.PlantScanRepository
 import com.pixeleye.plantdoctor.data.api.SupabaseClientProvider
+import com.google.android.gms.ads.MobileAds
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -59,6 +60,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        MobileAds.initialize(this) {}
 
         val userPreferencesRepository = UserPreferencesRepository(applicationContext)
 

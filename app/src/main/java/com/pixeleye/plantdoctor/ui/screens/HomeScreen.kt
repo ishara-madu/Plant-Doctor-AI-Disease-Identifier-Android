@@ -72,8 +72,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -94,6 +96,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.SubcomposeAsyncImage
 import com.pixeleye.plantdoctor.data.api.PlantScanDto
+import com.pixeleye.plantdoctor.ui.components.AdmobBanner
 import com.pixeleye.plantdoctor.viewmodel.HomeUiState
 import java.text.SimpleDateFormat
 import java.time.ZonedDateTime
@@ -141,6 +144,7 @@ fun HomeScreen(
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    var isPremium by remember { mutableStateOf(false) }
 
     // Auto-reload history every time this screen resumes (e.g. navigating back from ResultScreen)
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -231,6 +235,11 @@ fun HomeScreen(
                     onScanPlantClick()
                 }
             })
+        },
+        bottomBar = {
+            if (!isPremium) {
+                AdmobBanner()
+            }
         },
         containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
