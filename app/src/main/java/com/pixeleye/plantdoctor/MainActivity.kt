@@ -48,6 +48,7 @@ import com.pixeleye.plantdoctor.viewmodel.HomeViewModel
 import com.pixeleye.plantdoctor.viewmodel.PlantDiagnosisViewModel
 import com.pixeleye.plantdoctor.viewmodel.SettingsViewModel
 import com.pixeleye.plantdoctor.utils.LocationHelper
+import com.pixeleye.plantdoctor.utils.ScanQuotaManager
 import com.pixeleye.plantdoctor.data.local.AppDatabase
 import com.pixeleye.plantdoctor.data.api.PlantScanRepository
 import com.pixeleye.plantdoctor.data.api.SupabaseClientProvider
@@ -133,6 +134,7 @@ fun PlantDoctorNavHost(
         )
     }
     val repository = remember { PlantScanRepository(supabaseClient, database.historyDao()) }
+    val scanQuotaManager = remember { ScanQuotaManager(context) }
 
     val diagnosisViewModel: PlantDiagnosisViewModel = viewModel(
         factory = PlantDiagnosisViewModel.Factory(userPreferencesRepository, repository)
@@ -242,6 +244,8 @@ fun PlantDoctorNavHost(
 
         composable("camera") {
             CameraScreen(
+                scanQuotaManager = scanQuotaManager,
+                isPremium = prefs.isPremium,
                 onImageCaptured = { uri ->
                     Log.d("PlantDoctor", "Image captured: $uri")
                     diagnosisViewModel.resetState()

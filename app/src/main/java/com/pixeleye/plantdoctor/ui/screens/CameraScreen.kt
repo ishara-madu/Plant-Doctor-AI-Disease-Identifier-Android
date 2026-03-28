@@ -1,6 +1,7 @@
 package com.pixeleye.plantdoctor.ui.screens
 
 import android.Manifest
+import android.app.Activity
 import android.content.pm.PackageManager
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -18,7 +19,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,16 +32,20 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.Button
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -49,6 +53,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -58,7 +63,6 @@ import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.vector.ImageVector
-
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
@@ -66,13 +70,21 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import com.google.android.gms.ads.interstitial.InterstitialAd
+import com.google.android.gms.ads.rewarded.RewardedAd
+import com.pixeleye.plantdoctor.utils.AdMobUtils
 import com.pixeleye.plantdoctor.utils.CameraUtils
+import com.pixeleye.plantdoctor.utils.ScanQuotaManager
+import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 
 // ── Public entry point ──────────────────────────────────────────
 @Composable
 fun CameraScreen(
+    scanQuotaManager: ScanQuotaManager,
+    isPremium: Boolean,
     onImageCaptured: (Uri) -> Unit,
     onError: (String) -> Unit,
     onCancel: () -> Unit
@@ -101,6 +113,8 @@ fun CameraScreen(
 
     if (hasCameraPermission) {
         CameraContent(
+            scanQuotaManager = scanQuotaManager,
+            isPremium = isPremium,
             onImageCaptured = onImageCaptured,
             onError = onError,
             onCancel = onCancel
@@ -118,17 +132,41 @@ fun CameraScreen(
 // ── Main camera UI ──────────────────────────────────────────────
 @Composable
 private fun CameraContent(
+    scanQuotaManager: ScanQuotaManager,
+    isPremium: Boolean,
     onImageCaptured: (Uri) -> Unit,
     onError: (String) -> Unit,
     onCancel: () -> Unit
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
+    val scope = rememberCoroutineScope()
 
     val previewView = remember { PreviewView(context) }
     var imageCapture by remember { mutableStateOf<ImageCapture?>(null) }
     var camera by remember { mutableStateOf<Camera?>(null) }
     var isCapturing by remember { mutableStateOf(false) }
+
+    // ── Scan quota state ──────────────────────────────────────
+    val todayScanCount by scanQuotaManager.todayScanCount
+        .collectAsStateWithLifecycle(initialValue = 0)
+
+    // ── Ad state ──────────────────────────────────────────────
+    var interstitialAd by remember { mutableStateOf<InterstitialAd?>(null) }
+    var rewardedAd by remember { mutableStateOf<RewardedAd?>(null) }
+    var isLoadingRewardedAd by remember { mutableStateOf(false) }
+    var showOutOfScansDialog by remember { mutableStateOf(false) }
+    var pendingUri by remember { mutableStateOf<Uri?>(null) }
+
+    // Pre-load interstitial ad on first composition
+    LaunchedEffect(Unit) {
+        AdMobUtils.initialize(context)
+        AdMobUtils.loadInterstitialAd(
+            context = context,
+            onAdLoaded = { ad -> interstitialAd = ad },
+            onAdFailedToLoad = { }
+        )
+    }
 
     // ── Focus ring state ────────────────────────────────────────
     // null = hidden, non-null Offset = show ring at these native pixel coords
@@ -156,6 +194,46 @@ private fun CameraContent(
     ) { uri ->
         if (uri != null) {
             capturedUri = uri
+        }
+    }
+
+    // ── Proceed with analysis after ad or quota check ────────────
+    fun proceedToAnalysis(uri: Uri) {
+        scope.launch {
+            scanQuotaManager.incrementScanCount()
+            val ad = interstitialAd
+            if (ad != null) {
+                val activity = context as? Activity
+                if (activity != null) {
+                    AdMobUtils.showInterstitialAd(
+                        activity = activity,
+                        ad = ad,
+                        onAdDismissed = {
+                            interstitialAd = null
+                            onImageCaptured(uri)
+                            AdMobUtils.loadInterstitialAd(
+                                context = context,
+                                onAdLoaded = { newAd -> interstitialAd = newAd },
+                                onAdFailedToLoad = { }
+                            )
+                        }
+                    )
+                } else {
+                    onImageCaptured(uri)
+                }
+            } else {
+                onImageCaptured(uri)
+            }
+        }
+    }
+
+    // ── Handle confirm action with quota logic ───────────────────
+    fun onConfirmImage(uri: Uri) {
+        if (isPremium || todayScanCount < 3) {
+            proceedToAnalysis(uri)
+        } else {
+            pendingUri = uri
+            showOutOfScansDialog = true
         }
     }
 
@@ -205,7 +283,7 @@ private fun CameraContent(
             ConfirmationContent(
                 uri = capturedUri!!,
                 onRetake = { capturedUri = null },
-                onConfirm = { onImageCaptured(capturedUri!!) }
+                onConfirm = { onConfirmImage(capturedUri!!) }
             )
         } else {
             // ═══════════════════════════════════════════════════════
@@ -355,6 +433,98 @@ private fun CameraContent(
                 // Invisible spacer to keep shutter centered
                 Spacer(modifier = Modifier.size(52.dp))
             }
+        }
+
+        // ── Out of Scans Dialog ───────────────────────────────────
+        if (showOutOfScansDialog) {
+            AlertDialog(
+                onDismissRequest = {
+                    showOutOfScansDialog = false
+                    pendingUri = null
+                },
+                icon = {
+                    Icon(
+                        imageVector = Icons.Default.PlayArrow,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(32.dp)
+                    )
+                },
+                title = {
+                    Text(
+                        text = "Out of free scans!",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                    )
+                },
+                text = {
+                    Text(
+                        text = "You've used all 3 free scans today. Watch an ad to unlock 1 more scan today.",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            showOutOfScansDialog = false
+                            isLoadingRewardedAd = true
+                            val activity = context as? Activity
+                            if (activity != null) {
+                                AdMobUtils.loadRewardedAd(
+                                    context = context,
+                                    onAdLoaded = { ad ->
+                                        isLoadingRewardedAd = false
+                                        rewardedAd = ad
+                                        AdMobUtils.showRewardedAd(
+                                            activity = activity,
+                                            rewardedAd = ad,
+                                            onUserEarnedReward = {
+                                                scope.launch {
+                                                    scanQuotaManager.grantExtraScan(todayScanCount)
+                                                }
+                                            },
+                                            onAdDismissed = {
+                                                rewardedAd = null
+                                                pendingUri?.let { uri ->
+                                                    pendingUri = null
+                                                    proceedToAnalysis(uri)
+                                                }
+                                            }
+                                        )
+                                    },
+                                    onAdFailedToLoad = {
+                                        isLoadingRewardedAd = false
+                                        pendingUri = null
+                                        onError("Failed to load ad. Please try again.")
+                                    }
+                                )
+                            }
+                        },
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        if (isLoadingRewardedAd) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(18.dp),
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                strokeWidth = 2.dp
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                        }
+                        Text("Watch Ad")
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = {
+                            showOutOfScansDialog = false
+                            pendingUri = null
+                        }
+                    ) {
+                        Text("Cancel")
+                    }
+                },
+                shape = RoundedCornerShape(20.dp)
+            )
         }
     }
 }

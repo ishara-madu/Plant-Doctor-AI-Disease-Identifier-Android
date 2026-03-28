@@ -105,6 +105,9 @@ dependencies {
     // DataStore Preferences
     implementation(libs.androidx.datastore.preferences)
 
+    // Google Mobile Ads
+    implementation(libs.play.services.ads)
+
     // Credential Manager + Google Sign-In
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play)

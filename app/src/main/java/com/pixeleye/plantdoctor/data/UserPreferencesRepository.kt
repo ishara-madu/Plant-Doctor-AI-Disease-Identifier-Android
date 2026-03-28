@@ -19,7 +19,8 @@ data class UserPreferences(
     val country: String = "",
     val language: String = "",
     val selectedAiLanguage: String = "English",
-    val onboardingCompleted: Boolean = false
+    val onboardingCompleted: Boolean = false,
+    val isPremium: Boolean = false
 )
 
 class UserPreferencesRepository(private val context: Context) {
@@ -29,6 +30,7 @@ class UserPreferencesRepository(private val context: Context) {
         val USER_LANGUAGE = stringPreferencesKey("user_language")
         val SELECTED_AI_LANGUAGE = stringPreferencesKey("selected_ai_language")
         val ONBOARDING_COMPLETED = booleanPreferencesKey("onboarding_completed")
+        val IS_PREMIUM = booleanPreferencesKey("is_premium")
     }
 
     val userPreferences: Flow<UserPreferences> = context.dataStore.data
@@ -44,7 +46,8 @@ class UserPreferencesRepository(private val context: Context) {
                 country = preferences[Keys.USER_COUNTRY] ?: "",
                 language = preferences[Keys.USER_LANGUAGE] ?: "",
                 selectedAiLanguage = preferences[Keys.SELECTED_AI_LANGUAGE] ?: "English",
-                onboardingCompleted = preferences[Keys.ONBOARDING_COMPLETED] ?: false
+                onboardingCompleted = preferences[Keys.ONBOARDING_COMPLETED] ?: false,
+                isPremium = preferences[Keys.IS_PREMIUM] ?: false
             )
         }
 
