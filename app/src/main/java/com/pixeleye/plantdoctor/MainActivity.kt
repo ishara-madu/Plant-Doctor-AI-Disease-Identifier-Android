@@ -1,0 +1,407 @@
+package com.pixeleye.plantdoctor
+
+import android.graphics.BitmapFactory
+import android.net.Uri
+import android.os.Bundle
+import android.util.Log
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.pixeleye.plantdoctor.data.UserPreferencesRepository
+import com.pixeleye.plantdoctor.data.api.PlantScanDto
+import com.pixeleye.plantdoctor.ui.screens.CameraScreen
+import com.pixeleye.plantdoctor.ui.screens.HomeScreen
+import com.pixeleye.plantdoctor.ui.screens.LoginScreen
+import com.pixeleye.plantdoctor.ui.screens.OnboardingScreen
+import com.pixeleye.plantdoctor.ui.screens.ResultScreen
+import com.pixeleye.plantdoctor.ui.screens.SettingsScreen
+import com.pixeleye.plantdoctor.ui.theme.PlantDoctorTheme
+import com.pixeleye.plantdoctor.viewmodel.AuthState
+import com.pixeleye.plantdoctor.viewmodel.AuthViewModel
+import com.pixeleye.plantdoctor.viewmodel.DiagnosisState
+import com.pixeleye.plantdoctor.viewmodel.HomeViewModel
+import com.pixeleye.plantdoctor.viewmodel.PlantDiagnosisViewModel
+import com.pixeleye.plantdoctor.viewmodel.SettingsViewModel
+import com.pixeleye.plantdoctor.utils.LocationHelper
+import com.pixeleye.plantdoctor.data.local.AppDatabase
+import com.pixeleye.plantdoctor.data.api.PlantScanRepository
+import com.pixeleye.plantdoctor.data.api.SupabaseClientProvider
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+
+        val userPreferencesRepository = UserPreferencesRepository(applicationContext)
+
+        setContent {
+            PlantDoctorTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    PlantDoctorApp(userPreferencesRepository = userPreferencesRepository)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun PlantDoctorApp(
+    authViewModel: AuthViewModel = viewModel(),
+    userPreferencesRepository: UserPreferencesRepository
+) {
+    val authState by authViewModel.authState.collectAsStateWithLifecycle()
+
+    when (authState) {
+        is AuthState.Loading -> {
+            LoadingSplash()
+        }
+
+        is AuthState.Authenticated -> {
+            val prefs by userPreferencesRepository.userPreferences
+                .collectAsStateWithLifecycle(
+                    initialValue = com.pixeleye.plantdoctor.data.UserPreferences()
+                )
+
+            val onboardingComplete = prefs.onboardingCompleted
+
+            if (onboardingComplete) {
+                PlantDoctorNavHost(
+                    userPreferencesRepository = userPreferencesRepository,
+                    onSignOut = { authViewModel.signOut() }
+                )
+            } else {
+                OnboardingRoute(
+                    userPreferencesRepository = userPreferencesRepository
+                )
+            }
+        }
+
+        is AuthState.Unauthenticated -> {
+            LoginScreen(
+                isLoading = false,
+                errorMessage = null,
+                onGoogleSignIn = { authViewModel.signInWithGoogle() }
+            )
+        }
+
+        is AuthState.Error -> {
+            LoginScreen(
+                isLoading = false,
+                errorMessage = (authState as AuthState.Error).message,
+                onGoogleSignIn = {
+                    authViewModel.clearError()
+                    authViewModel.signInWithGoogle()
+                }
+            )
+        }
+    }
+}
+
+@Composable
+private fun OnboardingRoute(
+    userPreferencesRepository: UserPreferencesRepository
+) {
+    val scope = rememberCoroutineScope()
+    var isSaving by remember { mutableStateOf(false) }
+
+    OnboardingScreen(
+        onSaveAndContinue = { country, language, aiLanguage ->
+            isSaving = true
+            scope.launch {
+                userPreferencesRepository.saveUserPreferences(
+                    country = country,
+                    language = language,
+                    selectedAiLanguage = aiLanguage,
+                    onboardingCompleted = true
+                )
+                // The preference Flow will update automatically,
+                // which triggers recomposition and shows PlantDoctorNavHost
+            }
+        },
+        isSaving = isSaving
+    )
+}
+
+@Composable
+private fun LoadingSplash() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        CircularProgressIndicator(
+            modifier = Modifier.size(48.dp),
+            color = MaterialTheme.colorScheme.primary,
+            strokeWidth = 4.dp
+        )
+    }
+}
+
+@Composable
+fun PlantDoctorNavHost(
+    userPreferencesRepository: UserPreferencesRepository,
+    onSignOut: () -> Unit = {}
+) {
+    val navController = rememberNavController()
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+
+    val database = remember { AppDatabase.getDatabase(context) }
+    val supabaseClient = remember {
+        SupabaseClientProvider.getClient(
+            supabaseUrl = BuildConfig.SUPABASE_URL,
+            supabaseKey = BuildConfig.SUPABASE_ANON_KEY
+        )
+    }
+    val repository = remember { PlantScanRepository(supabaseClient, database.historyDao()) }
+
+    val diagnosisViewModel: PlantDiagnosisViewModel = viewModel(
+        factory = PlantDiagnosisViewModel.Factory(userPreferencesRepository, repository)
+    )
+    val homeViewModel: HomeViewModel = viewModel(
+        factory = HomeViewModel.Factory(repository)
+    )
+
+    val homeUiState by homeViewModel.uiState.collectAsStateWithLifecycle()
+    val diagnosisState by diagnosisViewModel.diagnosisState.collectAsStateWithLifecycle()
+    val prefs by userPreferencesRepository.userPreferences.collectAsStateWithLifecycle(initialValue = com.pixeleye.plantdoctor.data.UserPreferences())
+
+    NavHost(
+        navController = navController,
+        startDestination = "home"
+    ) {
+        composable("home") {
+            HomeScreen(
+                uiState = homeUiState,
+                selectedAiLanguage = prefs.selectedAiLanguage,
+                onScanPlantClick = {
+                    navController.navigate("camera")
+                },
+                onViewResult = { scan: PlantScanDto ->
+                    val encodedUrl = Uri.encode(scan.imageUrl)
+                    val encodedTitle = Uri.encode(scan.diseaseTitle)
+                    val encodedPlan = Uri.encode(scan.treatmentPlan)
+                    navController.navigate(
+                        "result?imageUrl=$encodedUrl&title=$encodedTitle&plan=$encodedPlan"
+                    )
+                },
+                onDeleteScan = { scan ->
+                    homeViewModel.deleteScan(scan)
+                },
+                onRetry = {
+                    homeViewModel.fetchHistory()
+                },
+                onOpenSettings = {
+                    navController.navigate("settings")
+                },
+                onResume = {
+                    homeViewModel.fetchHistory()
+                }
+            )
+        }
+
+        composable("camera") {
+            CameraScreen(
+                onImageCaptured = { uri ->
+                    Log.d("PlantDoctor", "Image captured: $uri")
+                    diagnosisViewModel.resetState()
+                    val encodedUri = Uri.encode(uri.toString())
+                    navController.navigate("result?imageUri=$encodedUri") {
+                        popUpTo("camera") { inclusive = true }
+                    }
+                },
+                onError = { errorMessage ->
+                    Log.e("PlantDoctor", "Camera error: $errorMessage")
+                    try {
+                        navController.popBackStack()
+                    } catch (e: Exception) {
+                        Log.e("PlantDoctor", "Navigation error on camera error: ${e.message}")
+                    }
+                },
+                onCancel = {
+                    try {
+                        navController.popBackStack()
+                    } catch (e: Exception) {
+                        Log.e("PlantDoctor", "Navigation error on cancel: ${e.message}")
+                    }
+                }
+            )
+        }
+
+        // Fresh capture result (image from camera → Gemini analysis)
+        composable(
+            route = "result?imageUri={imageUri}",
+            arguments = listOf(
+                navArgument("imageUri") {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                }
+            )
+        ) { backStackEntry ->
+            val imageUriString = backStackEntry.arguments?.getString("imageUri")
+            val imageUri = imageUriString?.let {
+                try { Uri.parse(it) } catch (e: Exception) {
+                    Log.e("PlantDoctor", "Failed to parse URI: $it", e)
+                    null
+                }
+            }
+
+            LaunchedEffect(imageUriString) {
+                if (imageUri != null && diagnosisState is DiagnosisState.Idle) {
+                    try {
+                        Log.d("PlantDoctor", "Starting image decode for URI: $imageUri")
+                        val bitmap = withContext(Dispatchers.IO) {
+                            val inputStream = context.contentResolver.openInputStream(imageUri)
+                            val decoded = BitmapFactory.decodeStream(inputStream)
+                            inputStream?.close()
+                            decoded
+                        }
+                        if (bitmap != null) {
+                            Log.d("PlantDoctor", "Bitmap decoded: ${bitmap.width}x${bitmap.height}")
+                            val locationStr = LocationHelper.getRobustLocationString(context)
+                            diagnosisViewModel.analyzePlant(bitmap, imageUri = imageUri, locationStr = locationStr)
+                        } else {
+                            Log.e("PlantDoctor", "Failed to decode bitmap from URI: $imageUri")
+                        }
+                    } catch (e: Exception) {
+                        Log.e("PlantDoctor", "Error decoding image: ${e.message}", e)
+                    }
+                }
+            }
+
+            val isLoading = diagnosisState is DiagnosisState.Loading
+            val diagnosisData = when (val state = diagnosisState) {
+                is DiagnosisState.Success -> state.result
+                is DiagnosisState.Error -> com.pixeleye.plantdoctor.data.api.DiagnosisResponse("Analysis failed: ${state.message}", emptyList())
+                else -> null
+            }
+
+            ResultScreen(
+                imageUri = imageUri,
+                diagnosisTitle = "Plant Analysis",
+                diagnosisData = diagnosisData,
+                isLoading = isLoading,
+                onBack = {
+                    diagnosisViewModel.resetState()
+                    homeViewModel.fetchHistory()
+                    try {
+                        navController.popBackStack()
+                    } catch (e: Exception) {
+                        Log.e("PlantDoctor", "Navigation error on back: ${e.message}")
+                    }
+                },
+                onNewScan = {
+                    diagnosisViewModel.resetState()
+                    try {
+                        navController.navigate("camera") {
+                            popUpTo("home")
+                        }
+                    } catch (e: Exception) {
+                        Log.e("PlantDoctor", "Navigation error on new scan: ${e.message}")
+                    }
+                }
+            )
+        }
+
+        // History item result (pre-saved data from Supabase)
+        composable(
+            route = "result?imageUrl={imageUrl}&title={title}&plan={plan}",
+            arguments = listOf(
+                navArgument("imageUrl") { type = NavType.StringType; nullable = true; defaultValue = null },
+                navArgument("title") { type = NavType.StringType; nullable = true; defaultValue = null },
+                navArgument("plan") { type = NavType.StringType; nullable = true; defaultValue = null }
+            )
+        ) { backStackEntry ->
+            val imageUrl = backStackEntry.arguments?.getString("imageUrl")
+            val title = backStackEntry.arguments?.getString("title") ?: "Plant Analysis"
+            val plan = backStackEntry.arguments?.getString("plan") ?: ""
+
+            // Reconstruct DiagnosisResponse from history plain text
+            val legacyPlanParts = plan.split("\n\nAction Plan:\n")
+            val legacySummary = legacyPlanParts.getOrNull(0) ?: plan
+            val legacyList = legacyPlanParts.getOrNull(1)?.lines()?.map { it.removePrefix("- ") } ?: emptyList()
+            val diagnosisData = com.pixeleye.plantdoctor.data.api.DiagnosisResponse(summary = legacySummary, actionPlan = legacyList)
+
+            val imageUri = imageUrl?.let {
+                try { Uri.parse(it) } catch (_: Exception) { null }
+            }
+
+            ResultScreen(
+                imageUri = imageUri,
+                diagnosisTitle = title,
+                diagnosisData = diagnosisData,
+                isLoading = false,
+                onBack = {
+                    try {
+                        navController.popBackStack()
+                    } catch (e: Exception) {
+                        Log.e("PlantDoctor", "Navigation error on back: ${e.message}")
+                    }
+                },
+                onNewScan = {
+                    try {
+                        navController.navigate("camera") {
+                            popUpTo("home")
+                        }
+                    } catch (e: Exception) {
+                        Log.e("PlantDoctor", "Navigation error on new scan: ${e.message}")
+                    }
+                }
+            )
+        }
+
+        composable("settings") {
+            val settingsViewModel: SettingsViewModel = viewModel(
+                factory = SettingsViewModel.Factory(userPreferencesRepository)
+            )
+            val currentPrefs by settingsViewModel.currentPrefs.collectAsStateWithLifecycle()
+            val isSaving by settingsViewModel.isSaving.collectAsStateWithLifecycle()
+
+            SettingsScreen(
+                currentPrefs = currentPrefs,
+                isSaving = isSaving,
+                onSave = { country, language, aiLanguage ->
+                    settingsViewModel.savePreferences(country, language, aiLanguage)
+                },
+                onLogout = onSignOut,
+                onBack = {
+                    try {
+                        navController.popBackStack()
+                    } catch (e: Exception) {
+                        Log.e("PlantDoctor", "Navigation error on back: ${e.message}")
+                    }
+                }
+            )
+        }
+    }
+}
