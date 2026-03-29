@@ -11,6 +11,7 @@ import com.revenuecat.purchases.PurchaseParams
 import com.revenuecat.purchases.Purchases
 import com.revenuecat.purchases.PurchasesConfiguration
 import com.revenuecat.purchases.getOfferingsWith
+import com.revenuecat.purchases.getCustomerInfoWith
 import com.revenuecat.purchases.logInWith
 import com.revenuecat.purchases.purchaseWith
 import com.revenuecat.purchases.restorePurchasesWith
@@ -132,6 +133,22 @@ class BillingManager {
                 val isPro = isProActive(customerInfo)
                 Log.d(TAG, "Premium status: $isPro")
                 onSuccess(isPro)
+            }
+        )
+    }
+
+    fun getCustomerInfo(
+        onSuccess: (CustomerInfo) -> Unit,
+        onError: (String) -> Unit
+    ) {
+        Purchases.sharedInstance.getCustomerInfoWith(
+            onError = { error ->
+                Log.e(TAG, "Failed to get customer info: ${error.message}")
+                onError(error.message ?: "Failed to get customer info.")
+            },
+            onSuccess = { customerInfo ->
+                Log.d(TAG, "Customer info fetched. Pro active: ${isProActive(customerInfo)}")
+                onSuccess(customerInfo)
             }
         )
     }

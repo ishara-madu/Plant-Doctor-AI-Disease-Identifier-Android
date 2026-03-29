@@ -1,5 +1,6 @@
 package com.pixeleye.plantdoctor.viewmodel
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
@@ -18,6 +19,8 @@ import com.pixeleye.plantdoctor.data.api.PlantScanDto
 import com.pixeleye.plantdoctor.data.api.SupabaseClientProvider
 import com.pixeleye.plantdoctor.data.api.PlantScanRepository
 import com.pixeleye.plantdoctor.data.api.UserQuotaRepository
+import com.pixeleye.plantdoctor.utils.compressImageHighQuality
+import com.pixeleye.plantdoctor.utils.decodeDownscaledBitmap
 import io.github.jan.supabase.gotrue.auth
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.storage.storage
@@ -134,12 +137,21 @@ CRITICAL SAFETY RULE: If you recommend any chemical treatments, pesticides, or f
         }
     }
 
-    fun analyzePlant(image: Bitmap, userNotes: String = "", imageUri: Uri? = null, locationStr: String? = null) {
+    fun analyzePlant(image: Bitmap, userNotes: String = "", imageUri: Uri? = null, locationStr: String? = null, context: Context? = null) {
         viewModelScope.launch {
             _diagnosisState.value = DiagnosisState.Loading
             _uploadState.value = UploadState.Idle
 
             try {
+                // Downscale image for Gemini if context+uri available (saves bandwidth, faster AI response)
+                val inputImage = if (context != null && imageUri != null) {
+                    withContext(Dispatchers.IO) {
+                        decodeDownscaledBitmap(context, imageUri)
+                    }
+                } else {
+                    image
+                }
+
                 // Read saved preferences to personalize the prompt
                 val prefs = userPreferencesRepository.userPreferences.first()
                 val country = prefs.country
@@ -171,7 +183,7 @@ CRITICAL SAFETY RULE: If you recommend any chemical treatments, pesticides, or f
                 Log.d(TAG, "Analyzing with context — locationStr=$locationStr, fallbackCountry=$country, aiLanguage=$aiLanguage")
 
                 val inputContent = content {
-                    image(image)
+                    image(inputImage)
                     text(fullPrompt)
                 }
 
@@ -223,7 +235,8 @@ CRITICAL SAFETY RULE: If you recommend any chemical treatments, pesticides, or f
 
                 // Upload to Supabase in background (only for confirmed plants)
                 uploadToSupabase(
-                    image = image,
+                    context = context,
+                    image = inputImage,
                     imageUri = imageUri,
                     diseaseTitle = "Plant Analysis",
                     treatmentPlan = stringifiedTreatmentPlan
@@ -239,6 +252,7 @@ CRITICAL SAFETY RULE: If you recommend any chemical treatments, pesticides, or f
     }
 
     private fun uploadToSupabase(
+        context: Context?,
         image: Bitmap,
         imageUri: Uri?,
         diseaseTitle: String,
@@ -252,7 +266,11 @@ CRITICAL SAFETY RULE: If you recommend any chemical treatments, pesticides, or f
                     ?: throw Exception("User is not logged in. Cannot upload scan.")
 
                 val imageBytes = withContext(Dispatchers.IO) {
-                    compressBitmapToJpeg(image)
+                    if (context != null && imageUri != null) {
+                        compressImageHighQuality(context, imageUri)
+                    } else {
+                        compressBitmapToJpeg(image)
+                    }
                 }
 
                 val fileName = "${UUID.randomUUID()}.jpg"

@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 
 class PremiumViewModel(
     private val billingManager: BillingManager,
@@ -30,37 +31,78 @@ class PremiumViewModel(
     private var cachedPackages: Map<String, Package>? = null
 
     init {
-        checkPremiumStatus()
-        prefetchOfferings()
-        loadPremiumFromSupabase()
-    }
-
-    fun checkPremiumStatus() {
         viewModelScope.launch {
-            billingManager.checkPremiumStatus(
-                onSuccess = { isPro ->
-                    _isPremium.value = isPro
-                },
-                onError = { error ->
-                    Log.e(TAG, "Premium check failed: $error")
-                }
-            )
+            try {
+                syncPremiumStatus()
+            } catch (e: Exception) {
+                Log.e(TAG, "Initial premium sync failed", e)
+            }
         }
+        prefetchOfferings()
     }
 
-    private fun loadPremiumFromSupabase() {
-        userQuotaRepository?.let { repo ->
-            viewModelScope.launch {
-                try {
-                    val isPremiumFromDb = repo.isPremium()
-                    if (isPremiumFromDb) {
-                        _isPremium.value = true
-                        Log.d(TAG, "Premium status loaded from Supabase: true")
+    /**
+     * Suspend function that awaits Supabase premium check and RevenueCat fallback.
+     * Call from LaunchedEffect — blocks until the sync completes.
+     */
+    suspend fun syncPremiumStatus() {
+        val repo = userQuotaRepository
+        if (repo == null) {
+            // No repo — check RevenueCat directly and await
+            val isPro = suspendCancellableCoroutine<Boolean> { cont ->
+                    billingManager.checkPremiumStatus(
+                        onSuccess = { cont.resumeWith(Result.success(it)) },
+                        onError = {
+                            Log.e(TAG, "RevenueCat premium check failed: $it")
+                            cont.resumeWith(Result.success(false))
+                        }
+                    )
+            }
+            _isPremium.value = isPro
+            return
+        }
+
+        try {
+            // Step 1: Supabase as source of truth
+            val supabasePremium = repo.isPremium()
+            _isPremium.value = supabasePremium
+            Log.d(TAG, "Supabase premium status: $supabasePremium")
+
+            // Step 2: RevenueCat fallback if Supabase says false
+            if (!supabasePremium) {
+                val isProFromRc = suspendCancellableCoroutine<Boolean> { cont ->
+                    billingManager.getCustomerInfo(
+                        onSuccess = { customerInfo ->
+                            cont.resumeWith(Result.success(billingManager.isProActive(customerInfo)))
+                        },
+                        onError = {
+                            Log.e(TAG, "RevenueCat fallback failed: $it")
+                            cont.resumeWith(Result.success(false))
+                        }
+                    )
+                }
+                if (isProFromRc) {
+                    Log.d(TAG, "RevenueCat says PRO but Supabase says false. Backfilling.")
+                    _isPremium.value = true
+                    try {
+                        repo.upgradeToPremium()
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Failed to backfill Supabase from RevenueCat", e)
                     }
-                } catch (e: Exception) {
-                    Log.e(TAG, "Failed to load premium status from Supabase", e)
                 }
             }
+        } catch (e: Exception) {
+            Log.e(TAG, "Supabase premium check failed, falling back to RevenueCat", e)
+            val isPro = suspendCancellableCoroutine<Boolean> { cont ->
+                billingManager.checkPremiumStatus(
+                    onSuccess = { cont.resumeWith(Result.success(it)) },
+                    onError = {
+                        Log.e(TAG, "RevenueCat fallback also failed: $it")
+                        cont.resumeWith(Result.success(false))
+                    }
+                )
+            }
+            _isPremium.value = isPro
         }
     }
 

@@ -200,11 +200,13 @@ fun PlantDoctorNavHost(
                     if (authState is AuthState.Error) {
                         authViewModel.clearError()
                     }
-                    authViewModel.signInWithGoogle()
+                    authViewModel.signInWithGoogle(onPostAuth = {
+                        premiumViewModel.syncPremiumStatus()
+                    })
                 }
             )
 
-            // After successful sign-in, navigate to splash to re-evaluate routing
+            // After successful sign-in, navigate (state update is now delayed until sync is complete)
             LaunchedEffect(authState) {
                 if (authState is AuthState.Authenticated) {
                     navController.navigate("splash") {
@@ -296,6 +298,9 @@ fun PlantDoctorNavHost(
                     } catch (e: Exception) {
                         Log.e("PlantDoctor", "Navigation error on cancel: ${e.message}")
                     }
+                },
+                onOpenPaywall = {
+                    navController.navigate("paywall")
                 }
             )
         }
@@ -337,7 +342,7 @@ fun PlantDoctorNavHost(
                         if (bitmap != null) {
                             Log.d("PlantDoctor", "Bitmap decoded: ${bitmap.width}x${bitmap.height}")
                             val locationStr = LocationHelper.getRobustLocationString(context)
-                            diagnosisViewModel.analyzePlant(bitmap, imageUri = imageUri, locationStr = locationStr)
+                            diagnosisViewModel.analyzePlant(bitmap, imageUri = imageUri, locationStr = locationStr, context = context)
                         } else {
                             Log.e("PlantDoctor", "Failed to decode bitmap from URI: $imageUri")
                         }
@@ -447,6 +452,8 @@ fun PlantDoctorNavHost(
                 onLogout = {
                     premiumViewModel.setPremium(false)
                     scope.launch {
+                        userPreferencesRepository.clearPreferences()
+                        database.historyDao().clearAll()
                         authViewModel.signOut().await()
                         navController.navigate("login") {
                             popUpTo(0) { inclusive = true }

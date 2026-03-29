@@ -92,7 +92,8 @@ fun CameraScreen(
     isPremium: Boolean = false,
     onImageCaptured: (Uri) -> Unit,
     onError: (String) -> Unit,
-    onCancel: () -> Unit
+    onCancel: () -> Unit,
+    onOpenPaywall: () -> Unit = {}
 ) {
     val context = LocalContext.current
 
@@ -122,7 +123,8 @@ fun CameraScreen(
             isPremium = isPremium,
             onImageCaptured = onImageCaptured,
             onError = onError,
-            onCancel = onCancel
+            onCancel = onCancel,
+            onOpenPaywall = onOpenPaywall
         )
     } else {
         PermissionDeniedContent(
@@ -141,7 +143,8 @@ private fun CameraContent(
     isPremium: Boolean,
     onImageCaptured: (Uri) -> Unit,
     onError: (String) -> Unit,
-    onCancel: () -> Unit
+    onCancel: () -> Unit,
+    onOpenPaywall: () -> Unit
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -157,6 +160,8 @@ private fun CameraContent(
 
     // ── Quota & Rewarded Ad state ─────────────────────────────
     var showLimitDialog by remember { mutableStateOf(false) }
+    var showHardLimitDialog by remember { mutableStateOf(false) }
+    var currentQuotaCount by remember { mutableStateOf(0) }
     var rewardedAd by remember { mutableStateOf<RewardedAd?>(null) }
     val activity = context as? android.app.Activity
 
@@ -248,11 +253,25 @@ private fun CameraContent(
                     scope.launch {
                         try {
                             val currentQuota = diagnosisViewModel.checkQuota()
-                            if (isPremium || currentQuota < 3) {
-                                diagnosisViewModel.incrementQuota()
-                                onImageCaptured(capturedUri!!)
-                            } else {
-                                showLimitDialog = true
+                            currentQuotaCount = currentQuota
+                            when {
+                                isPremium -> {
+                                    // Premium users: unlimited, no quota tracking needed
+                                    onImageCaptured(capturedUri!!)
+                                }
+                                currentQuota < 3 -> {
+                                    // Tier 1: Free scans available
+                                    diagnosisViewModel.incrementQuota()
+                                    onImageCaptured(capturedUri!!)
+                                }
+                                currentQuota < 6 -> {
+                                    // Tier 2: Free scans exhausted, rewarded ad unlocks available
+                                    showLimitDialog = true
+                                }
+                                else -> {
+                                    // Tier 3: Hard limit reached
+                                    showHardLimitDialog = true
+                                }
                             }
                         } catch (e: Exception) {
                             // If quota check fails, allow the scan to proceed
@@ -411,19 +430,20 @@ private fun CameraContent(
             }
         }
 
-        // ── Daily Limit Reached Dialog ──────────────────────────
+        // ── Rewarded Ad Dialog (Tier 2) ───────────────────────
         if (showLimitDialog) {
+            val remaining = (6 - currentQuotaCount).coerceAtLeast(0)
             AlertDialog(
                 onDismissRequest = { showLimitDialog = false },
                 title = {
                     Text(
-                        text = "Daily Limit Reached",
+                        text = "Free Scans Exhausted",
                         style = MaterialTheme.typography.headlineSmall
                     )
                 },
                 text = {
                     Text(
-                        text = "You have used your 3 free scans for today. Watch a short video ad to unlock 1 more scan!",
+                        text = "Watch a short video ad to unlock an extra scan! ($remaining remaining today)",
                         style = MaterialTheme.typography.bodyMedium
                     )
                 },
@@ -435,20 +455,17 @@ private fun CameraContent(
                                 activity = activity,
                                 ad = rewardedAd,
                                 onRewardEarned = {
-                                    // Reward earned — bypass limit and trigger analysis
                                     rewardedAd = null
                                     scope.launch {
+                                        diagnosisViewModel.incrementQuota()
                                         onImageCaptured(capturedUri!!)
                                     }
-                                    // Preload the next rewarded ad
                                     loadRewardedAd(context) { newAd ->
                                         rewardedAd = newAd
                                     }
                                 },
                                 onAdDismissed = {
-                                    // Ad was dismissed without earning reward
                                     rewardedAd = null
-                                    // Preload the next rewarded ad
                                     loadRewardedAd(context) { newAd ->
                                         rewardedAd = newAd
                                     }
@@ -462,6 +479,38 @@ private fun CameraContent(
                 dismissButton = {
                     TextButton(onClick = { showLimitDialog = false }) {
                         Text("Cancel")
+                    }
+                }
+            )
+        }
+
+        // ── Hard Limit Dialog (Tier 3) ───────────────────────
+        if (showHardLimitDialog) {
+            AlertDialog(
+                onDismissRequest = { showHardLimitDialog = false },
+                title = {
+                    Text(
+                        text = "Daily Limit Reached",
+                        style = MaterialTheme.typography.headlineSmall
+                    )
+                },
+                text = {
+                    Text(
+                        text = "You have used all your free and ad-supported scans for today. Upgrade to PRO for unlimited access!",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                },
+                confirmButton = {
+                    TextButton(onClick = {
+                        showHardLimitDialog = false
+                        onOpenPaywall()
+                    }) {
+                        Text("Upgrade to PRO")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showHardLimitDialog = false }) {
+                        Text("Maybe Later")
                     }
                 }
             )

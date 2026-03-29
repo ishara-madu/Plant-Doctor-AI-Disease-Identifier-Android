@@ -60,7 +60,7 @@ class AuthViewModel(
         }
     }
 
-    fun signInWithGoogle() {
+    fun signInWithGoogle(onPostAuth: suspend () -> Unit) {
         viewModelScope.launch {
             _authState.value = AuthState.Loading
             val context = getApplication<Application>().applicationContext
@@ -68,6 +68,13 @@ class AuthViewModel(
             result.fold(
                 onSuccess = {
                     Log.d(TAG, "Sign-in successful: ${authManager.currentUserEmail}")
+                    
+                    // 1. Await User Data & Premium Status sequentially
+                    // Execution pauses here until the network request returns
+                    onPostAuth()
+                    
+                    // 2. ONLY NOW update the state to trigger navigation
+                    // This ensures HomeScreen observers see the correct 'isPremium' value
                     _authState.value = AuthState.Authenticated
                 },
                 onFailure = { e ->
