@@ -7,6 +7,8 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,6 +30,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ListAlt
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.CheckCircleOutline
+import androidx.compose.material.icons.filled.Eco
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Favorite
@@ -35,6 +38,7 @@ import androidx.compose.material.icons.filled.Grass
 import androidx.compose.material.icons.filled.HealthAndSafety
 import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.LocalFlorist
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.MedicalServices
 import androidx.compose.material.icons.filled.MonitorHeart
 import androidx.compose.material.icons.filled.Shield
@@ -69,9 +73,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -105,7 +111,8 @@ fun ResultScreen(
     showAd: Boolean = false,
     isPremium: Boolean = false,
     onBack: () -> Unit,
-    onNewScan: () -> Unit
+    onNewScan: () -> Unit,
+    onOpenPaywall: () -> Unit = onNewScan
 ) {
     val context = LocalContext.current
     var mInterstitialAd by remember { mutableStateOf<InterstitialAd?>(null) }
@@ -202,7 +209,9 @@ fun ResultScreen(
                 imageUri = imageUri,
                 diagnosisTitle = diagnosisTitle,
                 diagnosisData = diagnosisData,
-                confidence = confidence
+                confidence = confidence,
+                isPremium = isPremium,
+                onOpenPaywall = onOpenPaywall
             )
         }
     }
@@ -257,7 +266,9 @@ private fun ResultContent(
     imageUri: Uri?,
     diagnosisTitle: String,
     diagnosisData: DiagnosisResponse?,
-    confidence: Float?
+    confidence: Float?,
+    isPremium: Boolean,
+    onOpenPaywall: () -> Unit
 ) {
     Column(
         modifier = modifier.verticalScroll(rememberScrollState()),
@@ -278,22 +289,42 @@ private fun ResultContent(
             )
 
             // ── Action Plan Sections ───────────────────────────────
-            if (diagnosisData.actionPlan.isNotEmpty()) {
+            val hasOrganic = diagnosisData.organicTreatments.isNotEmpty()
+            val hasChemical = diagnosisData.chemicalTreatments.isNotEmpty()
+            val hasAnyTreatment = hasOrganic || hasChemical
+
+            if (hasAnyTreatment) {
                 Text(
-                    text = "Action Plan",
+                    text = "Treatment Plan",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)
                 )
 
-                ExpandableSectionCard(
-                    title = "Recommended Treatment",
-                    icon = Icons.Default.MedicalServices,
-                    items = diagnosisData.actionPlan,
-                    isHighlighted = true,
-                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 6.dp)
-                )
+                if (hasOrganic) {
+                    ExpandableSectionCard(
+                        title = "Organic & Natural Treatments",
+                        icon = Icons.Default.Eco,
+                        items = diagnosisData.organicTreatments,
+                        isHighlighted = false,
+                        isPremium = isPremium,
+                        onOpenPaywall = onOpenPaywall,
+                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 6.dp)
+                    )
+                }
+
+                if (hasChemical) {
+                    ExpandableSectionCard(
+                        title = "Chemical Treatments & Fertilizers",
+                        icon = Icons.Default.MedicalServices,
+                        items = diagnosisData.chemicalTreatments,
+                        isHighlighted = true,
+                        isPremium = isPremium,
+                        onOpenPaywall = onOpenPaywall,
+                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 6.dp)
+                    )
+                }
             }
         }
 
@@ -526,6 +557,8 @@ private fun ExpandableSectionCard(
     icon: ImageVector,
     items: List<String>,
     isHighlighted: Boolean = false,
+    isPremium: Boolean = true,
+    onOpenPaywall: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     var expanded by remember { mutableStateOf(true) }
@@ -626,24 +659,76 @@ private fun ExpandableSectionCard(
                 enter = expandVertically(),
                 exit = shrinkVertically()
             ) {
-                Column(
-                    modifier = Modifier.padding(
-                        start = 16.dp,
-                        end = 16.dp,
-                        bottom = 16.dp
-                    ),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    HorizontalDivider(
-                        color = if (isHighlighted) Color.White.copy(alpha = 0.3f) else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f),
-                        modifier = Modifier.padding(bottom = 8.dp)
-                    )
-                    items.forEachIndexed { index, itemText ->
-                        ChecklistRow(
-                            text = itemText,
-                            highlighted = isHighlighted && index == 0,
-                            isOnDarkBackground = isHighlighted
+                val isBlurred = isHighlighted && !isPremium
+
+                Box {
+                    Column(
+                        modifier = Modifier
+                            .padding(
+                                start = 16.dp,
+                                end = 16.dp,
+                                bottom = 16.dp
+                            )
+                            .then(
+                                if (isBlurred) {
+                                    Modifier
+                                        .blur(
+                                            radiusX = 12.dp,
+                                            radiusY = 12.dp
+                                        )
+                                        .pointerInput(Unit) {
+                                            detectTapGestures { }
+                                        }
+                                } else {
+                                    Modifier
+                                }
+                            ),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        HorizontalDivider(
+                            color = if (isHighlighted) Color.White.copy(alpha = 0.3f) else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f),
+                            modifier = Modifier.padding(bottom = 8.dp)
                         )
+                        items.forEachIndexed { index, itemText ->
+                            ChecklistRow(
+                                text = itemText,
+                                highlighted = isHighlighted && index == 0,
+                                isOnDarkBackground = isHighlighted
+                            )
+                        }
+                    }
+
+                    if (isBlurred) {
+                        Box(
+                            modifier = Modifier
+                                .matchParentSize()
+                                .clip(RoundedCornerShape(bottomStart = 18.dp, bottomEnd = 18.dp))
+                                .background(Color.Black.copy(alpha = 0.45f))
+                                .clickable(
+                                    indication = null,
+                                    interactionSource = remember { MutableInteractionSource() }
+                                ) { onOpenPaywall() },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Lock,
+                                    contentDescription = null,
+                                    tint = Color.White,
+                                    modifier = Modifier.size(32.dp)
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(
+                                    text = "PRO Feature: Unlock Chemical Treatments",
+                                    style = MaterialTheme.typography.labelLarge,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White,
+                                    textAlign = TextAlign.Center
+                                )
+                            }
+                        }
                     }
                 }
             }

@@ -49,6 +49,8 @@ import com.pixeleye.plantdoctor.viewmodel.HomeViewModel
 import com.pixeleye.plantdoctor.viewmodel.PlantDiagnosisViewModel
 import com.pixeleye.plantdoctor.viewmodel.SettingsViewModel
 import com.pixeleye.plantdoctor.utils.LocationHelper
+import com.pixeleye.plantdoctor.utils.rememberNetworkState
+import com.pixeleye.plantdoctor.ui.screens.NoInternetScreen
 import com.pixeleye.plantdoctor.data.local.AppDatabase
 import com.pixeleye.plantdoctor.data.api.PlantScanRepository
 import com.pixeleye.plantdoctor.data.api.BillingManager
@@ -99,6 +101,13 @@ fun PlantDoctorApp(
         )
     )
 ) {
+    val isOnline by rememberNetworkState()
+
+    if (!isOnline) {
+        NoInternetScreen()
+        return
+    }
+
     val authState by authViewModel.authState.collectAsStateWithLifecycle()
 
     when (authState) {
@@ -239,10 +248,14 @@ fun PlantDoctorNavHost(
         }
 
         composable("home") {
+            val snackbarMessage by homeViewModel.snackbarEvent.collectAsStateWithLifecycle()
+
             HomeScreen(
                 uiState = homeUiState,
                 selectedAiLanguage = prefs.selectedAiLanguage,
                 isPremium = isPremium,
+                snackbarMessage = snackbarMessage,
+                onSnackbarShown = { homeViewModel.consumeSnackbarEvent() },
                 onScanPlantClick = {
                     navController.navigate("camera")
                 },
@@ -384,6 +397,9 @@ fun PlantDoctorNavHost(
                     } catch (e: Exception) {
                         Log.e("PlantDoctor", "Navigation error on new scan: ${e.message}")
                     }
+                },
+                onOpenPaywall = {
+                    navController.navigate("paywall")
                 }
             )
         }
@@ -402,10 +418,29 @@ fun PlantDoctorNavHost(
             val plan = backStackEntry.arguments?.getString("plan") ?: ""
 
             // Reconstruct DiagnosisResponse from history plain text
-            val legacyPlanParts = plan.split("\n\nAction Plan:\n")
-            val legacySummary = legacyPlanParts.getOrNull(0) ?: plan
-            val legacyList = legacyPlanParts.getOrNull(1)?.lines()?.map { it.removePrefix("- ") } ?: emptyList()
-            val diagnosisData = com.pixeleye.plantdoctor.data.api.DiagnosisResponse(summary = legacySummary, actionPlan = legacyList)
+            // Support new format (Organic/Chemical sections) and legacy format (Action Plan section)
+            val diagnosisData = if (plan.contains("Organic Treatments:") || plan.contains("Chemical Treatments:")) {
+                val summaryEnd = listOfNotNull(
+                    plan.indexOf("\n\nOrganic Treatments:\n").takeIf { it >= 0 },
+                    plan.indexOf("\n\nChemical Treatments:\n").takeIf { it >= 0 }
+                ).minOrNull() ?: plan.length
+                val summary = plan.substring(0, summaryEnd).trim()
+
+                val organicBlock = """Organic Treatments:\n(.*?)(?=\n\nChemical Treatments:|$)""".toRegex(RegexOption.DOT_MATCHES_ALL)
+                    .find(plan)?.groupValues?.getOrNull(1) ?: ""
+                val organicList = organicBlock.lines().map { it.removePrefix("- ").trim() }.filter { it.isNotBlank() }
+
+                val chemicalBlock = """Chemical Treatments:\n(.*)""".toRegex(RegexOption.DOT_MATCHES_ALL)
+                    .find(plan)?.groupValues?.getOrNull(1) ?: ""
+                val chemicalList = chemicalBlock.lines().map { it.removePrefix("- ").trim() }.filter { it.isNotBlank() }
+
+                com.pixeleye.plantdoctor.data.api.DiagnosisResponse(summary = summary, organicTreatments = organicList, chemicalTreatments = chemicalList)
+            } else {
+                val legacyPlanParts = plan.split("\n\nAction Plan:\n")
+                val legacySummary = legacyPlanParts.getOrNull(0) ?: plan
+                val legacyList = legacyPlanParts.getOrNull(1)?.lines()?.map { it.removePrefix("- ").trim() }?.filter { it.isNotBlank() } ?: emptyList()
+                com.pixeleye.plantdoctor.data.api.DiagnosisResponse(summary = legacySummary, organicTreatments = legacyList)
+            }
 
             val imageUri = imageUrl?.let {
                 try { Uri.parse(it) } catch (_: Exception) { null }
@@ -432,6 +467,9 @@ fun PlantDoctorNavHost(
                     } catch (e: Exception) {
                         Log.e("PlantDoctor", "Navigation error on new scan: ${e.message}")
                     }
+                },
+                onOpenPaywall = {
+                    navController.navigate("paywall")
                 }
             )
         }

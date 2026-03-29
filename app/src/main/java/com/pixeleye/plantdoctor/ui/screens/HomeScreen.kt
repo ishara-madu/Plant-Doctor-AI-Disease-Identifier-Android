@@ -38,7 +38,9 @@ import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.Eco
 import androidx.compose.material.icons.filled.Grass
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LocalFlorist
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Spa
@@ -137,6 +139,8 @@ fun HomeScreen(
     uiState: HomeUiState,
     selectedAiLanguage: String = "English",
     isPremium: Boolean = false,
+    snackbarMessage: String? = null,
+    onSnackbarShown: () -> Unit = {},
     onScanPlantClick: () -> Unit,
     onViewResult: (PlantScanDto) -> Unit = {},
     onDeleteScan: (PlantScanDto) -> Unit = {},
@@ -146,6 +150,16 @@ fun HomeScreen(
     onResume: () -> Unit = {}
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(snackbarMessage) {
+        if (snackbarMessage != null) {
+            snackbarHostState.showSnackbar(
+                message = snackbarMessage,
+                duration = SnackbarDuration.Short
+            )
+            onSnackbarShown()
+        }
+    }
     val scope = rememberCoroutineScope()
 
     // Auto-reload history every time this screen resumes (e.g. navigating back from ResultScreen)
@@ -273,6 +287,7 @@ fun HomeScreen(
                         .fillMaxSize()
                         .padding(innerPadding),
                     scans = state.scans,
+                    isPremium = isPremium,
                     onViewResult = onViewResult,
                     onDeleteScan = { scan ->
                         onDeleteScan(scan)
@@ -283,7 +298,8 @@ fun HomeScreen(
                             )
                         }
                     },
-                    onRefresh = onRetry
+                    onRefresh = onRetry,
+                    onOpenPaywall = onOpenPaywall
                 )
             }
 
@@ -388,10 +404,15 @@ private fun ErrorContent(
 private fun ScanHistoryContent(
     modifier: Modifier = Modifier,
     scans: List<PlantScanDto>,
+    isPremium: Boolean,
     onViewResult: (PlantScanDto) -> Unit,
     onDeleteScan: (PlantScanDto) -> Unit,
-    onRefresh: () -> Unit
+    onRefresh: () -> Unit,
+    onOpenPaywall: () -> Unit
 ) {
+    val displayList = if (isPremium) scans else scans.take(5)
+    val showLockFooter = !isPremium && scans.size > 5
+
     LazyColumn(
         modifier = modifier,
         contentPadding = PaddingValues(
@@ -406,13 +427,86 @@ private fun ScanHistoryContent(
             RecentScansHeader(count = scans.size, onRefresh = onRefresh)
         }
         items(
-            items = scans,
+            items = displayList,
             key = { it.id ?: it.hashCode() }
         ) { scan ->
             ScanCard(
                 scan = scan,
                 onClick = { onViewResult(scan) },
                 onDelete = { onDeleteScan(scan) }
+            )
+        }
+        if (showLockFooter) {
+            item {
+                ProUnlockCard(totalScans = scans.size, onClick = onOpenPaywall)
+            }
+        }
+    }
+}
+
+@Composable
+private fun ProUnlockCard(
+    totalScans: Int,
+    onClick: () -> Unit
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(
+                interactionSource = interactionSource,
+                indication = ripple(bounded = true),
+                onClick = onClick
+            ),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.35f)
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .background(
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
+                        shape = RoundedCornerShape(14.dp)
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Lock,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+            Spacer(modifier = Modifier.width(16.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "Unlock your full scan history with PRO",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "View all $totalScans scans and more",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                contentDescription = "Upgrade",
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(20.dp)
             )
         }
     }

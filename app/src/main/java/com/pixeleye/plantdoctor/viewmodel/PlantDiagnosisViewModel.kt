@@ -31,7 +31,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.TimeoutCancellationException
 import java.io.ByteArrayOutputStream
+import java.io.IOException
 import java.util.UUID
 
 sealed class DiagnosisState {
@@ -55,7 +58,8 @@ sealed class UploadState {
 private data class GeminiAnalysisResponse(
     @SerializedName("is_plant") val isPlant: Boolean,
     @SerializedName("diagnosis_summary") val diagnosisSummary: String,
-    @SerializedName("action_plan") val actionPlan: List<String>
+    @SerializedName("organic_treatments") val organicTreatments: List<String>,
+    @SerializedName("chemical_treatments") val chemicalTreatments: List<String>
 )
 
 class PlantDiagnosisViewModel(
@@ -75,21 +79,23 @@ class PlantDiagnosisViewModel(
             modelName = "gemini-2.5-flash",
             apiKey = BuildConfig.GEMINI_API_KEY,
             systemInstruction = content {
-                text("""You are an expert agricultural and gardening assistant. Analyze the provided image and determine whether it contains a plant.
+                text("""You are an expert, highly authoritative agricultural and botanical pathologist. Analyze the provided image to diagnose plant health.
 
-You MUST return ONLY a single valid JSON object — no markdown fences, no prose, no extra text. The JSON must follow this exact structure:
+You MUST return ONLY a single valid JSON object. No markdown, no prose. The JSON must strictly follow this structure:
 
 {
   "is_plant": true or false,
-  "diagnosis_summary": "A plain text description.",
-  "action_plan": ["step 1", "step 2"]
+  "diagnosis_summary": "A detailed explanation of the disease, pest, or nutrient deficiency.",
+  "organic_treatments": ["Organic step 1", "Natural step 2"],
+  "chemical_treatments": ["Chemical step 1", "Agrochemical step 2"]
 }
 
 Rules:
-- If the image DOES contain a plant: set "is_plant" to true, provide a detailed diagnosis of any diseases, nutrient deficiencies, or pests in "diagnosis_summary", and list actionable treatment steps in "action_plan".
-- If the image does NOT contain a plant: set "is_plant" to false, describe what the image actually shows in "diagnosis_summary" (e.g. "This appears to be a photo of a golden retriever."), and set "action_plan" to an empty array [].
-
-CRITICAL SAFETY RULE: If you recommend any chemical treatments, pesticides, or fertilizers, DO NOT provide exact dosages (e.g., do not say 'mix 5ml per liter'). Instead, suggest the active ingredient or general type of treatment, and STRICTLY ADVISE the user to 'always read the manufacturer's label for the correct dosage and safety instructions'. You may, however, suggest the best time of day to apply the treatment (e.g., early morning or late evening).""".trimIndent())
+1. If the image is NOT a plant: set "is_plant" to false, explain what it is in "diagnosis_summary", and leave both treatment arrays empty [].
+2. If it IS a plant: set "is_plant" to true. Provide a precise "diagnosis_summary".
+3. "organic_treatments": List actionable, natural, DIY, or organic farming methods (e.g., Neem oil, pruning, compost).
+4. "chemical_treatments": List specific, commercially available agrochemical treatments, synthetic fertilizers, or pesticides.
+5. CRITICAL SAFETY RULE: For chemical treatments, suggest the active ingredient or class of chemical, but STRICTLY advise the user to 'read the manufacturer's label for dosage and safety'.""".trimIndent())
             },
             generationConfig = generationConfig {
                 temperature = 0.7f
@@ -187,7 +193,16 @@ CRITICAL SAFETY RULE: If you recommend any chemical treatments, pesticides, or f
                     text(fullPrompt)
                 }
 
-                val response = generativeModel.generateContent(inputContent)
+                val response = try {
+                    withTimeout(20_000L) {
+                        generativeModel.generateContent(inputContent)
+                    }
+                } catch (e: TimeoutCancellationException) {
+                    throw IOException("Connection is too slow. Please check your internet and try again.")
+                } catch (e: IOException) {
+                    throw IOException("Network error during AI analysis. Please check your internet and try again.")
+                }
+
                 val resultText = response.text
                     ?: throw Exception("No response generated from AI model.")
 
@@ -217,7 +232,8 @@ CRITICAL SAFETY RULE: If you recommend any chemical treatments, pesticides, or f
                 // ── It IS a plant — proceed with full diagnosis flow ─────
                 val diagnosisResponse = DiagnosisResponse(
                     summary = geminiResult.diagnosisSummary,
-                    actionPlan = geminiResult.actionPlan
+                    organicTreatments = geminiResult.organicTreatments,
+                    chemicalTreatments = geminiResult.chemicalTreatments
                 )
 
                 _diagnosisState.value = DiagnosisState.Success(diagnosisResponse)
@@ -225,9 +241,15 @@ CRITICAL SAFETY RULE: If you recommend any chemical treatments, pesticides, or f
                 // Format for Supabase storage
                 val stringifiedTreatmentPlan = buildString {
                     append(geminiResult.diagnosisSummary)
-                    if (geminiResult.actionPlan.isNotEmpty()) {
-                        append("\n\nAction Plan:\n")
-                        geminiResult.actionPlan.forEach { step ->
+                    if (geminiResult.organicTreatments.isNotEmpty()) {
+                        append("\n\nOrganic Treatments:\n")
+                        geminiResult.organicTreatments.forEach { step ->
+                            append("- $step\n")
+                        }
+                    }
+                    if (geminiResult.chemicalTreatments.isNotEmpty()) {
+                        append("\n\nChemical Treatments:\n")
+                        geminiResult.chemicalTreatments.forEach { step ->
                             append("- $step\n")
                         }
                     }
@@ -261,37 +283,48 @@ CRITICAL SAFETY RULE: If you recommend any chemical treatments, pesticides, or f
         viewModelScope.launch {
             _uploadState.value = UploadState.Uploading
             try {
-                val currentUser = supabaseClient.auth.currentUserOrNull()
-                val currentUserId = currentUser?.id 
-                    ?: throw Exception("User is not logged in. Cannot upload scan.")
+                withTimeout(20_000L) {
+                    val currentUser = supabaseClient.auth.currentUserOrNull()
+                    val currentUserId = currentUser?.id 
+                        ?: throw Exception("User is not logged in. Cannot upload scan.")
 
-                val imageBytes = withContext(Dispatchers.IO) {
-                    if (context != null && imageUri != null) {
-                        compressImageHighQuality(context, imageUri)
-                    } else {
-                        compressBitmapToJpeg(image)
+                    val imageBytes = withContext(Dispatchers.IO) {
+                        if (context != null && imageUri != null) {
+                            compressImageHighQuality(context, imageUri)
+                        } else {
+                            compressBitmapToJpeg(image)
+                        }
                     }
+
+                    val fileName = "${UUID.randomUUID()}.jpg"
+                    val bucket = supabaseClient.storage.from(STORAGE_BUCKET)
+                    bucket.upload(path = fileName, data = imageBytes, upsert = false)
+                    Log.d(TAG, "Image uploaded to storage: $fileName")
+
+                    val imageUrl = bucket.publicUrl(fileName)
+                    Log.d(TAG, "Public URL: $imageUrl")
+
+                    val scanDto = PlantScanDto(
+                        userId = currentUserId,
+                        imageUrl = imageUrl,
+                        diseaseTitle = diseaseTitle,
+                        treatmentPlan = treatmentPlan
+                    )
+                    plantScanRepository.insertScan(scanDto)
+                    Log.d(TAG, "Record inserted into repository and local DB")
+
+                    _uploadState.value = UploadState.Success(imageUrl)
                 }
-
-                val fileName = "${UUID.randomUUID()}.jpg"
-                val bucket = supabaseClient.storage.from(STORAGE_BUCKET)
-                bucket.upload(path = fileName, data = imageBytes, upsert = false)
-                Log.d(TAG, "Image uploaded to storage: $fileName")
-
-                val imageUrl = bucket.publicUrl(fileName)
-                Log.d(TAG, "Public URL: $imageUrl")
-
-                val scanDto = PlantScanDto(
-                    userId = currentUserId,
-                    imageUrl = imageUrl,
-                    diseaseTitle = diseaseTitle,
-                    treatmentPlan = treatmentPlan
+            } catch (e: TimeoutCancellationException) {
+                Log.e("SupabaseError", "Supabase upload timed out", e)
+                _uploadState.value = UploadState.Error(
+                    "Connection is too slow. Please check your internet and try again."
                 )
-                plantScanRepository.insertScan(scanDto)
-                Log.d(TAG, "Record inserted into repository and local DB")
-
-                _uploadState.value = UploadState.Success(imageUrl)
-
+            } catch (e: IOException) {
+                Log.e("SupabaseError", "Supabase upload network error: ${e.message}", e)
+                _uploadState.value = UploadState.Error(
+                    "Network error during upload. Please check your internet and try again."
+                )
             } catch (e: Exception) {
                 Log.e("SupabaseError", "Supabase upload failed: ${e.message}", e)
                 _uploadState.value = UploadState.Error(

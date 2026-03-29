@@ -453,7 +453,7 @@ private fun GoogleIcon(
         drawArc(
             color = Color(0xFF4285F4),
             startAngle = -90f,
-            sweepAngle = 90f,
+            sweepAngle = 60f,
             useCenter = false,
             topLeft = Offset(cx - r, cy - r),
             size = androidx.compose.ui.geometry.Size(r * 2, r * 2),

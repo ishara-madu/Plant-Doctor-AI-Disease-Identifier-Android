@@ -15,6 +15,8 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.SharingStarted
 import androidx.lifecycle.ViewModelProvider
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
+import java.io.IOException
 
 sealed class HomeUiState {
     data object Loading : HomeUiState()
@@ -47,6 +49,10 @@ class HomeViewModel(private val repository: PlantScanRepository) : ViewModel() {
     private val _lastDeletedScan = MutableStateFlow<PlantScanDto?>(null)
     val lastDeletedScan: StateFlow<PlantScanDto?> = _lastDeletedScan.asStateFlow()
 
+    // One-time event for showing snackbar messages (e.g., slow connection)
+    private val _snackbarEvent = MutableStateFlow<String?>(null)
+    val snackbarEvent: StateFlow<String?> = _snackbarEvent.asStateFlow()
+
     init {
         fetchHistory()
     }
@@ -54,12 +60,24 @@ class HomeViewModel(private val repository: PlantScanRepository) : ViewModel() {
     fun fetchHistory() {
         viewModelScope.launch {
             try {
-                repository.refreshHistory()
+                val result = withTimeoutOrNull(10_000L) {
+                    repository.refreshHistory()
+                }
+                if (result == null) {
+                    Log.w(TAG, "History fetch timed out after 10 seconds")
+                    _snackbarEvent.value = "Connection is slow. Could not load recent scans."
+                }
+            } catch (e: IOException) {
+                Log.e(TAG, "Network error fetching history", e)
+                _snackbarEvent.value = "Connection is slow. Could not load recent scans."
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to refresh history from remote", e)
-                // We keep UI state derived from Room, no direct error emission here unless desired
             }
         }
+    }
+
+    fun consumeSnackbarEvent() {
+        _snackbarEvent.value = null
     }
 
     /**
