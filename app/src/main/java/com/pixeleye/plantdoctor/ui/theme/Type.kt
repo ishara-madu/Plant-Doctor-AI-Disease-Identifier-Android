@@ -9,13 +9,6 @@ import androidx.compose.ui.unit.sp
 import com.pixeleye.plantdoctor.R
 
 // ── Montserrat Font Family (bundled as res/font/ assets) ───────
-// Download .ttf files from https://fonts.google.com/specimen/Montserrat
-// and place them at:
-//   app/src/main/res/font/montserrat_light.ttf
-//   app/src/main/res/font/montserrat_regular.ttf
-//   app/src/main/res/font/montserrat_medium.ttf
-//   app/src/main/res/font/montserrat_semibold.ttf
-//   app/src/main/res/font/montserrat_bold.ttf
 val MontserratFamily = FontFamily(
     Font(R.font.montserrat_light, weight = FontWeight.Light),
     Font(R.font.montserrat_regular, weight = FontWeight.Normal),

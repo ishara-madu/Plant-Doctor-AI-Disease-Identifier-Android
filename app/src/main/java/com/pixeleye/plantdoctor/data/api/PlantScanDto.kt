@@ -1,8 +1,10 @@
 package com.pixeleye.plantdoctor.data.api
 
+import androidx.annotation.Keep
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+@Keep
 @Serializable
 data class PlantScanDto(
     @SerialName("id")

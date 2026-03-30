@@ -57,6 +57,7 @@ import com.pixeleye.plantdoctor.data.api.BillingManager
 import com.pixeleye.plantdoctor.data.api.SupabaseClientProvider
 import com.pixeleye.plantdoctor.data.api.UserQuotaRepository
 import com.pixeleye.plantdoctor.viewmodel.PremiumViewModel
+import com.pixeleye.plantdoctor.utils.NavigationDebouncer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -108,6 +109,20 @@ fun PlantDoctorApp(
         return
     }
 
+    // ── Global Premium State Management ────────────────────
+    val premiumViewModel: PremiumViewModel = viewModel(
+        factory = PremiumViewModel.Factory(billingManager)
+    )
+
+    // Listen for real-time premium status updates from RevenueCat
+    LaunchedEffect(Unit) {
+        billingManager.setUpdatedCustomerInfoListener { customerInfo ->
+            val isPro = billingManager.isProActive(customerInfo)
+            Log.d("MainActivity", "Real-time update: isPremium=$isPro")
+            premiumViewModel.setPremium(isPro)
+        }
+    }
+
     val authState by authViewModel.authState.collectAsStateWithLifecycle()
 
     when (authState) {
@@ -123,6 +138,7 @@ fun PlantDoctorApp(
                 authState = authState,
                 userPreferencesRepository = userPreferencesRepository,
                 billingManager = billingManager,
+                premiumViewModel = premiumViewModel,
                 onSignOut = { authViewModel.signOut() }
             )
         }
@@ -149,6 +165,7 @@ fun PlantDoctorNavHost(
     authState: AuthState,
     userPreferencesRepository: UserPreferencesRepository,
     billingManager: BillingManager,
+    premiumViewModel: PremiumViewModel,
     onSignOut: () -> Unit = {}
 ) {
     val navController = rememberNavController()
@@ -170,9 +187,6 @@ fun PlantDoctorNavHost(
     )
     val homeViewModel: HomeViewModel = viewModel(
         factory = HomeViewModel.Factory(repository)
-    )
-    val premiumViewModel: PremiumViewModel = viewModel(
-        factory = PremiumViewModel.Factory(billingManager, userQuotaRepository)
     )
 
     val homeUiState by homeViewModel.uiState.collectAsStateWithLifecycle()
@@ -274,10 +288,14 @@ fun PlantDoctorNavHost(
                     homeViewModel.fetchHistory()
                 },
                 onOpenSettings = {
-                    navController.navigate("settings")
+                    if (NavigationDebouncer.canNavigate()) {
+                        navController.navigate("settings")
+                    }
                 },
                 onOpenPaywall = {
-                    navController.navigate("paywall")
+                    if (NavigationDebouncer.canNavigate()) {
+                        navController.navigate("paywall")
+                    }
                 },
                 onResume = {
                     homeViewModel.fetchHistory()
@@ -300,20 +318,26 @@ fun PlantDoctorNavHost(
                 onError = { errorMessage ->
                     Log.e("PlantDoctor", "Camera error: $errorMessage")
                     try {
-                        navController.popBackStack()
+                        if (NavigationDebouncer.canNavigate()) {
+                            navController.popBackStack()
+                        }
                     } catch (e: Exception) {
                         Log.e("PlantDoctor", "Navigation error on camera error: ${e.message}")
                     }
                 },
                 onCancel = {
                     try {
-                        navController.popBackStack()
+                        if (NavigationDebouncer.canNavigate()) {
+                            navController.popBackStack()
+                        }
                     } catch (e: Exception) {
                         Log.e("PlantDoctor", "Navigation error on cancel: ${e.message}")
                     }
                 },
                 onOpenPaywall = {
-                    navController.navigate("paywall")
+                    if (NavigationDebouncer.canNavigate()) {
+                        navController.navigate("paywall")
+                    }
                 }
             )
         }
@@ -383,7 +407,9 @@ fun PlantDoctorNavHost(
                     diagnosisViewModel.resetState()
                     homeViewModel.fetchHistory()
                     try {
-                        navController.popBackStack()
+                        if (NavigationDebouncer.canNavigate()) {
+                            navController.popBackStack()
+                        }
                     } catch (e: Exception) {
                         Log.e("PlantDoctor", "Navigation error on back: ${e.message}")
                     }
@@ -399,7 +425,9 @@ fun PlantDoctorNavHost(
                     }
                 },
                 onOpenPaywall = {
-                    navController.navigate("paywall")
+                    if (NavigationDebouncer.canNavigate()) {
+                        navController.navigate("paywall")
+                    }
                 }
             )
         }
@@ -454,7 +482,9 @@ fun PlantDoctorNavHost(
                 isPremium = isPremium,
                 onBack = {
                     try {
-                        navController.popBackStack()
+                        if (NavigationDebouncer.canNavigate()) {
+                            navController.popBackStack()
+                        }
                     } catch (e: Exception) {
                         Log.e("PlantDoctor", "Navigation error on back: ${e.message}")
                     }
@@ -469,7 +499,9 @@ fun PlantDoctorNavHost(
                     }
                 },
                 onOpenPaywall = {
-                    navController.navigate("paywall")
+                    if (NavigationDebouncer.canNavigate()) {
+                        navController.navigate("paywall")
+                    }
                 }
             )
         }
@@ -500,7 +532,9 @@ fun PlantDoctorNavHost(
                 },
                 onBack = {
                     try {
-                        navController.popBackStack()
+                        if (NavigationDebouncer.canNavigate()) {
+                            navController.popBackStack()
+                        }
                     } catch (e: Exception) {
                         Log.e("PlantDoctor", "Navigation error on back: ${e.message}")
                     }
@@ -510,12 +544,18 @@ fun PlantDoctorNavHost(
 
         composable("paywall") {
             val isProcessing by premiumViewModel.isLoading.collectAsStateWithLifecycle()
+            val monthlyPrice by premiumViewModel.monthlyPrice.collectAsStateWithLifecycle()
+            val yearlyPrice by premiumViewModel.yearlyPrice.collectAsStateWithLifecycle()
 
             PaywallScreen(
+                monthlyPrice = monthlyPrice,
+                yearlyPrice = yearlyPrice,
                 isProcessing = isProcessing,
                 onClose = {
                     try {
-                        navController.popBackStack()
+                        if (NavigationDebouncer.canNavigate()) {
+                            navController.popBackStack()
+                        }
                     } catch (e: Exception) {
                         Log.e("PlantDoctor", "Navigation error on paywall close: ${e.message}")
                     }
@@ -533,7 +573,9 @@ fun PlantDoctorNavHost(
                                 android.widget.Toast.LENGTH_LONG
                             ).show()
                             try {
-                                navController.popBackStack()
+                                if (NavigationDebouncer.canNavigate()) {
+                                    navController.popBackStack()
+                                }
                             } catch (e: Exception) {
                                 Log.e("PlantDoctor", "Navigation error after purchase: ${e.message}")
                             }
@@ -561,7 +603,9 @@ fun PlantDoctorNavHost(
                                         android.widget.Toast.LENGTH_LONG
                                     ).show()
                                     try {
-                                        navController.popBackStack()
+                                        if (NavigationDebouncer.canNavigate()) {
+                                            navController.popBackStack()
+                                        }
                                     } catch (e: Exception) {
                                         Log.e("PlantDoctor", "Navigation error after restore: ${e.message}")
                                     }

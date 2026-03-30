@@ -32,11 +32,19 @@ android {
         buildConfigField("String", "SUPABASE_ANON_KEY", "\"${localProperties.getProperty("SUPABASE_ANON_KEY", "")}\"")
         buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"${localProperties.getProperty("GOOGLE_WEB_CLIENT_ID", "")}\"")
         buildConfigField("String", "REVENUECAT_API_KEY", "\"${localProperties.getProperty("REVENUECAT_API_KEY", "")}\"")
+
+        // Optimization: Only bundle necessary native code architectures
+        ndk {
+            abiFilters.addAll(listOf("armeabi-v7a", "arm64-v8a", "x86_64"))
+        }
     }
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            // Optimization: Enable R8 code shrinking, obfuscation, and optimization
+            isMinifyEnabled = true
+            // Optimization: Enable unused resource removal
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -67,7 +75,7 @@ dependencies {
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
-    implementation(libs.androidx.material3)
+    implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.material:material-icons-extended")
 
     // CameraX

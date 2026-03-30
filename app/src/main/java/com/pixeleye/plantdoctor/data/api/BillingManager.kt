@@ -15,12 +15,29 @@ import com.revenuecat.purchases.getCustomerInfoWith
 import com.revenuecat.purchases.logInWith
 import com.revenuecat.purchases.purchaseWith
 import com.revenuecat.purchases.restorePurchasesWith
+import com.revenuecat.purchases.interfaces.UpdatedCustomerInfoListener
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
 
 class BillingManager {
 
     companion object {
         private const val TAG = "BillingManager"
-        const val PRO_ENTITLEMENT_ID = "pro"
+        const val PRO_ENTITLEMENT_ID = "Plant Doctor Pro"
+    }
+
+    suspend fun getCustomerInfoSuspended(): CustomerInfo? {
+        return suspendCancellableCoroutine { cont ->
+            Purchases.sharedInstance.getCustomerInfoWith(
+                onError = { error ->
+                    Log.e(TAG, "Failed to get customer info: ${error.message}")
+                    cont.resume(null)
+                },
+                onSuccess = { customerInfo ->
+                    cont.resume(customerInfo)
+                }
+            )
+        }
     }
 
     fun initialize(context: Context, apiKey: String) {
@@ -29,6 +46,12 @@ class BillingManager {
             PurchasesConfiguration.Builder(context, apiKey).build()
         )
         Log.d(TAG, "RevenueCat initialized")
+    }
+
+    fun setUpdatedCustomerInfoListener(onUpdate: (CustomerInfo) -> Unit) {
+        Purchases.sharedInstance.updatedCustomerInfoListener = UpdatedCustomerInfoListener { customerInfo ->
+            onUpdate(customerInfo)
+        }
     }
 
     /**
@@ -82,6 +105,23 @@ class BillingManager {
                 }
             }
         )
+    }
+
+    /**
+     * Suspending version to fetch Offerings directly.
+     */
+    suspend fun getOfferingsSuspended(): com.revenuecat.purchases.Offerings? {
+        return suspendCancellableCoroutine { cont ->
+            Purchases.sharedInstance.getOfferingsWith(
+                onError = { error ->
+                    Log.e(TAG, "Failed to fetch offerings: ${error.message}")
+                    cont.resume(null)
+                },
+                onSuccess = { offerings ->
+                    cont.resume(offerings)
+                }
+            )
+        }
     }
 
     fun purchase(

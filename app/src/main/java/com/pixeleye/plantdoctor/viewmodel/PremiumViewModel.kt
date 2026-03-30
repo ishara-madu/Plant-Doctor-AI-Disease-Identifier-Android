@@ -25,6 +25,12 @@ class PremiumViewModel(
     private val _isPremium = MutableStateFlow(false)
     val isPremium: StateFlow<Boolean> = _isPremium.asStateFlow()
 
+    private val _monthlyPrice = MutableStateFlow("")
+    val monthlyPrice: StateFlow<String> = _monthlyPrice.asStateFlow()
+
+    private val _yearlyPrice = MutableStateFlow("")
+    val yearlyPrice: StateFlow<String> = _yearlyPrice.asStateFlow()
+
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
@@ -34,106 +40,50 @@ class PremiumViewModel(
         viewModelScope.launch {
             try {
                 syncPremiumStatus()
+                fetchAndStoreOfferings()
             } catch (e: Exception) {
                 Log.e(TAG, "Initial premium sync failed", e)
             }
         }
-        prefetchOfferings()
+    }
+
+    private suspend fun fetchAndStoreOfferings() {
+        val offerings = billingManager.getOfferingsSuspended()
+        val current = offerings?.current
+        if (current != null) {
+            _monthlyPrice.value = current.monthly?.product?.price?.formatted ?: ""
+            _yearlyPrice.value = current.annual?.product?.price?.formatted ?: ""
+            
+            val packages = mutableMapOf<String, Package>()
+            for (pkg in current.availablePackages) {
+                packages[pkg.product.id] = pkg
+            }
+            cachedPackages = packages
+            Log.d(TAG, "Prices updated: Monthly=${_monthlyPrice.value}, Yearly=${_yearlyPrice.value}")
+        }
     }
 
     /**
-     * Suspend function that awaits Supabase premium check and RevenueCat fallback.
-     * Call from LaunchedEffect — blocks until the sync completes.
+     * Fetches the latest customer info from RevenueCat and updates the premium state.
      */
     suspend fun syncPremiumStatus() {
-        val repo = userQuotaRepository
-        if (repo == null) {
-            // No repo — check RevenueCat directly and await
-            val isPro = suspendCancellableCoroutine<Boolean> { cont ->
-                    billingManager.checkPremiumStatus(
-                        onSuccess = { cont.resumeWith(Result.success(it)) },
-                        onError = {
-                            Log.e(TAG, "RevenueCat premium check failed: $it")
-                            cont.resumeWith(Result.success(false))
-                        }
-                    )
-            }
-            _isPremium.value = isPro
-            return
+        Log.d(TAG, "Syncing premium status from RevenueCat...")
+        val customerInfo = billingManager.getCustomerInfoSuspended()
+        _isPremium.value = if (customerInfo != null) {
+            billingManager.isProActive(customerInfo)
+        } else {
+            false
         }
-
-        try {
-            // Step 1: Supabase as source of truth
-            val supabasePremium = repo.isPremium()
-            _isPremium.value = supabasePremium
-            Log.d(TAG, "Supabase premium status: $supabasePremium")
-
-            // Step 2: RevenueCat fallback if Supabase says false
-            if (!supabasePremium) {
-                val isProFromRc = suspendCancellableCoroutine<Boolean> { cont ->
-                    billingManager.getCustomerInfo(
-                        onSuccess = { customerInfo ->
-                            cont.resumeWith(Result.success(billingManager.isProActive(customerInfo)))
-                        },
-                        onError = {
-                            Log.e(TAG, "RevenueCat fallback failed: $it")
-                            cont.resumeWith(Result.success(false))
-                        }
-                    )
-                }
-                if (isProFromRc) {
-                    Log.d(TAG, "RevenueCat says PRO but Supabase says false. Backfilling.")
-                    _isPremium.value = true
-                    try {
-                        repo.upgradeToPremium()
-                    } catch (e: Exception) {
-                        Log.e(TAG, "Failed to backfill Supabase from RevenueCat", e)
-                    }
-                }
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Supabase premium check failed, falling back to RevenueCat", e)
-            val isPro = suspendCancellableCoroutine<Boolean> { cont ->
-                billingManager.checkPremiumStatus(
-                    onSuccess = { cont.resumeWith(Result.success(it)) },
-                    onError = {
-                        Log.e(TAG, "RevenueCat fallback also failed: $it")
-                        cont.resumeWith(Result.success(false))
-                    }
-                )
-            }
-            _isPremium.value = isPro
-        }
+        Log.d(TAG, "Sync complete. isPremium: ${_isPremium.value}")
     }
 
+    /**
+     * Managed by RevenueCat. After purchase/restore, the state is updated automatically.
+     */
     fun upgradeToPremium() {
-        userQuotaRepository?.let { repo ->
-            viewModelScope.launch {
-                try {
-                    repo.upgradeToPremium()
-                    _isPremium.value = true
-                    Log.d(TAG, "Successfully upgraded to premium in Supabase")
-                } catch (e: Exception) {
-                    Log.e(TAG, "Failed to upgrade to premium in Supabase", e)
-                    throw e
-                }
-            }
-        } ?: run {
-            _isPremium.value = true
-        }
+        _isPremium.value = true
     }
 
-    private fun prefetchOfferings() {
-        billingManager.fetchOfferings(
-            onSuccess = { packages ->
-                cachedPackages = packages
-                Log.d(TAG, "Offerings prefetched: ${packages.keys}")
-            },
-            onError = { error ->
-                Log.e(TAG, "Failed to prefetch offerings: $error")
-            }
-        )
-    }
 
     fun startPurchase(
         activity: Activity,

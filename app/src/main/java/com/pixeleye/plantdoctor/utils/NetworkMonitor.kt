@@ -35,13 +35,13 @@ fun rememberNetworkState(): State<Boolean> {
                 network: Network,
                 networkCapabilities: NetworkCapabilities
             ) {
-                val hasInternet = networkCapabilities.hasCapability(
+                // Only check NET_CAPABILITY_INTERNET.
+                // NET_CAPABILITY_VALIDATED is unreliable — Android may report false
+                // even when internet is working (VPNs, captive-portal-dismissed Wi-Fi,
+                // certain carriers, or during brief re-validation windows).
+                networkState.value = networkCapabilities.hasCapability(
                     NetworkCapabilities.NET_CAPABILITY_INTERNET
                 )
-                val isValidated = networkCapabilities.hasCapability(
-                    NetworkCapabilities.NET_CAPABILITY_VALIDATED
-                )
-                networkState.value = hasInternet && isValidated
             }
         }
 
@@ -62,6 +62,5 @@ fun rememberNetworkState(): State<Boolean> {
 private fun isCurrentlyConnected(connectivityManager: ConnectivityManager): Boolean {
     val network = connectivityManager.activeNetwork ?: return false
     val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
-    return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
-            capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+    return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
 }

@@ -70,6 +70,8 @@ import androidx.compose.ui.unit.sp
 // ── Paywall Screen ────────────────────────────────────────────
 @Composable
 fun PaywallScreen(
+    monthlyPrice: String = "",
+    yearlyPrice: String = "",
     isProcessing: Boolean = false,
     onClose: () -> Unit = {},
     onSubscribe: (plan: String) -> Unit = {},
@@ -77,6 +79,17 @@ fun PaywallScreen(
     onTermsClick: () -> Unit = {}
 ) {
     var selectedPlan by remember { mutableStateOf("yearly") }
+
+    // Helper to calculate monthly equivalent if yearly price is available
+    val yearlyNum = yearlyPrice.filter { it.isDigit() || it == '.' || it == ',' }.toDoubleOrNull()
+    val monthlyEquivalent = if (yearlyNum != null) {
+        val symbol = yearlyPrice.takeWhile { !it.isDigit() }
+        val perMonth = (yearlyNum / 12)
+        val formatted = "%.2f".format(perMonth)
+        "Just $symbol$formatted / month"
+    } else {
+        null
+    }
 
     Box(
         modifier = Modifier
@@ -88,6 +101,7 @@ fun PaywallScreen(
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
         ) {
+            // ... (Header and Features logic remains the same)
             // ── Header Section ──────────────────────────────────
             Box(
                 modifier = Modifier
@@ -219,9 +233,9 @@ fun PaywallScreen(
                 // Yearly — Best Value
                 SubscriptionCard(
                     title = "Yearly",
-                    price = "$29.99",
-                    period = "/ year",
-                    monthlyEquivalent = "Just $2.50 / month",
+                    price = yearlyPrice.ifBlank { "..." },
+                    period = " / year",
+                    monthlyEquivalent = monthlyEquivalent,
                     isSelected = selectedPlan == "yearly",
                     isBestValue = true,
                     onClick = { selectedPlan = "yearly" }
@@ -232,8 +246,8 @@ fun PaywallScreen(
                 // Monthly
                 SubscriptionCard(
                     title = "Monthly",
-                    price = "$4.99",
-                    period = "/ month",
+                    price = monthlyPrice.ifBlank { "..." },
+                    period = " / month",
                     monthlyEquivalent = null,
                     isSelected = selectedPlan == "monthly",
                     isBestValue = false,
