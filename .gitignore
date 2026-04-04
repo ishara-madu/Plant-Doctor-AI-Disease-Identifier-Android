@@ -16,6 +16,7 @@ local.properties
 website
 /website
 app/release
+/app/release
 # --- Release & Build Files ---
 *.apk
 *.aab
