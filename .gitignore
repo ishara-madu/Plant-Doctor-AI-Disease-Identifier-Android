@@ -13,3 +13,14 @@
 .externalNativeBuild
 .cxx
 local.properties
+website
+# --- Release & Build Files ---
+*.apk
+*.aab
+*.ap_
+*.aapt
+
+# --- Security & Keystore Files (ගොඩක් වැදගත්) ---
+*.jks
+*.keystore
+keystore.properties
