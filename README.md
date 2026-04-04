@@ -281,6 +281,11 @@ GOOGLE_WEB_CLIENT_ID=your_google_web_client_id.apps.googleusercontent.com
 
 # RevenueCat
 REVENUECAT_API_KEY=your_revenuecat_api_key_here
+
+# AdMob
+ADMOB_APP_ID=ca-app-pub-xxxxxxxxxxxxxxxx~xxxxxxxxxx
+ADMOB_INTERSTITIAL_ID=ca-app-pub-xxxxxxxxxxxxxxxx/xxxxxxxxxx
+ADMOB_REWARDED_ID=ca-app-pub-xxxxxxxxxxxxxxxx/xxxxxxxxxx
 ```
 
 > **Note:** `local.properties` is git-ignored and must never be committed.
@@ -319,7 +324,9 @@ Create a bucket named `plant-images` with public access enabled.
 
 ### 5. AdMob Setup
 
-The app uses AdMob test IDs by default. Replace with your production IDs in `AndroidManifest.xml` and `AdMobUtils.kt` before publishing.
+The app is configured to load AdMob IDs from `local.properties`. 
+- For development, you can use Google's [official test IDs](https://developers.google.com/admob/android/test-ads#demo_ad_units).
+- For production, replace the values in `local.properties` with your real App ID and Ad Unit IDs from the AdMob console.
 
 ---
 

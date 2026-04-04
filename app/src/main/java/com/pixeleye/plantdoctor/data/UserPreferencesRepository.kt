@@ -19,7 +19,9 @@ data class UserPreferences(
     val country: String = "",
     val language: String = "",
     val selectedAiLanguage: String = "English",
-    val onboardingCompleted: Boolean = false
+    val onboardingCompleted: Boolean = false,
+    val hasSeenCameraShowcase: Boolean = false,
+    val hasSeenLongPressShowcase: Boolean = false
 )
 
 class UserPreferencesRepository(private val context: Context) {
@@ -29,6 +31,8 @@ class UserPreferencesRepository(private val context: Context) {
         val USER_LANGUAGE = stringPreferencesKey("user_language")
         val SELECTED_AI_LANGUAGE = stringPreferencesKey("selected_ai_language")
         val ONBOARDING_COMPLETED = booleanPreferencesKey("onboarding_completed")
+        val HAS_SEEN_CAMERA_SHOWCASE = booleanPreferencesKey("has_seen_camera_showcase")
+        val HAS_SEEN_LONG_PRESS_SHOWCASE = booleanPreferencesKey("has_seen_long_press_showcase")
     }
 
     val userPreferences: Flow<UserPreferences> = context.dataStore.data
@@ -44,12 +48,14 @@ class UserPreferencesRepository(private val context: Context) {
                 country = preferences[Keys.USER_COUNTRY] ?: "",
                 language = preferences[Keys.USER_LANGUAGE] ?: "",
                 selectedAiLanguage = preferences[Keys.SELECTED_AI_LANGUAGE] ?: "English",
-                onboardingCompleted = preferences[Keys.ONBOARDING_COMPLETED] ?: false
+                onboardingCompleted = preferences[Keys.ONBOARDING_COMPLETED] ?: false,
+                hasSeenCameraShowcase = preferences[Keys.HAS_SEEN_CAMERA_SHOWCASE] ?: false,
+                hasSeenLongPressShowcase = preferences[Keys.HAS_SEEN_LONG_PRESS_SHOWCASE] ?: false
             )
         }
 
     suspend fun saveUserPreferences(
-        country: String, 
+        country: String,
         language: String,
         selectedAiLanguage: String,
         onboardingCompleted: Boolean
@@ -60,6 +66,14 @@ class UserPreferencesRepository(private val context: Context) {
             preferences[Keys.SELECTED_AI_LANGUAGE] = selectedAiLanguage
             preferences[Keys.ONBOARDING_COMPLETED] = onboardingCompleted
         }
+    }
+
+    suspend fun markCameraShowcaseSeen() {
+        context.dataStore.edit { it[Keys.HAS_SEEN_CAMERA_SHOWCASE] = true }
+    }
+
+    suspend fun markLongPressShowcaseSeen() {
+        context.dataStore.edit { it[Keys.HAS_SEEN_LONG_PRESS_SHOWCASE] = true }
     }
 
     suspend fun clearPreferences() {

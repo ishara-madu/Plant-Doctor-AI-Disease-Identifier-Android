@@ -157,6 +157,7 @@ private fun CameraContent(
     // ── Coordination ──────────────────────────────────────────
     val scope = rememberCoroutineScope()
     var capturedUri by remember { mutableStateOf<Uri?>(null) }
+    var isConfirming by remember { mutableStateOf(false) }
 
     // ── Quota & Rewarded Ad state ─────────────────────────────
     var showLimitDialog by remember { mutableStateOf(false) }
@@ -250,35 +251,41 @@ private fun CameraContent(
                 uri = capturedUri!!,
                 onRetake = { capturedUri = null },
                 onConfirm = {
-                    scope.launch {
-                        try {
-                            val currentQuota = diagnosisViewModel.checkQuota()
-                            currentQuotaCount = currentQuota
-                            when {
-                                isPremium -> {
-                                    // Premium users: unlimited, no quota tracking needed
-                                    onImageCaptured(capturedUri!!)
+                    if (!isConfirming) {
+                        isConfirming = true
+                        scope.launch {
+                            try {
+                                val currentQuota = diagnosisViewModel.checkQuota()
+                                currentQuotaCount = currentQuota
+                                when {
+                                    isPremium -> {
+                                        // Premium users: unlimited, no quota tracking needed
+                                        onImageCaptured(capturedUri!!)
+                                    }
+                                    currentQuota < 3 -> {
+                                        // Tier 1: Free scans available
+                                        diagnosisViewModel.incrementQuota()
+                                        onImageCaptured(capturedUri!!)
+                                    }
+                                    currentQuota < 6 -> {
+                                        // Tier 2: Free scans exhausted, rewarded ad unlocks available
+                                        showLimitDialog = true
+                                    }
+                                    else -> {
+                                        // Tier 3: Hard limit reached
+                                        showHardLimitDialog = true
+                                    }
                                 }
-                                currentQuota < 3 -> {
-                                    // Tier 1: Free scans available
-                                    diagnosisViewModel.incrementQuota()
-                                    onImageCaptured(capturedUri!!)
-                                }
-                                currentQuota < 6 -> {
-                                    // Tier 2: Free scans exhausted, rewarded ad unlocks available
-                                    showLimitDialog = true
-                                }
-                                else -> {
-                                    // Tier 3: Hard limit reached
-                                    showHardLimitDialog = true
-                                }
+                            } catch (e: Exception) {
+                                // If quota check fails, allow the scan to proceed
+                                onImageCaptured(capturedUri!!)
+                            } finally {
+                                isConfirming = false
                             }
-                        } catch (e: Exception) {
-                            // If quota check fails, allow the scan to proceed
-                            onImageCaptured(capturedUri!!)
                         }
                     }
-                }
+                },
+                isConfirmLoading = isConfirming
             )
         } else {
             // ═══════════════════════════════════════════════════════
@@ -523,7 +530,8 @@ private fun CameraContent(
 private fun ConfirmationContent(
     uri: Uri,
     onRetake: () -> Unit,
-    onConfirm: () -> Unit
+    onConfirm: () -> Unit,
+    isConfirmLoading: Boolean = false
 ) {
     Box(
         modifier = Modifier
@@ -586,7 +594,8 @@ private fun ConfirmationContent(
                 label = "Confirm",
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary,
-                onClick = onConfirm
+                onClick = onConfirm,
+                isLoading = isConfirmLoading
             )
         }
     }
@@ -599,24 +608,33 @@ private fun ActionButton(
     label: String,
     containerColor: Color,
     contentColor: Color,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    isLoading: Boolean = false
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         IconButton(
-            onClick = onClick,
+            onClick = if (isLoading) ({}) else onClick,
             modifier = Modifier
                 .size(60.dp)
                 .background(color = containerColor, shape = CircleShape)
                 .border(width = 2.dp, color = contentColor.copy(alpha = 0.3f), shape = CircleShape)
         ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = label,
-                tint = contentColor,
-                modifier = Modifier.size(28.dp)
-            )
+            if (isLoading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(28.dp),
+                    color = contentColor,
+                    strokeWidth = 2.dp
+                )
+            } else {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = label,
+                    tint = contentColor,
+                    modifier = Modifier.size(28.dp)
+                )
+            }
         }
         Spacer(modifier = Modifier.height(6.dp))
         Text(

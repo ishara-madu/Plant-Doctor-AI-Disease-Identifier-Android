@@ -10,14 +10,16 @@ import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.google.android.gms.ads.rewarded.RewardedAd
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
+import com.pixeleye.plantdoctor.BuildConfig
+
 
 private const val TAG = "AdMobUtils"
-private const val INTERSTITIAL_TEST_ID = "ca-app-pub-3940256099942544/1033173712"
-private const val REWARDED_TEST_ID = "ca-app-pub-3940256099942544/5224354917"
+private const val INTERSTITIAL_ID = BuildConfig.ADMOB_INTERSTITIAL_ID
+private const val REWARDED_ID = BuildConfig.ADMOB_REWARDED_ID
 
 fun loadInterstitialAd(context: Context, onAdLoaded: (InterstitialAd?) -> Unit) {
     val adRequest = AdRequest.Builder().build()
-    InterstitialAd.load(context, INTERSTITIAL_TEST_ID, adRequest, object : InterstitialAdLoadCallback() {
+    InterstitialAd.load(context, INTERSTITIAL_ID, adRequest, object : InterstitialAdLoadCallback() {
         override fun onAdFailedToLoad(adError: LoadAdError) {
             Log.d(TAG, adError.message)
             onAdLoaded(null)
@@ -55,7 +57,7 @@ fun showInterstitialAd(activity: Activity, ad: InterstitialAd?, onAdDismissed: (
 
 fun loadRewardedAd(context: Context, onAdLoaded: (RewardedAd?) -> Unit) {
     val adRequest = AdRequest.Builder().build()
-    RewardedAd.load(context, REWARDED_TEST_ID, adRequest, object : RewardedAdLoadCallback() {
+    RewardedAd.load(context, REWARDED_ID, adRequest, object : RewardedAdLoadCallback() {
         override fun onAdFailedToLoad(adError: LoadAdError) {
             Log.d(TAG, "Rewarded ad failed to load: ${adError.message}")
             onAdLoaded(null)

@@ -10,6 +10,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
@@ -35,6 +36,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.Eco
 import androidx.compose.material.icons.filled.Grass
@@ -47,10 +49,13 @@ import androidx.compose.material.icons.filled.Spa
 import androidx.compose.material.icons.filled.WarningAmber
 import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.PhotoCamera
+import androidx.compose.material.icons.filled.TouchApp
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -77,8 +82,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableStateSetOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.layout.boundsInWindow
+import androidx.compose.ui.layout.onGloballyPositioned
 import com.pixeleye.plantdoctor.ui.components.AdmobBanner
+import com.pixeleye.plantdoctor.ui.components.ShowcaseOverlay
 import com.pixeleye.plantdoctor.ui.components.UpgradeButton
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -128,12 +138,11 @@ fun formatScanDate(isoDateString: String?): String {
             }
         } catch (_: Exception) {
             isoDateString.take(10)
-        }
+    }
     }
 }
 
-// ── Main Screen ────────────────────────────────────────────────
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
 fun HomeScreen(
     uiState: HomeUiState,
@@ -144,12 +153,27 @@ fun HomeScreen(
     onScanPlantClick: () -> Unit,
     onViewResult: (PlantScanDto) -> Unit = {},
     onDeleteScan: (PlantScanDto) -> Unit = {},
+    onDeleteSelectedScans: (List<String>) -> Unit = {},
     onRetry: () -> Unit = {},
     onOpenSettings: () -> Unit = {},
     onOpenPaywall: () -> Unit = {},
-    onResume: () -> Unit = {}
+    onResume: () -> Unit = {},
+    // ── Showcase walkthrough ──────────────────────────────────
+    hasSeenCameraShowcase: Boolean = true,
+    hasSeenLongPressShowcase: Boolean = true,
+    onCameraShowcaseDismissed: () -> Unit = {},
+    onLongPressShowcaseDismissed: () -> Unit = {}
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
+
+    // ── Showcase coordinate state ─────────────────────────────
+    // Captured once the composable is laid out; null until available.
+    var fabRect by remember { mutableStateOf<Rect?>(null) }
+    var firstCardRect by remember { mutableStateOf<Rect?>(null) }
+
+    // Derive which (if any) overlay to show; evaluated on every recomposition.
+    val showCameraShowcase    = !hasSeenCameraShowcase && fabRect != null
+    val showLongPressShowcase = hasSeenCameraShowcase && !hasSeenLongPressShowcase && firstCardRect != null
 
     LaunchedEffect(snackbarMessage) {
         if (snackbarMessage != null) {
@@ -175,6 +199,9 @@ fun HomeScreen(
             lifecycleOwner.lifecycle.removeObserver(observer)
         }
     }
+
+    // Wrap Scaffold + overlay in a Box so the overlay renders above ALL Scaffold slots.
+    Box(modifier = Modifier.fillMaxSize()) {
 
     Scaffold(
         snackbarHost = {
@@ -243,7 +270,12 @@ fun HomeScreen(
         },
         floatingActionButton = {
             val context = LocalContext.current
-            ScanFAB(onClick = {
+            ScanFAB(
+                modifier = Modifier.onGloballyPositioned { coords ->
+                    // Capture FAB screen-space bounds the first time it is laid out
+                    fabRect = coords.boundsInWindow()
+                },
+                onClick = {
                 val hasLocationPermission = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
                                             ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
                 
@@ -298,8 +330,18 @@ fun HomeScreen(
                             )
                         }
                     },
+                    onDeleteSelectedScans = { ids ->
+                        onDeleteSelectedScans(ids)
+                        scope.launch {
+                            snackbarHostState.showSnackbar(
+                                message = "${ids.size} scan(s) deleted",
+                                duration = SnackbarDuration.Short
+                            )
+                        }
+                    },
                     onRefresh = onRetry,
-                    onOpenPaywall = onOpenPaywall
+                    onOpenPaywall = onOpenPaywall,
+                    onFirstCardPositioned = { rect -> firstCardRect = rect }
                 )
             }
 
@@ -313,7 +355,45 @@ fun HomeScreen(
                 )
             }
         }
+    } // end Scaffold
+
+    // ── Sequential Showcase Overlays ──────────────────────────────────────────
+    // Siblings of Scaffold inside outer Box — render above ALL Scaffold slots
+    // (TopAppBar, FAB, BottomBar), fully blocking every other button while active.
+    when {
+        // Priority 1 — Camera showcase: ONLY FAB area or “Got it” work
+        showCameraShowcase && fabRect != null -> {
+            ShowcaseOverlay(
+                targetRect  = fabRect!!,
+                icon        = Icons.Outlined.PhotoCamera,
+                title       = "Scan a Plant",
+                message     = "Tap this button to open the camera and instantly analyse any plant for diseases.",
+                buttonLabel = "Got it",
+                onDismiss   = onCameraShowcaseDismissed,
+                // Tapping the highlighted FAB area → dismiss showcase + open camera
+                onTargetTap = {
+                    onCameraShowcaseDismissed()
+                    onScanPlantClick()
+                }
+            )
+        }
+        // Priority 2 — Long-press showcase: ONLY first card or “Got it” work
+        showLongPressShowcase && firstCardRect != null -> {
+            ShowcaseOverlay(
+                targetRect        = firstCardRect!!,
+                icon              = Icons.Default.TouchApp,
+                title             = "Select & Delete",
+                message           = "Long-press a scan card to enter selection mode. You can then delete scans at once.",
+                buttonLabel       = "Got it",
+                onDismiss         = onLongPressShowcaseDismissed,
+                // Long-pressing the card → dismiss showcase; gesture is not consumed
+                // so the card’s combinedClickable also fires → enters selection mode.
+                onTargetLongPress = onLongPressShowcaseDismissed
+            )
+        }
     }
+
+    } // end outer Box
 }
 
 // ── Loading State ──────────────────────────────────────────────
@@ -407,40 +487,135 @@ private fun ScanHistoryContent(
     isPremium: Boolean,
     onViewResult: (PlantScanDto) -> Unit,
     onDeleteScan: (PlantScanDto) -> Unit,
+    onDeleteSelectedScans: (List<String>) -> Unit,
     onRefresh: () -> Unit,
-    onOpenPaywall: () -> Unit
+    onOpenPaywall: () -> Unit,
+    onFirstCardPositioned: (Rect) -> Unit = {}
 ) {
     val displayList = if (isPremium) scans else scans.take(5)
     val showLockFooter = !isPremium && scans.size > 5
+    
+    val selectedScans = remember { mutableStateSetOf<String>() }
+    val isInSelectionMode = selectedScans.isNotEmpty()
+    
+    fun toggleSelection(scanId: String) {
+        if (selectedScans.contains(scanId)) {
+            selectedScans.remove(scanId)
+        } else {
+            selectedScans.add(scanId)
+        }
+    }
+    
+    fun selectAll() {
+        selectedScans.addAll(displayList.mapNotNull { it.id })
+    }
+    
+    fun deselectAll() {
+        selectedScans.clear()
+    }
+    
+    fun toggleSelectAll() {
+        if (selectedScans.size == displayList.size) {
+            deselectAll()
+        } else {
+            selectAll()
+        }
+    }
 
-    LazyColumn(
-        modifier = modifier,
-        contentPadding = PaddingValues(
-            start = 20.dp,
-            end = 20.dp,
-            top = 8.dp,
-            bottom = 100.dp
-        ),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        item {
-            RecentScansHeader(count = scans.size, onRefresh = onRefresh)
+    Column(modifier = modifier) {
+        if (isInSelectionMode) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.primary)
+                    .padding(horizontal = 20.dp, vertical = 12.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(
+                        checked = selectedScans.size == displayList.size,
+                        onCheckedChange = { toggleSelectAll() },
+                        colors = CheckboxDefaults.colors(
+                            checkmarkColor = MaterialTheme.colorScheme.primary,
+                            checkedColor = MaterialTheme.colorScheme.onPrimary,
+                            uncheckedColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f)
+                        )
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Mark All",
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                }
+                
+                Button(
+                    onClick = { 
+                        onDeleteSelectedScans(selectedScans.toList())
+                        deselectAll()
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error,
+                        contentColor = MaterialTheme.colorScheme.onError
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.DeleteOutline,
+                        contentDescription = "Delete",
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(text = "Delete (${selectedScans.size})")
+                }
+            }
         }
-        items(
-            items = displayList,
-            key = { it.id ?: it.hashCode() }
-        ) { scan ->
-            ScanCard(
-                scan = scan,
-                onClick = { onViewResult(scan) },
-                onDelete = { onDeleteScan(scan) }
-            )
-        }
+        
+        LazyColumn(
+            contentPadding = PaddingValues(
+                start = 20.dp,
+                end = 20.dp,
+                top = 8.dp,
+                bottom = 100.dp
+            ),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            item {
+                RecentScansHeader(count = scans.size, onRefresh = onRefresh)
+            }
+            items(
+                items = displayList,
+                key = { it.id ?: it.hashCode() }
+            ) { scan ->
+                val index = displayList.indexOf(scan)
+                ScanCard(
+                    scan = scan,
+                    isSelected = selectedScans.contains(scan.id),
+                    isInSelectionMode = isInSelectionMode,
+                    modifier = if (index == 0) Modifier.onGloballyPositioned { coords ->
+                        onFirstCardPositioned(coords.boundsInWindow())
+                    } else Modifier,
+                    onClick = {
+                        if (isInSelectionMode) {
+                            scan.id?.let { toggleSelection(it) }
+                        } else {
+                            onViewResult(scan)
+                        }
+                    },
+                    onLongClick = {
+                        scan.id?.let { toggleSelection(it) }
+                    },
+                    onDelete = { onDeleteScan(scan) }
+                )
+            }
         if (showLockFooter) {
             item {
                 ProUnlockCard(totalScans = scans.size, onClick = onOpenPaywall)
             }
         }
+    }
     }
 }
 
@@ -565,7 +740,11 @@ private fun RecentScansHeader(
 @Composable
 private fun ScanCard(
     scan: PlantScanDto,
+    isSelected: Boolean,
+    isInSelectionMode: Boolean,
+    modifier: Modifier = Modifier,
     onClick: () -> Unit,
+    onLongClick: () -> Unit,
     onDelete: () -> Unit
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -577,12 +756,15 @@ private fun ScanCard(
     )
 
     Card(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .scale(scale),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
+            containerColor = if (isSelected) 
+                MaterialTheme.colorScheme.primaryContainer 
+            else 
+                MaterialTheme.colorScheme.surface
         ),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 3.dp,
@@ -592,14 +774,24 @@ private fun ScanCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable(
+                .combinedClickable(
                     interactionSource = interactionSource,
                     indication = ripple(bounded = true),
-                    onClick = onClick
+                    onClick = onClick,
+                    onLongClick = onLongClick
                 )
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            if (isSelected) {
+                Icon(
+                    imageVector = Icons.Default.CheckCircle,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(24.dp)
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+            }
             PlantThumbnail(
                 imageUrl = scan.imageUrl,
                 modifier = Modifier.size(64.dp)
@@ -652,19 +844,6 @@ private fun ScanCard(
                         color = MaterialTheme.colorScheme.primary
                     )
                 }
-            }
-
-            // Delete button
-            IconButton(
-                onClick = onDelete,
-                modifier = Modifier.size(36.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.DeleteOutline,
-                    contentDescription = "Delete scan",
-                    tint = MaterialTheme.colorScheme.error.copy(alpha = 0.7f),
-                    modifier = Modifier.size(20.dp)
-                )
             }
         }
 
@@ -906,7 +1085,8 @@ private fun EmptyPlantIllustration(
 // ── Scan FAB with Pulse Animation ──────────────────────────────
 @Composable
 private fun ScanFAB(
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "fab_pulse")
 
@@ -960,7 +1140,7 @@ private fun ScanFAB(
 
     Box(
         contentAlignment = Alignment.Center,
-        modifier = Modifier.offset(y = 12.dp)
+        modifier = modifier.offset(y = 12.dp)
     ) {
         Box(
             modifier = Modifier

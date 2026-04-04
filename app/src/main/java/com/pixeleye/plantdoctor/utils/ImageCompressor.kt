@@ -7,7 +7,7 @@ import android.net.Uri
 import java.io.ByteArrayOutputStream
 
 private const val MAX_DIMENSION = 1280
-private const val JPEG_QUALITY = 80
+private const val JPEG_QUALITY = 50
 
 /**
  * Decodes an image from [uri], downscales so the largest dimension is capped

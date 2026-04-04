@@ -10,8 +10,14 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -50,7 +56,7 @@ import com.pixeleye.plantdoctor.viewmodel.PlantDiagnosisViewModel
 import com.pixeleye.plantdoctor.viewmodel.SettingsViewModel
 import com.pixeleye.plantdoctor.utils.LocationHelper
 import com.pixeleye.plantdoctor.utils.rememberNetworkState
-import com.pixeleye.plantdoctor.ui.screens.NoInternetScreen
+
 import com.pixeleye.plantdoctor.data.local.AppDatabase
 import com.pixeleye.plantdoctor.data.api.PlantScanRepository
 import com.pixeleye.plantdoctor.data.api.BillingManager
@@ -103,10 +109,17 @@ fun PlantDoctorApp(
     )
 ) {
     val isOnline by rememberNetworkState()
+    val snackbarHostState = remember { SnackbarHostState() }
 
-    if (!isOnline) {
-        NoInternetScreen()
-        return
+    LaunchedEffect(isOnline) {
+        if (!isOnline) {
+            snackbarHostState.showSnackbar(
+                message = "No internet connection",
+                duration = SnackbarDuration.Indefinite
+            )
+        } else {
+            snackbarHostState.currentSnackbarData?.dismiss()
+        }
     }
 
     // ── Global Premium State Management ────────────────────
@@ -125,22 +138,36 @@ fun PlantDoctorApp(
 
     val authState by authViewModel.authState.collectAsStateWithLifecycle()
 
-    when (authState) {
-        is AuthState.Loading -> {
-            LoadingSplash()
+    Scaffold(
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState) { data ->
+                Snackbar(
+                    snackbarData = data,
+                    shape = RoundedCornerShape(12.dp),
+                    containerColor = MaterialTheme.colorScheme.inverseSurface,
+                    contentColor = MaterialTheme.colorScheme.inverseOnSurface,
+                    actionColor = MaterialTheme.colorScheme.tertiary
+                )
+            }
         }
+    ) { paddingValues ->
+        when (authState) {
+            is AuthState.Loading -> {
+                LoadingSplash()
+            }
 
-        is AuthState.Authenticated,
-        is AuthState.Unauthenticated,
-        is AuthState.Error -> {
-            PlantDoctorNavHost(
-                authViewModel = authViewModel,
-                authState = authState,
-                userPreferencesRepository = userPreferencesRepository,
-                billingManager = billingManager,
-                premiumViewModel = premiumViewModel,
-                onSignOut = { authViewModel.signOut() }
-            )
+            is AuthState.Authenticated,
+            is AuthState.Unauthenticated,
+            is AuthState.Error -> {
+                PlantDoctorNavHost(
+                    authViewModel = authViewModel,
+                    authState = authState,
+                    userPreferencesRepository = userPreferencesRepository,
+                    billingManager = billingManager,
+                    premiumViewModel = premiumViewModel,
+                    onSignOut = { authViewModel.signOut() }
+                )
+            }
         }
     }
 }
@@ -186,13 +213,15 @@ fun PlantDoctorNavHost(
         factory = PlantDiagnosisViewModel.Factory(userPreferencesRepository, repository, userQuotaRepository)
     )
     val homeViewModel: HomeViewModel = viewModel(
-        factory = HomeViewModel.Factory(repository)
+        factory = HomeViewModel.Factory(repository, userPreferencesRepository)
     )
 
     val homeUiState by homeViewModel.uiState.collectAsStateWithLifecycle()
     val diagnosisState by diagnosisViewModel.diagnosisState.collectAsStateWithLifecycle()
     val isPremium by premiumViewModel.isPremium.collectAsStateWithLifecycle()
     val prefs by userPreferencesRepository.userPreferences.collectAsStateWithLifecycle(initialValue = com.pixeleye.plantdoctor.data.UserPreferences())
+    val hasSeenCameraShowcase by homeViewModel.hasSeenCameraShowcase.collectAsStateWithLifecycle()
+    val hasSeenLongPressShowcase by homeViewModel.hasSeenLongPressShowcase.collectAsStateWithLifecycle()
 
     NavHost(
         navController = navController,
@@ -284,6 +313,9 @@ fun PlantDoctorNavHost(
                 onDeleteScan = { scan ->
                     homeViewModel.deleteScan(scan)
                 },
+                onDeleteSelectedScans = { ids ->
+                    homeViewModel.deleteSelectedScans(ids)
+                },
                 onRetry = {
                     homeViewModel.fetchHistory()
                 },
@@ -299,7 +331,11 @@ fun PlantDoctorNavHost(
                 },
                 onResume = {
                     homeViewModel.fetchHistory()
-                }
+                },
+                hasSeenCameraShowcase = hasSeenCameraShowcase,
+                hasSeenLongPressShowcase = hasSeenLongPressShowcase,
+                onCameraShowcaseDismissed = { homeViewModel.markCameraShowcaseSeen() },
+                onLongPressShowcaseDismissed = { homeViewModel.markLongPressShowcaseSeen() }
             )
         }
 
@@ -366,8 +402,11 @@ fun PlantDoctorNavHost(
                 }
             }
 
+            var analysisTriggered by remember { mutableStateOf(false) }
+
             LaunchedEffect(imageUriString) {
-                if (imageUri != null && diagnosisState is DiagnosisState.Idle) {
+                if (imageUri != null && diagnosisState is DiagnosisState.Idle && !analysisTriggered) {
+                    analysisTriggered = true
                     try {
                         Log.d("PlantDoctor", "Starting image decode for URI: $imageUri")
                         val bitmap = withContext(Dispatchers.IO) {

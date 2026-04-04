@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.pixeleye.plantdoctor.BuildConfig
 import com.pixeleye.plantdoctor.data.api.PlantScanDto
 import com.pixeleye.plantdoctor.data.api.PlantScanRepository
+import com.pixeleye.plantdoctor.data.UserPreferencesRepository
 import com.pixeleye.plantdoctor.data.api.SupabaseClientProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -25,7 +26,10 @@ sealed class HomeUiState {
     data class Error(val message: String) : HomeUiState()
 }
 
-class HomeViewModel(private val repository: PlantScanRepository) : ViewModel() {
+class HomeViewModel(
+    private val repository: PlantScanRepository,
+    private val prefsRepository: UserPreferencesRepository
+) : ViewModel() {
 
     companion object {
         private const val TAG = "HomeViewModel"
@@ -53,8 +57,22 @@ class HomeViewModel(private val repository: PlantScanRepository) : ViewModel() {
     private val _snackbarEvent = MutableStateFlow<String?>(null)
     val snackbarEvent: StateFlow<String?> = _snackbarEvent.asStateFlow()
 
+    // ── Showcase walkthrough state ─────────────────────────────
+    private val _hasSeenCameraShowcase = MutableStateFlow(false)
+    val hasSeenCameraShowcase: StateFlow<Boolean> = _hasSeenCameraShowcase.asStateFlow()
+
+    private val _hasSeenLongPressShowcase = MutableStateFlow(false)
+    val hasSeenLongPressShowcase: StateFlow<Boolean> = _hasSeenLongPressShowcase.asStateFlow()
+
     init {
         fetchHistory()
+        // Collect persisted showcase flags from DataStore
+        viewModelScope.launch {
+            prefsRepository.userPreferences.collect { prefs ->
+                _hasSeenCameraShowcase.value = prefs.hasSeenCameraShowcase
+                _hasSeenLongPressShowcase.value = prefs.hasSeenLongPressShowcase
+            }
+        }
     }
 
     fun fetchHistory() {
@@ -78,6 +96,20 @@ class HomeViewModel(private val repository: PlantScanRepository) : ViewModel() {
 
     fun consumeSnackbarEvent() {
         _snackbarEvent.value = null
+    }
+
+    fun markCameraShowcaseSeen() {
+        viewModelScope.launch {
+            prefsRepository.markCameraShowcaseSeen()
+            _hasSeenCameraShowcase.value = true
+        }
+    }
+
+    fun markLongPressShowcaseSeen() {
+        viewModelScope.launch {
+            prefsRepository.markLongPressShowcaseSeen()
+            _hasSeenLongPressShowcase.value = true
+        }
     }
 
     /**
@@ -108,12 +140,33 @@ class HomeViewModel(private val repository: PlantScanRepository) : ViewModel() {
         _lastDeletedScan.value = null
     }
 
+    fun deleteSelectedScans(scanIds: List<String>) {
+        val currentState = uiState.value
+        if (currentState !is HomeUiState.Success) return
+
+        val scansToDelete = currentState.scans.filter { it.id in scanIds }
+        
+        viewModelScope.launch {
+            scansToDelete.forEach { scan ->
+                try {
+                    repository.deleteScan(scan)
+                    Log.d(TAG, "Scan deleted successfully: ${scan.id}")
+                } catch (e: Exception) {
+                    Log.e(TAG, "Failed to delete scan: ${scan.id}", e)
+                }
+            }
+            // Refresh to restore any items that failed to delete
+            fetchHistory()
+        }
+    }
+
     class Factory(
-        private val repository: PlantScanRepository
+        private val repository: PlantScanRepository,
+        private val prefsRepository: UserPreferencesRepository
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return HomeViewModel(repository) as T
+            return HomeViewModel(repository, prefsRepository) as T
         }
     }
 }
