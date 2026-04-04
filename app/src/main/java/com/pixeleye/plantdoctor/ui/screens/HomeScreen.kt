@@ -697,6 +697,7 @@ private fun RecentScansHeader(
 }
 
 // ── Scan Card ──────────────────────────────────────────────────
+@OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
 private fun ScanCard(
     scan: PlantScanDto,
