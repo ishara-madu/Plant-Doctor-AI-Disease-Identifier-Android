@@ -81,7 +81,8 @@ fun PaywallScreen(
     onClose: () -> Unit = {},
     onSubscribe: (plan: String) -> Unit = {},
     onRestorePurchases: () -> Unit = {},
-    onTermsClick: () -> Unit = {}
+    onTermsClick: () -> Unit = {},
+    onPrivacyClick: () -> Unit = {}
 ) {
     var selectedPlan by remember { mutableStateOf("yearly") }
 
@@ -315,7 +316,7 @@ fun PaywallScreen(
                 ) {
                     TextButton(onClick = onRestorePurchases, enabled = !isProcessing) {
                         Text(
-                            text = "Restore Purchases",
+                            text = "Restore",
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -329,7 +330,21 @@ fun PaywallScreen(
 
                     TextButton(onClick = onTermsClick) {
                         Text(
-                            text = "Terms & Privacy Policy",
+                            text = "Terms",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+
+                    Text(
+                        text = "  \u2022  ",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f)
+                    )
+
+                    TextButton(onClick = onPrivacyClick) {
+                        Text(
+                            text = "Privacy",
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )

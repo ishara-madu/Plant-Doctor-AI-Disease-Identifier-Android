@@ -35,6 +35,7 @@ android {
         buildConfigField("String", "ADMOB_INTERSTITIAL_ID", "\"${localProperties.getProperty("ADMOB_INTERSTITIAL_ID", "")}\"")
         buildConfigField("String", "ADMOB_REWARDED_ID", "\"${localProperties.getProperty("ADMOB_REWARDED_ID", "")}\"")
         buildConfigField("String", "ADMOB_BANNER_ID", "\"${localProperties.getProperty("ADMOB_BANNER_ID", "")}\"")
+        buildConfigField("String", "ONESIGNAL_APP_ID", "\"${localProperties.getProperty("ONESIGNAL_APP_ID", "")}\"")
 
 
         manifestPlaceholders["ADMOB_APP_ID"] = localProperties.getProperty("ADMOB_APP_ID", "")
@@ -182,4 +183,7 @@ dependencies {
 
     // Fix for CameraX ListenableFuture conflict
     implementation("com.google.guava:guava:33.0.0-android")
+
+    // OneSignal Push Notifications
+    implementation("com.onesignal:OneSignal:[5.1.6, 5.1.99]")
 }

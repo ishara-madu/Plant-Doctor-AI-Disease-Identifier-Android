@@ -1,5 +1,11 @@
 package com.pixeleye.plantdoctor
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
@@ -83,6 +89,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             PlantDoctorTheme {
+                RequestNotificationPermission()
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
@@ -286,6 +293,7 @@ fun PlantDoctorNavHost(
     val navController = rememberNavController()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val uriHandler = androidx.compose.ui.platform.LocalUriHandler.current
 
     val homeUiState by homeViewModel.uiState.collectAsStateWithLifecycle()
     val diagnosisState by diagnosisViewModel.diagnosisState.collectAsStateWithLifecycle()
@@ -725,10 +733,36 @@ fun PlantDoctorNavHost(
                     }
                 },
                 onTermsClick = {
-                    Log.d("PlantDoctor", "Terms tapped")
-                    // TODO: open terms URL
+                    uriHandler.openUri("https://ishara-madu.github.io/Plant-Doctor-AI-Disease-Identifier-Android/terms-and-conditions.html")
+                },
+                onPrivacyClick = {
+                    uriHandler.openUri("https://ishara-madu.github.io/Plant-Doctor-AI-Disease-Identifier-Android/privacy-policy.html")
                 }
             )
+        }
+    }
+}
+
+@Composable
+fun RequestNotificationPermission() {
+    val context = LocalContext.current
+    
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        // Handle result if needed
+    }
+
+    LaunchedEffect(Unit) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val isPermissionGranted = ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+
+            if (!isPermissionGranted) {
+                permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
         }
     }
 }
