@@ -711,16 +711,23 @@ footer {
 @media (max-width: 768px) {
     .main-nav {
         position: fixed;
-        top: -100%;
+        top: 0;
         left: 0;
         width: 100%;
         background: var(--white);
         padding: 6rem 2rem 4rem;
         transition: var(--transition);
         box-shadow: var(--shadow-lg);
+        transform: translateY(-100%);
+        visibility: hidden;
+        opacity: 0;
     }
     
-    .main-nav.active { top: 0; }
+    .main-nav.active { 
+        transform: translateY(0); 
+        visibility: visible;
+        opacity: 1;
+    }
     
     .nav-links {
         flex-direction: column;

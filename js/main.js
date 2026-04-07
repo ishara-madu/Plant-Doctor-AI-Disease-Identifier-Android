@@ -72,7 +72,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const prevBtn = document.querySelector('#slider-prev');
     const nextBtn = document.querySelector('#slider-next');
     const dotsContainer = document.querySelector('#slider-dots');
-    const slides = slider.querySelectorAll('img');
+    
+    if (slider && prevBtn && nextBtn && dotsContainer) {
+        const slides = slider.querySelectorAll('img');
     
     let currentIndex = 0;
 
@@ -109,11 +111,11 @@ document.addEventListener('DOMContentLoaded', () => {
         updateSlider();
     });
 
-    // Auto slide
-    setInterval(() => {
-        currentIndex = (currentIndex + 1) % slides.length;
-        updateSlider();
-    }, 5000);
+        setInterval(() => {
+            currentIndex = (currentIndex + 1) % slides.length;
+            updateSlider();
+        }, 5000);
+    }
 
     // 6. FAQ Accordion
     const accordionItems = document.querySelectorAll('.accordion-item');
