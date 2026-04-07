@@ -284,6 +284,35 @@ header.scrolled {
     transform: scale(1.05);
 }
 
+.store-btn.coming-soon {
+    position: relative;
+    cursor: not-allowed;
+    opacity: 0.6;
+    filter: grayscale(1);
+}
+
+.store-btn.coming-soon::after {
+    content: "Coming Soon";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-15deg);
+    background: var(--primary);
+    color: var(--white);
+    padding: 0.25rem 0.5rem;
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    border-radius: 4px;
+    box-shadow: var(--shadow-md);
+    pointer-events: none;
+    z-index: 10;
+}
+
+.store-btn.coming-soon:hover img {
+    transform: none;
+}
+
 .hero-mockup-wrapper {
     position: relative;
     display: flex;
