@@ -565,19 +565,19 @@ private fun ExpandableSectionCard(
     var expanded by remember { mutableStateOf(true) }
 
     val containerColor = if (isHighlighted) {
-        MaterialTheme.colorScheme.tertiaryContainer
+        MaterialTheme.colorScheme.primaryContainer
     } else {
         MaterialTheme.colorScheme.surface
     }
 
     val onHighlightColor = if (isHighlighted) {
-        MaterialTheme.colorScheme.onTertiaryContainer
+        MaterialTheme.colorScheme.onPrimaryContainer
     } else {
         MaterialTheme.colorScheme.onSurface
     }
 
     val borderColor = if (isHighlighted) {
-        MaterialTheme.colorScheme.tertiary.copy(alpha = 0.4f)
+        MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)
     } else {
         MaterialTheme.colorScheme.outlineVariant
     }
@@ -608,7 +608,7 @@ private fun ExpandableSectionCard(
                         .size(36.dp)
                         .background(
                             color = if (isHighlighted) {
-                                MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.12f)
+                                MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.12f)
                             } else {
                                 MaterialTheme.colorScheme.primaryContainer
                             },
@@ -638,7 +638,7 @@ private fun ExpandableSectionCard(
                 if (isHighlighted) {
                     Surface(
                         shape = RoundedCornerShape(8.dp),
-                        color = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.12f)
+                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.12f)
                     ) {
                         Text(
                             text = "RECOMMENDED",
@@ -690,7 +690,7 @@ private fun ExpandableSectionCard(
                         verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         HorizontalDivider(
-                            color = if (isHighlighted) MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.15f) else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f),
+                            color = if (isHighlighted) MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.15f) else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f),
                             modifier = Modifier.padding(bottom = 8.dp)
                         )
                         items.forEachIndexed { index, itemText ->
@@ -752,13 +752,13 @@ private fun ChecklistRow(
     val containerColor = if (highlighted && !isOnDarkBackground) {
         TreatmentAccent.copy(alpha = 0.08f)
     } else if (highlighted && isOnDarkBackground) {
-        MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.08f)
+        MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.08f)
     } else {
         Color.Transparent
     }
 
     val checkboxCheckedColor = if (isOnDarkBackground) {
-        MaterialTheme.colorScheme.tertiary
+        MaterialTheme.colorScheme.primary
     } else if (highlighted) {
         TreatmentAccent
     } else {
@@ -766,19 +766,19 @@ private fun ChecklistRow(
     }
 
     val checkboxCheckmarkColor = if (isOnDarkBackground) {
-        MaterialTheme.colorScheme.onTertiary
+        MaterialTheme.colorScheme.onPrimary
     } else {
         MaterialTheme.colorScheme.surface
     }
 
     val checkboxUncheckedColor = if (isOnDarkBackground) {
-        MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.5f)
+        MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.5f)
     } else {
         MaterialTheme.colorScheme.outline
     }
 
     val textColor = if (isOnDarkBackground) {
-        if (checked) MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.6f) else MaterialTheme.colorScheme.onTertiaryContainer
+        if (checked) MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.6f) else MaterialTheme.colorScheme.onPrimaryContainer
     } else {
         if (checked) {
             MaterialTheme.colorScheme.onSurfaceVariant
