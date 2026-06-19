@@ -564,17 +564,20 @@ private fun ExpandableSectionCard(
 ) {
     var expanded by remember { mutableStateOf(true) }
 
-    val darkGoldenrod = Color(0xFFB8860B)
-    val onHighlightColor = Color.White
-
     val containerColor = if (isHighlighted) {
-        darkGoldenrod
+        MaterialTheme.colorScheme.tertiaryContainer
     } else {
         MaterialTheme.colorScheme.surface
     }
 
+    val onHighlightColor = if (isHighlighted) {
+        MaterialTheme.colorScheme.onTertiaryContainer
+    } else {
+        MaterialTheme.colorScheme.onSurface
+    }
+
     val borderColor = if (isHighlighted) {
-        darkGoldenrod
+        MaterialTheme.colorScheme.tertiary.copy(alpha = 0.4f)
     } else {
         MaterialTheme.colorScheme.outlineVariant
     }
@@ -605,7 +608,7 @@ private fun ExpandableSectionCard(
                         .size(36.dp)
                         .background(
                             color = if (isHighlighted) {
-                                Color.White.copy(alpha = 0.2f)
+                                MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.12f)
                             } else {
                                 MaterialTheme.colorScheme.primaryContainer
                             },
@@ -635,7 +638,7 @@ private fun ExpandableSectionCard(
                 if (isHighlighted) {
                     Surface(
                         shape = RoundedCornerShape(8.dp),
-                        color = Color.White.copy(alpha = 0.2f)
+                        color = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.12f)
                     ) {
                         Text(
                             text = "RECOMMENDED",
@@ -687,7 +690,7 @@ private fun ExpandableSectionCard(
                         verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         HorizontalDivider(
-                            color = if (isHighlighted) Color.White.copy(alpha = 0.3f) else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f),
+                            color = if (isHighlighted) MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.15f) else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f),
                             modifier = Modifier.padding(bottom = 8.dp)
                         )
                         items.forEachIndexed { index, itemText ->
@@ -745,21 +748,50 @@ private fun ChecklistRow(
     isOnDarkBackground: Boolean = false
 ) {
     var checked by remember { mutableStateOf(false) }
-    val darkGoldenrod = Color(0xFFB8860B)
+
+    val containerColor = if (highlighted && !isOnDarkBackground) {
+        TreatmentAccent.copy(alpha = 0.08f)
+    } else if (highlighted && isOnDarkBackground) {
+        MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.08f)
+    } else {
+        Color.Transparent
+    }
+
+    val checkboxCheckedColor = if (isOnDarkBackground) {
+        MaterialTheme.colorScheme.tertiary
+    } else if (highlighted) {
+        TreatmentAccent
+    } else {
+        MaterialTheme.colorScheme.primary
+    }
+
+    val checkboxCheckmarkColor = if (isOnDarkBackground) {
+        MaterialTheme.colorScheme.onTertiary
+    } else {
+        MaterialTheme.colorScheme.surface
+    }
+
+    val checkboxUncheckedColor = if (isOnDarkBackground) {
+        MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.5f)
+    } else {
+        MaterialTheme.colorScheme.outline
+    }
+
+    val textColor = if (isOnDarkBackground) {
+        if (checked) MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.6f) else MaterialTheme.colorScheme.onTertiaryContainer
+    } else {
+        if (checked) {
+            MaterialTheme.colorScheme.onSurfaceVariant
+        } else {
+            MaterialTheme.colorScheme.onSurface
+        }
+    }
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .background(
-                color = if (highlighted && !isOnDarkBackground) {
-                    TreatmentAccent.copy(alpha = 0.08f)
-                } else if (highlighted && isOnDarkBackground) {
-                    Color.White.copy(alpha = 0.2f)
-                } else {
-                    Color.Transparent
-                }
-            )
+            .background(containerColor)
             .clickable { checked = !checked }
             .padding(vertical = 8.dp, horizontal = 8.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -769,26 +801,16 @@ private fun ChecklistRow(
             onCheckedChange = { checked = it },
             modifier = Modifier.size(24.dp),
             colors = CheckboxDefaults.colors(
-                checkedColor = if (isOnDarkBackground) Color.White else if (highlighted) TreatmentAccent else MaterialTheme.colorScheme.primary,
-                checkmarkColor = if (isOnDarkBackground) darkGoldenrod else MaterialTheme.colorScheme.surface,
-                uncheckedColor = if (isOnDarkBackground) Color.White.copy(alpha = 0.7f) else MaterialTheme.colorScheme.outline
+                checkedColor = checkboxCheckedColor,
+                checkmarkColor = checkboxCheckmarkColor,
+                uncheckedColor = checkboxUncheckedColor
             )
         )
         Spacer(modifier = Modifier.width(12.dp))
         Text(
             text = text,
             style = MaterialTheme.typography.bodyMedium,
-            color = if (isOnDarkBackground) {
-                if (checked) Color.White.copy(alpha = 0.7f) else Color.White
-            } else {
-                if (checked) {
-                    MaterialTheme.colorScheme.onSurfaceVariant
-                } else if (highlighted) {
-                    MaterialTheme.colorScheme.onSurface
-                } else {
-                    MaterialTheme.colorScheme.onSurface
-                }
-            },
+            color = textColor,
             fontWeight = if (highlighted || isOnDarkBackground) FontWeight.Medium else FontWeight.Normal,
             textDecoration = if (checked) TextDecoration.LineThrough else TextDecoration.None,
             lineHeight = 20.sp
