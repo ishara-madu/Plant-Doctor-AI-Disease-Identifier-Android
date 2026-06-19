@@ -69,7 +69,7 @@ import androidx.compose.material.icons.filled.WarningAmber
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.Switch
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import android.content.Intent

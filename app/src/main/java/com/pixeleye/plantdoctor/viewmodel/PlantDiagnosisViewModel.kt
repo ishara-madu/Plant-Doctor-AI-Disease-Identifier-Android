@@ -36,6 +36,7 @@ import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.TimeoutCancellationException
 import java.io.ByteArrayOutputStream
 import java.io.IOException
+import java.time.LocalDate
 import java.util.UUID
 
 sealed class DiagnosisState {
@@ -75,10 +76,22 @@ class PlantDiagnosisViewModel(
         private const val TABLE_NAME = "plant_scans"
     }
 
-    private val generativeModel: GenerativeModel by lazy {
-        GenerativeModel(
+    private val exhaustedKeys = mutableSetOf<String>()
+    private var lastExhaustedResetDate: String = ""
+
+    private fun checkAndResetExhaustedKeys() {
+        val today = LocalDate.now().toString()
+        if (lastExhaustedResetDate != today) {
+            exhaustedKeys.clear()
+            lastExhaustedResetDate = today
+            Log.d(TAG, "New day detected. Cleared exhaustedKeys cache.")
+        }
+    }
+
+    private fun createGenerativeModel(apiKey: String): GenerativeModel {
+        return GenerativeModel(
             modelName = "gemini-2.5-flash",
-            apiKey = BuildConfig.GEMINI_API_KEY,
+            apiKey = apiKey,
             systemInstruction = content {
                 text("""You are an expert, highly authoritative agricultural and botanical pathologist. Analyze the provided image to diagnose plant health.
 
@@ -220,12 +233,64 @@ Rules:
                     text(fullPrompt)
                 }
 
-                val response = withTimeout(20_000L) {
-                    generativeModel.generateContent(inputContent)
+                // Fetch candidate keys and shuffle them to distribute API load evenly
+                val keysString = BuildConfig.GEMINI_API_KEYS
+                val allKeys = if (keysString.isNotBlank()) {
+                    keysString.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+                } else {
+                    emptyList()
+                }
+                
+                val candidateKeys = if (allKeys.isNotEmpty()) allKeys.shuffled() else listOf(BuildConfig.GEMINI_API_KEY)
+                
+                // Filter out exhausted keys and handle daily reset
+                checkAndResetExhaustedKeys()
+                val availableKeys = candidateKeys.filter { it !in exhaustedKeys }
+                
+                if (availableKeys.isEmpty()) {
+                    throw Exception("All Gemini API keys are exhausted for today. Please try again tomorrow.")
                 }
 
-                val resultText = response.text
-                    ?: throw Exception("No response generated from AI model.")
+                var responseText: String? = null
+                var lastError: Exception? = null
+
+                for (key in availableKeys) {
+                    try {
+                        Log.d(TAG, "Attempting analysis with key: ${if (key.length > 8) key.take(8) + "..." else key}")
+                        val model = createGenerativeModel(key)
+                        
+                        val response = withTimeout(20_000L) {
+                            model.generateContent(inputContent)
+                        }
+                        
+                        responseText = response.text
+                        if (responseText != null) {
+                            break // Succeeded!
+                        } else {
+                            throw Exception("Empty response from AI model.")
+                        }
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Analysis failed with key: ${if (key.length > 8) key.take(8) + "..." else key}", e)
+                        lastError = e
+
+                        val isQuotaError = e.message?.contains("RESOURCE_EXHAUSTED", ignoreCase = true) == true ||
+                                e.message?.contains("quota", ignoreCase = true) == true ||
+                                e.message?.contains("429") == true
+
+                        if (isQuotaError) {
+                            Log.w(TAG, "Key is exhausted. Adding to exhaustedKeys cache.")
+                            exhaustedKeys.add(key)
+                            // Continue loop to try next key
+                        } else {
+                            // If it's a network error or other error, do not retry other keys to prevent long delay!
+                            throw e
+                        }
+                    }
+                }
+
+                val resultText = responseText ?: throw lastError ?: Exception("No response generated from AI model.")
+
+
 
                 Log.d(TAG, "Raw Gemini response: $resultText")
 
