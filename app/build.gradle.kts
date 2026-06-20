@@ -148,6 +148,7 @@ dependencies {
 
     // Play Services Location
     implementation(libs.play.services.location)
+    implementation(libs.play.services.mlkit.image.labeling)
 
     // Navigation Compose
     implementation(libs.androidx.navigation.compose)
