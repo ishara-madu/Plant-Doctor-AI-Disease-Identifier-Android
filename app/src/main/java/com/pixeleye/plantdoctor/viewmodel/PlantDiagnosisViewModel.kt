@@ -37,6 +37,11 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.TimeoutCancellationException
+import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.label.ImageLabeling
+import com.google.mlkit.vision.label.defaults.ImageLabelerOptions
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.time.LocalDate
@@ -175,6 +180,21 @@ Rules:
             _uploadState.value = UploadState.Idle
 
             try {
+                // Local image verification with ML Kit
+                val isPlantLocal = checkIfImageContainsPlant(image)
+                if (!isPlantLocal) {
+                    val prefs = userPreferencesRepository.userPreferences.first()
+                    val aiLanguage = prefs.selectedAiLanguage
+                    val errorMsg = when (aiLanguage) {
+                        "Sinhala" -> "මෙම ඡායාරූපයෙහි පැලෑටියක් නොමැති බව පෙනේ. කරුණාකර පැලෑටියක ඡායාරූපයක් සමඟ නැවත උත්සාහ කරන්න."
+                        "Tamil" -> "இந்த படத்தில் தாவரங்கள் எதுவும் இல்லை போல் தெரிகிறது. தயவுசெய்து ஒரு தாவரத்தின் புகைப்படத்துடன் மீண்டும் முயற்சிக்கவும்."
+                        else -> "The image does not appear to contain a plant. Please try again with a plant photo."
+                    }
+                    Log.d(TAG, "Local validation rejected the image. Selected language: $aiLanguage")
+                    _diagnosisState.value = DiagnosisState.Error(errorMsg)
+                    return@launch
+                }
+
                 val threadScans = if (parentId != null) {
                     withContext(Dispatchers.IO) {
                         try {
@@ -519,6 +539,34 @@ Rules:
             }
         }
         return cleaned.trim()
+    }
+
+    private suspend fun checkIfImageContainsPlant(bitmap: Bitmap): Boolean = suspendCancellableCoroutine { continuation ->
+        try {
+            val image = InputImage.fromBitmap(bitmap, 0)
+            val labeler = ImageLabeling.getClient(ImageLabelerOptions.DEFAULT_OPTIONS)
+            labeler.process(image)
+                .addOnSuccessListener { labels ->
+                    val keywords = listOf(
+                        "plant", "leaf", "flower", "tree", "flora", "botany",
+                        "vegetable", "fruit", "houseplant", "garden", "herb",
+                        "shrub", "organism", "produce"
+                    )
+                    val containsPlant = labels.any { label ->
+                        val text = label.text.lowercase()
+                        val confidence = label.confidence
+                        confidence >= 0.5f && keywords.any { text.contains(it) }
+                    }
+                    continuation.resume(containsPlant)
+                }
+                .addOnFailureListener { e ->
+                    Log.e(TAG, "ML Kit image labeling failed, falling back to Gemini", e)
+                    continuation.resume(true) // Fallback to Gemini
+                }
+        } catch (e: Exception) {
+            Log.e(TAG, "ML Kit initialization failed, falling back to Gemini", e)
+            continuation.resume(true) // Fallback to Gemini
+        }
     }
 
     fun resetState() {
