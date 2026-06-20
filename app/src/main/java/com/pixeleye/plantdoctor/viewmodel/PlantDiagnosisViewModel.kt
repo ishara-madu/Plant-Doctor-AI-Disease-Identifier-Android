@@ -510,12 +510,19 @@ Rules:
                     val guestUserId = supabaseClient.auth.currentUserOrNull()?.id ?: "guest_user"
                     val localImageUrl = imageUri?.toString() ?: ""
 
+                    // Generate a safe ISO-8601 timestamp for local SQLite ordering and to prevent size limit deletion
+                    val sdf = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", java.util.Locale.US).apply {
+                        timeZone = java.util.TimeZone.getTimeZone("UTC")
+                    }
+                    val isoTimestamp = sdf.format(java.util.Date())
+
                     val fallbackScanDto = PlantScanDto(
                         id = fallbackScanId,
                         userId = guestUserId,
                         imageUrl = localImageUrl,
                         diseaseTitle = diseaseTitle,
                         treatmentPlan = treatmentPlan,
+                        createdAt = isoTimestamp,
                         parentId = parentId
                     )
 
@@ -528,7 +535,13 @@ Rules:
                         parentId = parentId ?: fallbackScanId
                     )
 
-                    showSnackbar("Saved locally (offline mode)", com.pixeleye.plantdoctor.ui.components.SnackbarType.SUCCESS)
+                    val isNetworkError = e is java.io.IOException || e is java.net.UnknownHostException
+                    val snackbarMsg = if (isNetworkError) {
+                        "Saved locally (offline mode)"
+                    } else {
+                        "Saved locally (Cloud sync failed)"
+                    }
+                    showSnackbar(snackbarMsg, com.pixeleye.plantdoctor.ui.components.SnackbarType.SUCCESS)
                 } catch (localEx: Exception) {
                     Log.e(TAG, "Local save fallback failed", localEx)
                     _uploadState.value = UploadState.Error(
