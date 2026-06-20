@@ -1,6 +1,7 @@
 package com.pixeleye.plantdoctor.ui.screens
 
 import android.net.Uri
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
@@ -124,6 +125,10 @@ fun ResultScreen(
     val context = LocalContext.current
     var mInterstitialAd by remember { mutableStateOf<InterstitialAd?>(null) }
     var adShown by remember { mutableStateOf(false) }
+
+    BackHandler {
+        onBack()
+    }
 
     // Load and Show Ad if requested and not premium
     LaunchedEffect(Unit) {

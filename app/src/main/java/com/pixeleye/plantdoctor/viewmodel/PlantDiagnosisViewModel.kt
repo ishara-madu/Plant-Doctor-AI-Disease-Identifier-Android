@@ -10,6 +10,9 @@ import androidx.lifecycle.viewModelScope
 import com.google.ai.client.generativeai.GenerativeModel
 import com.google.ai.client.generativeai.type.content
 import com.google.ai.client.generativeai.type.generationConfig
+import com.google.ai.client.generativeai.type.SafetySetting
+import com.google.ai.client.generativeai.type.HarmCategory
+import com.google.ai.client.generativeai.type.BlockThreshold
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import com.pixeleye.plantdoctor.BuildConfig
@@ -117,7 +120,13 @@ Rules:
                 topP = 0.95f
                 maxOutputTokens = 8192
                 responseMimeType = "application/json"
-            }
+            },
+            safetySettings = listOf(
+                SafetySetting(HarmCategory.HARASSMENT, BlockThreshold.NONE),
+                SafetySetting(HarmCategory.HATE_SPEECH, BlockThreshold.NONE),
+                SafetySetting(HarmCategory.SEXUALLY_EXPLICIT, BlockThreshold.NONE),
+                SafetySetting(HarmCategory.DANGEROUS_CONTENT, BlockThreshold.NONE)
+            )
         )
     }
 
@@ -222,6 +231,10 @@ Rules:
                         appendLine("CONTEXT:")
                         if (aiLanguage.isNotBlank()) {
                             appendLine("- You MUST provide your final JSON structured diagnosis ONLY in $aiLanguage.")
+                            appendLine("- CRITICAL: Translate ONLY the values (text content) of the JSON fields. The JSON keys ('is_plant', 'diagnosis_summary', 'organic_treatments', 'chemical_treatments') MUST remain exactly in English as specified in the system instructions. Do not translate the keys.")
+                            if (aiLanguage.equals("Sinhala", ignoreCase = true)) {
+                                appendLine("- SAFETY & COMPLIANCE: In Sinhala, describe chemical and organic treatments using mild, safe terminology (e.g., use 'පාලනය සදහා' (for control) or 'ප්‍රතිකාර' (treatments) instead of words meaning poison/toxin like 'විෂ' or 'වස'). Avoid copying long passages verbatim from external websites to prevent automated copyright/citation blocks.")
+                            }
                         }
 
                         // Prefer dynamic robust location over static country preferences
@@ -254,6 +267,7 @@ Rules:
                         appendLine("3. Provide a clear summary comparing current status to previous status, noting visual changes.")
                         appendLine("4. Update the organic and chemical treatments list to reflect the next steps. Explain what to continue doing, what to stop, and any new measures to take.")
                         appendLine("5. Start your 'diagnosis_summary' with a clear status header (e.g. 'Status: Improving', 'Status: Worsening', or 'Status: No Change') followed by the comparison analysis.")
+                        appendLine("6. CRITICAL SAFETY: If the new image contains a completely different plant species or a different plant compared to the previous context, set the status header to 'Status: Mismatch - Different Plant Detected' and warn the user in the summary, advising them to photograph the original plant. Do not generate treatment plans for mismatched plants.")
                         appendLine()
                     }
                 } else {
@@ -295,7 +309,7 @@ Rules:
                         Log.d(TAG, "Attempting analysis with key: ${if (key.length > 8) key.take(8) + "..." else key}")
                         val model = createGenerativeModel(key)
                         
-                        val response = withTimeout(20_000L) {
+                        val response = withTimeout(45_000L) {
                             model.generateContent(inputContent)
                         }
                         
@@ -331,8 +345,9 @@ Rules:
                 Log.d(TAG, "Raw Gemini response: $resultText")
 
                 // Parse into the intermediate model that includes is_plant
+                val cleanedJson = cleanJsonString(resultText)
                 val geminiResult = try {
-                    Gson().fromJson(resultText, GeminiAnalysisResponse::class.java)
+                    Gson().fromJson(cleanedJson, GeminiAnalysisResponse::class.java)
                 } catch (e: Exception) {
                     Log.e(TAG, "Failed to parse Gemini JSON: $resultText", e)
                     throw Exception("AI returned an unexpected format. Please try again.")
@@ -397,10 +412,21 @@ Rules:
 
             } catch (e: Exception) {
                 Log.e(TAG, "Gemini analysis failed", e)
-                val errorMessage = when (e) {
-                    is java.net.UnknownHostException, is IOException -> "No internet connection. Please check your network."
-                    is java.net.SocketTimeoutException, is kotlinx.coroutines.TimeoutCancellationException -> "The server took too long to respond. Please try again."
-                    else -> "API Error: ${e.message ?: "An unknown error occurred during analysis."}"
+                val isTimeout = e is kotlinx.coroutines.TimeoutCancellationException ||
+                        e is java.net.SocketTimeoutException ||
+                        e.message?.contains("timeout", ignoreCase = true) == true ||
+                        e.cause?.message?.contains("timeout", ignoreCase = true) == true
+                
+                val errorMessage = if (isTimeout) {
+                    "The analysis timed out. Please try again with a better network connection."
+                } else {
+                    when (e) {
+                        is java.net.UnknownHostException, is IOException -> "No internet connection. Please check your network."
+                        else -> {
+                            val details = "[${e.javaClass.simpleName}] ${e.message ?: "Unknown error"}${if (e.cause != null) " (Cause: ${e.cause?.message})" else ""}"
+                            "API Error: $details"
+                        }
+                    }
                 }
                 _diagnosisState.value = DiagnosisState.Error(errorMessage)
             }
@@ -418,7 +444,7 @@ Rules:
         viewModelScope.launch {
             _uploadState.value = UploadState.Uploading
             try {
-                withTimeout(20_000L) {
+                withTimeout(30_000L) {
                     val currentUser = supabaseClient.auth.currentUserOrNull()
                     val currentUserId = currentUser?.id 
                         ?: throw Exception("User is not logged in. Cannot upload scan.")
@@ -479,6 +505,20 @@ Rules:
         val stream = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.JPEG, 85, stream)
         return stream.toByteArray()
+    }
+
+    private fun cleanJsonString(input: String): String {
+        var cleaned = input.trim()
+        if (cleaned.startsWith("```")) {
+            val firstNewline = cleaned.indexOf('\n')
+            if (firstNewline != -1) {
+                cleaned = cleaned.substring(firstNewline + 1)
+            }
+            if (cleaned.endsWith("```")) {
+                cleaned = cleaned.substring(0, cleaned.length - 3)
+            }
+        }
+        return cleaned.trim()
     }
 
     fun resetState() {

@@ -615,9 +615,14 @@ fun PlantDoctorNavHost(
                     val encodedPlan = Uri.encode(scan.treatmentPlan)
                     val scanId = scan.id
                     val scanParentId = scan.parentId
+                    val currentRoute = navController.currentBackStackEntry?.destination?.route
                     navController.navigate(
                         "result?imageUrl=$encodedUrl&title=$encodedTitle&plan=$encodedPlan&id=$scanId&parentId=$scanParentId"
-                    )
+                    ) {
+                        if (currentRoute != null) {
+                            popUpTo(currentRoute) { inclusive = true }
+                        }
+                    }
                 }
             )
         }
@@ -723,9 +728,14 @@ fun PlantDoctorNavHost(
                     val encodedPlan = Uri.encode(scan.treatmentPlan)
                     val scanId = scan.id
                     val scanParentId = scan.parentId
+                    val currentRoute = navController.currentBackStackEntry?.destination?.route
                     navController.navigate(
                         "result?imageUrl=$encodedUrl&title=$encodedTitle&plan=$encodedPlan&id=$scanId&parentId=$scanParentId"
-                    )
+                    ) {
+                        if (currentRoute != null) {
+                            popUpTo(currentRoute) { inclusive = true }
+                        }
+                    }
                 }
             )
         }
