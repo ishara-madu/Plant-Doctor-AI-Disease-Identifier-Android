@@ -528,7 +528,24 @@ Rules:
                         parentId = parentId ?: fallbackScanId
                     )
 
-                    showSnackbar("Saved locally (offline mode)", com.pixeleye.plantdoctor.ui.components.SnackbarType.SUCCESS)
+                    val isConnected = context?.let { ctx ->
+                        try {
+                            val cm = ctx.getSystemService(android.content.Context.CONNECTIVITY_SERVICE) as android.net.ConnectivityManager
+                            val activeNet = cm.activeNetwork
+                            val caps = cm.getNetworkCapabilities(activeNet)
+                            caps?.hasCapability(android.net.NetworkCapabilities.NET_CAPABILITY_INTERNET) == true
+                        } catch (_: Exception) {
+                            false
+                        }
+                    } ?: false
+
+                    val currentUser = supabaseClient.auth.currentUserOrNull()
+                    val snackbarMsg = when {
+                        !isConnected -> "Saved locally (offline mode)"
+                        currentUser == null -> "Saved locally (unauthenticated)"
+                        else -> "Saved locally (upload failed: ${e.localizedMessage ?: "sync failed"})"
+                    }
+                    showSnackbar(snackbarMsg, com.pixeleye.plantdoctor.ui.components.SnackbarType.SUCCESS)
                 } catch (localEx: Exception) {
                     Log.e(TAG, "Local save fallback failed", localEx)
                     _uploadState.value = UploadState.Error(

@@ -615,11 +615,23 @@ fun PlantDoctorNavHost(
                     }
                 },
                 onTrackProgress = {
-                    val targetParent = currentParentId ?: parentId
+                    val state = diagnosisViewModel.uploadState.value
+                    val targetParent = (state as? UploadState.Success)?.parentId 
+                        ?: (state as? UploadState.Success)?.scanId 
+                        ?: parentId
+                    Log.d("PlantDoctor", "Track Progress clicked (fresh capture): state=$state, targetParent=$targetParent, parentId=$parentId")
                     if (targetParent != null) {
-                        navController.navigate("camera?parentId=$targetParent") {
-                            popUpTo("home")
+                        try {
+                            if (NavigationDebouncer.canNavigate()) {
+                                navController.navigate("camera?parentId=$targetParent") {
+                                    popUpTo("home")
+                                }
+                            }
+                        } catch (e: Exception) {
+                            Log.e("PlantDoctor", "Navigation failed in track progress: ${e.message}", e)
                         }
+                    } else {
+                        Log.w("PlantDoctor", "Cannot track progress: targetParent is null")
                     }
                 },
                 onViewResult = { scan ->
@@ -734,9 +746,16 @@ fun PlantDoctorNavHost(
                 },
                 onTrackProgress = {
                     val targetParent = parentId ?: id
+                    Log.d("PlantDoctor", "Track Progress clicked (history): targetParent=$targetParent, parentId=$parentId, id=$id")
                     if (targetParent != null) {
-                        navController.navigate("camera?parentId=$targetParent") {
-                            popUpTo("home")
+                        try {
+                            if (NavigationDebouncer.canNavigate()) {
+                                navController.navigate("camera?parentId=$targetParent") {
+                                    popUpTo("home")
+                                }
+                            }
+                        } catch (e: Exception) {
+                            Log.e("PlantDoctor", "Navigation failed in track progress: ${e.message}", e)
                         }
                     }
                 },
