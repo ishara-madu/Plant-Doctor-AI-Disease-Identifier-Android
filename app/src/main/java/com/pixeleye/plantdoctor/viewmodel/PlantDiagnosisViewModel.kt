@@ -117,7 +117,8 @@ Rules:
 2. If it IS a plant: set "is_plant" to true. Provide a precise "diagnosis_summary".
 3. "organic_treatments": List actionable, natural, DIY, or organic farming methods (e.g., Neem oil, pruning, compost).
 4. "chemical_treatments": List specific, commercially available agrochemical treatments, synthetic fertilizers, or pesticides.
-5. CRITICAL SAFETY RULE: For chemical treatments, suggest the active ingredient or class of chemical, but STRICTLY advise the user to 'read the manufacturer's label for dosage and safety'.""".trimIndent())
+5. CRITICAL SAFETY RULE: For chemical treatments, suggest the active ingredient or class of chemical, but STRICTLY advise the user to 'read the manufacturer's label for dosage and safety'.
+6. The lists "organic_treatments" and "chemical_treatments" MUST contain ONLY direct, actionable, step-by-step treatment items. Any general advice, localization availability notes, supplier/brand information, or descriptive paragraphs MUST be written inside "diagnosis_summary" instead of the treatment lists.""".trimIndent())
             },
             generationConfig = generationConfig {
                 temperature = 0.7f
@@ -261,7 +262,7 @@ Rules:
                         val targetLocation = locationStr ?: country
                         if (targetLocation.isNotBlank()) {
                             appendLine("- The user is located at/in: $targetLocation. Suggest agricultural treatments, chemical compositions, and organic solutions that are locally available and commonly used in this region.")
-                            appendLine("- Mention specific local brands, agrochemical suppliers, or farming practices relevant to $targetLocation when appropriate.")
+                            appendLine("- Mention specific local brands, agrochemical suppliers, or farming practices relevant to $targetLocation when appropriate. CRITICAL: Any local supplier/brand notes, general availability advice, or regional context MUST be included inside the 'diagnosis_summary' text and NOT as items in the 'chemical_treatments' or 'organic_treatments' lists.")
                         }
                         appendLine()
                     }

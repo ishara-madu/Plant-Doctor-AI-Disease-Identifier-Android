@@ -75,6 +75,10 @@ class HomeViewModel(
         }
     }
 
+    fun clearThreadScans() {
+        _threadScans.value = emptyList()
+    }
+
     // One-time event for showing snackbar messages (e.g., slow connection)
     private val _snackbarEvent = MutableStateFlow<com.pixeleye.plantdoctor.ui.components.SnackbarState?>(null)
     val snackbarEvent: StateFlow<com.pixeleye.plantdoctor.ui.components.SnackbarState?> = _snackbarEvent.asStateFlow()

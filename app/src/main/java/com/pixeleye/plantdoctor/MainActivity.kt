@@ -517,6 +517,14 @@ fun PlantDoctorNavHost(
                 }
             }
 
+            LaunchedEffect(parentId) {
+                if (parentId != null) {
+                    homeViewModel.loadThreadScans(parentId)
+                } else {
+                    homeViewModel.clearThreadScans()
+                }
+            }
+
             var analysisTriggered by remember { mutableStateOf(false) }
 
             LaunchedEffect(imageUriString) {
@@ -578,6 +586,7 @@ fun PlantDoctorNavHost(
                 onBack = {
                     diagnosisViewModel.resetState()
                     homeViewModel.fetchHistory()
+                    homeViewModel.clearThreadScans()
                     try {
                         if (NavigationDebouncer.canNavigate()) {
                             navController.popBackStack()
@@ -588,6 +597,7 @@ fun PlantDoctorNavHost(
                 },
                 onNewScan = {
                     diagnosisViewModel.resetState()
+                    homeViewModel.clearThreadScans()
                     try {
                         navController.navigate("camera") {
                             popUpTo("home")
@@ -648,6 +658,8 @@ fun PlantDoctorNavHost(
                 val targetParent = parentId ?: id
                 if (targetParent != null) {
                     homeViewModel.loadThreadScans(targetParent)
+                } else {
+                    homeViewModel.clearThreadScans()
                 }
             }
 
@@ -692,6 +704,7 @@ fun PlantDoctorNavHost(
                 parentId = parentId,
                 threadScans = threadScans,
                 onBack = {
+                    homeViewModel.clearThreadScans()
                     try {
                         if (NavigationDebouncer.canNavigate()) {
                             navController.popBackStack()
@@ -701,6 +714,7 @@ fun PlantDoctorNavHost(
                     }
                 },
                 onNewScan = {
+                    homeViewModel.clearThreadScans()
                     try {
                         navController.navigate("camera") {
                             popUpTo("home")

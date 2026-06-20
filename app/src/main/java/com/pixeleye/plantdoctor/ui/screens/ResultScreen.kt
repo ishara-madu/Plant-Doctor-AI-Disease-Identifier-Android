@@ -748,7 +748,7 @@ private fun ExpandableSectionCard(
                         items.forEachIndexed { index, itemText ->
                             ChecklistRow(
                                 text = itemText,
-                                highlighted = isHighlighted && index == 0,
+                                highlighted = false,
                                 isOnDarkBackground = isHighlighted
                             )
                         }
