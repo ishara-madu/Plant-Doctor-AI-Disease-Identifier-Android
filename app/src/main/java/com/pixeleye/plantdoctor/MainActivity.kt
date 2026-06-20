@@ -59,6 +59,7 @@ import com.pixeleye.plantdoctor.viewmodel.AuthViewModel
 import com.pixeleye.plantdoctor.viewmodel.DiagnosisState
 import com.pixeleye.plantdoctor.viewmodel.HomeViewModel
 import com.pixeleye.plantdoctor.viewmodel.PlantDiagnosisViewModel
+import com.pixeleye.plantdoctor.viewmodel.UploadState
 import com.pixeleye.plantdoctor.viewmodel.SettingsViewModel
 import com.pixeleye.plantdoctor.utils.LocationHelper
 import com.pixeleye.plantdoctor.utils.rememberNetworkState

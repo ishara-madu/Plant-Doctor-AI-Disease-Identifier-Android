@@ -95,6 +95,8 @@ import android.app.Activity
 import androidx.compose.ui.platform.LocalContext
 
 import com.pixeleye.plantdoctor.data.api.DiagnosisResponse
+import com.pixeleye.plantdoctor.data.api.PlantScanDto
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import com.pixeleye.plantdoctor.ui.theme.TreatmentAccent
 import com.pixeleye.plantdoctor.ui.theme.TreatmentCardBg
 import com.pixeleye.plantdoctor.ui.theme.TreatmentCardBorder
