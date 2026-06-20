@@ -111,6 +111,7 @@ fun ResultScreen(
     diagnosisData: DiagnosisResponse?,
     confidence: Float? = null,
     isLoading: Boolean = true,
+    isSaving: Boolean = false,
     showAd: Boolean = false,
     isPremium: Boolean = false,
     id: String? = null,
@@ -209,7 +210,7 @@ fun ResultScreen(
 
                     Button(
                         onClick = onTrackProgress,
-                        enabled = !isLoading,
+                        enabled = !isLoading && !isSaving && (id != null || parentId != null),
                         modifier = Modifier
                             .weight(1.2f)
                             .height(52.dp),
@@ -218,17 +219,31 @@ fun ResultScreen(
                             containerColor = MaterialTheme.colorScheme.primary
                         )
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Grass,
-                            contentDescription = null,
-                            modifier = Modifier.size(20.dp)
-                        )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(
-                            text = "Track Progress",
-                            style = MaterialTheme.typography.labelLarge,
-                            fontWeight = FontWeight.SemiBold
-                        )
+                        if (isSaving) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(20.dp),
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                strokeWidth = 2.dp
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = "Saving...",
+                                style = MaterialTheme.typography.labelLarge,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        } else {
+                            Icon(
+                                imageVector = Icons.Default.Grass,
+                                contentDescription = null,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = "Track Progress",
+                                style = MaterialTheme.typography.labelLarge,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
                     }
                 }
             }
