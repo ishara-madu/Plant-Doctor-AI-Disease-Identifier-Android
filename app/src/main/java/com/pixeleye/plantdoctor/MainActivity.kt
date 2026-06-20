@@ -397,8 +397,10 @@ fun PlantDoctorNavHost(
                     val encodedUrl = Uri.encode(scan.imageUrl)
                     val encodedTitle = Uri.encode(scan.diseaseTitle)
                     val encodedPlan = Uri.encode(scan.treatmentPlan)
+                    val scanId = scan.id
+                    val parentId = scan.parentId
                     navController.navigate(
-                        "result?imageUrl=$encodedUrl&title=$encodedTitle&plan=$encodedPlan"
+                        "result?imageUrl=$encodedUrl&title=$encodedTitle&plan=$encodedPlan&id=$scanId&parentId=$parentId"
                     )
                 },
                 onDeleteScan = { scan ->
@@ -430,15 +432,30 @@ fun PlantDoctorNavHost(
             )
         }
 
-        composable("camera") {
+        composable(
+            route = "camera?parentId={parentId}",
+            arguments = listOf(
+                navArgument("parentId") {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                }
+            )
+        ) { backStackEntry ->
+            val parentId = backStackEntry.arguments?.getString("parentId")
             CameraScreen(
                 diagnosisViewModel = diagnosisViewModel,
                 isPremium = isPremium,
                 onImageCaptured = { uri ->
-                    Log.d("PlantDoctor", "Image captured: $uri")
+                    Log.d("PlantDoctor", "Image captured: $uri, parentId: $parentId")
                     diagnosisViewModel.resetState()
                     val encodedUri = Uri.encode(uri.toString())
-                    navController.navigate("result?imageUri=$encodedUri&showAd=true") {
+                    val dest = if (parentId != null) {
+                        "result?imageUri=$encodedUri&showAd=true&parentId=$parentId"
+                    } else {
+                        "result?imageUri=$encodedUri&showAd=true"
+                    }
+                    navController.navigate(dest) {
                         popUpTo("camera") { inclusive = true }
                     }
                 },
@@ -471,7 +488,7 @@ fun PlantDoctorNavHost(
 
         // Fresh capture result (image from camera → Gemini analysis)
         composable(
-            route = "result?imageUri={imageUri}&showAd={showAd}",
+            route = "result?imageUri={imageUri}&showAd={showAd}&parentId={parentId}",
             arguments = listOf(
                 navArgument("imageUri") {
                     type = NavType.StringType
@@ -481,11 +498,17 @@ fun PlantDoctorNavHost(
                 navArgument("showAd") {
                     type = NavType.BoolType
                     defaultValue = false
+                },
+                navArgument("parentId") {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
                 }
             )
         ) { backStackEntry ->
             val imageUriString = backStackEntry.arguments?.getString("imageUri")
             val showAd = backStackEntry.arguments?.getBoolean("showAd") ?: false
+            val parentId = backStackEntry.arguments?.getString("parentId")
             val imageUri = imageUriString?.let {
                 try { Uri.parse(it) } catch (e: Exception) {
                     Log.e("PlantDoctor", "Failed to parse URI: $it", e)
@@ -509,7 +532,7 @@ fun PlantDoctorNavHost(
                         if (bitmap != null) {
                             Log.d("PlantDoctor", "Bitmap decoded: ${bitmap.width}x${bitmap.height}")
                             val locationStr = LocationHelper.getRobustLocationString(context)
-                            diagnosisViewModel.analyzePlant(bitmap, imageUri = imageUri, locationStr = locationStr, context = context, isPremium = premiumViewModel.isPremium.value)
+                            diagnosisViewModel.analyzePlant(bitmap, imageUri = imageUri, locationStr = locationStr, context = context, isPremium = premiumViewModel.isPremium.value, parentId = parentId)
                         } else {
                             Log.e("PlantDoctor", "Failed to decode bitmap from URI: $imageUri")
                         }
@@ -518,6 +541,21 @@ fun PlantDoctorNavHost(
                     }
                 }
             }
+
+            val uploadState by diagnosisViewModel.uploadState.collectAsStateWithLifecycle()
+
+            val currentScanId = (uploadState as? UploadState.Success)?.scanId
+            val currentParentId = (uploadState as? UploadState.Success)?.parentId ?: currentScanId
+
+            LaunchedEffect(uploadState) {
+                val state = uploadState
+                if (state is UploadState.Success) {
+                    val targetParent = state.parentId ?: state.scanId
+                    homeViewModel.loadThreadScans(targetParent)
+                }
+            }
+
+            val threadScans by homeViewModel.threadScans.collectAsStateWithLifecycle()
 
             val isLoading = diagnosisState is DiagnosisState.Loading
             val diagnosisData = when (val state = diagnosisState) {
@@ -528,11 +566,14 @@ fun PlantDoctorNavHost(
 
             ResultScreen(
                 imageUri = imageUri,
-                diagnosisTitle = "Plant Analysis",
+                diagnosisTitle = if (parentId != null) "Plant Progress Update" else "Plant Analysis",
                 diagnosisData = diagnosisData,
                 isLoading = isLoading,
                 showAd = showAd,
                 isPremium = isPremium,
+                id = currentScanId,
+                parentId = currentParentId,
+                threadScans = threadScans,
                 onBack = {
                     diagnosisViewModel.resetState()
                     homeViewModel.fetchHistory()
@@ -558,22 +599,53 @@ fun PlantDoctorNavHost(
                     if (NavigationDebouncer.canNavigate()) {
                         navController.navigate("paywall")
                     }
+                },
+                onTrackProgress = {
+                    val targetParent = currentParentId ?: parentId
+                    if (targetParent != null) {
+                        navController.navigate("camera?parentId=$targetParent") {
+                            popUpTo("home")
+                        }
+                    }
+                },
+                onViewResult = { scan ->
+                    val encodedUrl = Uri.encode(scan.imageUrl)
+                    val encodedTitle = Uri.encode(scan.diseaseTitle)
+                    val encodedPlan = Uri.encode(scan.treatmentPlan)
+                    val scanId = scan.id
+                    val scanParentId = scan.parentId
+                    navController.navigate(
+                        "result?imageUrl=$encodedUrl&title=$encodedTitle&plan=$encodedPlan&id=$scanId&parentId=$scanParentId"
+                    )
                 }
             )
         }
 
         // History item result (pre-saved data from Supabase)
         composable(
-            route = "result?imageUrl={imageUrl}&title={title}&plan={plan}",
+            route = "result?imageUrl={imageUrl}&title={title}&plan={plan}&id={id}&parentId={parentId}",
             arguments = listOf(
                 navArgument("imageUrl") { type = NavType.StringType; nullable = true; defaultValue = null },
                 navArgument("title") { type = NavType.StringType; nullable = true; defaultValue = null },
-                navArgument("plan") { type = NavType.StringType; nullable = true; defaultValue = null }
+                navArgument("plan") { type = NavType.StringType; nullable = true; defaultValue = null },
+                navArgument("id") { type = NavType.StringType; nullable = true; defaultValue = null },
+                navArgument("parentId") { type = NavType.StringType; nullable = true; defaultValue = null }
             )
         ) { backStackEntry ->
             val imageUrl = backStackEntry.arguments?.getString("imageUrl")
             val title = backStackEntry.arguments?.getString("title") ?: "Plant Analysis"
             val plan = backStackEntry.arguments?.getString("plan") ?: ""
+            val id = backStackEntry.arguments?.getString("id")
+            val parentId = backStackEntry.arguments?.getString("parentId")
+
+            LaunchedEffect(id, parentId) {
+                val targetParent = parentId ?: id
+                if (targetParent != null) {
+                    homeViewModel.loadThreadScans(targetParent)
+                }
+            }
+
+            val threadScans by homeViewModel.threadScans.collectAsStateWithLifecycle()
 
             // Reconstruct DiagnosisResponse from history plain text
             // Support new format (Organic/Chemical sections) and legacy format (Action Plan section)
@@ -610,6 +682,9 @@ fun PlantDoctorNavHost(
                 diagnosisData = diagnosisData,
                 isLoading = false,
                 isPremium = isPremium,
+                id = id,
+                parentId = parentId,
+                threadScans = threadScans,
                 onBack = {
                     try {
                         if (NavigationDebouncer.canNavigate()) {
@@ -632,6 +707,24 @@ fun PlantDoctorNavHost(
                     if (NavigationDebouncer.canNavigate()) {
                         navController.navigate("paywall")
                     }
+                },
+                onTrackProgress = {
+                    val targetParent = parentId ?: id
+                    if (targetParent != null) {
+                        navController.navigate("camera?parentId=$targetParent") {
+                            popUpTo("home")
+                        }
+                    }
+                },
+                onViewResult = { scan ->
+                    val encodedUrl = Uri.encode(scan.imageUrl)
+                    val encodedTitle = Uri.encode(scan.diseaseTitle)
+                    val encodedPlan = Uri.encode(scan.treatmentPlan)
+                    val scanId = scan.id
+                    val scanParentId = scan.parentId
+                    navController.navigate(
+                        "result?imageUrl=$encodedUrl&title=$encodedTitle&plan=$encodedPlan&id=$scanId&parentId=$scanParentId"
+                    )
                 }
             )
         }

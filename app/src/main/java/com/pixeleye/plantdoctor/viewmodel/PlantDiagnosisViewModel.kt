@@ -49,7 +49,7 @@ sealed class DiagnosisState {
 sealed class UploadState {
     data object Idle : UploadState()
     data object Uploading : UploadState()
-    data class Success(val imageUrl: String) : UploadState()
+    data class Success(val imageUrl: String, val scanId: String, val parentId: String?) : UploadState()
     data class Error(val message: String) : UploadState()
 }
 
@@ -160,12 +160,26 @@ Rules:
         }
     }
 
-    fun analyzePlant(image: Bitmap, userNotes: String = "", imageUri: Uri? = null, locationStr: String? = null, context: Context? = null, isPremium: Boolean = false) {
+    fun analyzePlant(image: Bitmap, userNotes: String = "", imageUri: Uri? = null, locationStr: String? = null, context: Context? = null, isPremium: Boolean = false, parentId: String? = null) {
         viewModelScope.launch {
             _diagnosisState.value = DiagnosisState.Loading
             _uploadState.value = UploadState.Idle
 
             try {
+                val threadScans = if (parentId != null) {
+                    withContext(Dispatchers.IO) {
+                        try {
+                            val local = plantScanRepository.getThreadScansLocal(parentId)
+                            if (local.isNotEmpty()) local else plantScanRepository.getThreadScansRemote(parentId)
+                        } catch (e: Exception) {
+                            Log.e(TAG, "Error fetching thread scans for parentId: $parentId", e)
+                            emptyList()
+                        }
+                    }
+                } else {
+                    emptyList()
+                }
+
                 // 1. UNIVERSAL QUOTA CHECK (Fair Use Policy: 3 for Free, 50 for Pro)
                 val currentQuota = try {
                     checkQuota()
@@ -224,7 +238,29 @@ Rules:
                     "Please analyze this plant image and identify any diseases, pests, or nutrient deficiencies. Provide a detailed treatment plan."
                 }
 
-                val fullPrompt = "$personalizationContext$basePrompt"
+                val historyContext = if (parentId != null && threadScans.isNotEmpty()) {
+                    buildString {
+                        appendLine("PROGRESS TRACKING / FOLLOW-UP CONTEXT:")
+                        appendLine("This is a follow-up check-in for a plant that was diagnosed previously. The historical timeline of this plant is:")
+                        threadScans.forEachIndexed { index, scan ->
+                            appendLine("- Day/Scan ${index + 1} (${com.pixeleye.plantdoctor.ui.screens.formatScanDate(scan.createdAt)}):")
+                            appendLine("  Diagnosis: ${scan.diseaseTitle}")
+                            appendLine("  Treatment Plan & Progress: ${scan.treatmentPlan}")
+                        }
+                        appendLine()
+                        appendLine("INSTRUCTIONS FOR THIS FOLLOW-UP:")
+                        appendLine("1. Analyze the new image provided and compare it with the previous states listed above.")
+                        appendLine("2. Evaluate if the plant is showing signs of improvement, worsening, or remaining the same.")
+                        appendLine("3. Provide a clear summary comparing current status to previous status, noting visual changes.")
+                        appendLine("4. Update the organic and chemical treatments list to reflect the next steps. Explain what to continue doing, what to stop, and any new measures to take.")
+                        appendLine("5. Start your 'diagnosis_summary' with a clear status header (e.g. 'Status: Improving', 'Status: Worsening', or 'Status: No Change') followed by the comparison analysis.")
+                        appendLine()
+                    }
+                } else {
+                    ""
+                }
+
+                val fullPrompt = "$personalizationContext$historyContext$basePrompt"
 
                 Log.d(TAG, "Analyzing with context — locationStr=$locationStr, fallbackCountry=$country, aiLanguage=$aiLanguage")
 
@@ -354,8 +390,9 @@ Rules:
                     context = context,
                     image = inputImage,
                     imageUri = imageUri,
-                    diseaseTitle = "Plant Analysis",
-                    treatmentPlan = stringifiedTreatmentPlan
+                    diseaseTitle = if (parentId != null) "Plant Progress Update" else "Plant Analysis",
+                    treatmentPlan = stringifiedTreatmentPlan,
+                    parentId = parentId
                 )
 
             } catch (e: Exception) {
@@ -375,7 +412,8 @@ Rules:
         image: Bitmap,
         imageUri: Uri?,
         diseaseTitle: String,
-        treatmentPlan: String
+        treatmentPlan: String,
+        parentId: String? = null
     ) {
         viewModelScope.launch {
             _uploadState.value = UploadState.Uploading
@@ -402,15 +440,21 @@ Rules:
                     Log.d(TAG, "Public URL: $imageUrl")
 
                     val scanDto = PlantScanDto(
+                        id = UUID.randomUUID().toString(),
                         userId = currentUserId,
                         imageUrl = imageUrl,
                         diseaseTitle = diseaseTitle,
-                        treatmentPlan = treatmentPlan
+                        treatmentPlan = treatmentPlan,
+                        parentId = parentId
                     )
-                    plantScanRepository.insertScan(scanDto)
+                    val inserted = plantScanRepository.insertScan(scanDto)
                     Log.d(TAG, "Record inserted into repository and local DB")
 
-                    _uploadState.value = UploadState.Success(imageUrl)
+                    _uploadState.value = UploadState.Success(
+                        imageUrl = imageUrl,
+                        scanId = inserted.id ?: scanDto.id ?: "",
+                        parentId = inserted.parentId ?: scanDto.parentId
+                    )
                 }
             } catch (e: TimeoutCancellationException) {
                 Log.e("SupabaseError", "Supabase upload timed out", e)

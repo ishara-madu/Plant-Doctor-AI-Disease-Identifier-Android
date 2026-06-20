@@ -110,9 +110,14 @@ fun ResultScreen(
     isLoading: Boolean = true,
     showAd: Boolean = false,
     isPremium: Boolean = false,
+    id: String? = null,
+    parentId: String? = null,
+    threadScans: List<PlantScanDto> = emptyList(),
     onBack: () -> Unit,
     onNewScan: () -> Unit,
-    onOpenPaywall: () -> Unit = onNewScan
+    onOpenPaywall: () -> Unit = onNewScan,
+    onTrackProgress: () -> Unit = {},
+    onViewResult: (PlantScanDto) -> Unit = {}
 ) {
     val context = LocalContext.current
     var mInterstitialAd by remember { mutableStateOf<InterstitialAd?>(null) }
@@ -187,9 +192,33 @@ fun ResultScreen(
                             contentDescription = null,
                             modifier = Modifier.size(20.dp)
                         )
-                        Spacer(modifier = Modifier.width(8.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
                         Text(
-                            text = "Scan Again",
+                            text = "Scan New",
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+
+                    Button(
+                        onClick = onTrackProgress,
+                        enabled = !isLoading,
+                        modifier = Modifier
+                            .weight(1.2f)
+                            .height(52.dp),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary
+                        )
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Grass,
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = "Track Progress",
                             style = MaterialTheme.typography.labelLarge,
                             fontWeight = FontWeight.SemiBold
                         )
@@ -211,6 +240,9 @@ fun ResultScreen(
                 diagnosisData = diagnosisData,
                 confidence = confidence,
                 isPremium = isPremium,
+                currentScanId = id,
+                threadScans = threadScans,
+                onScanClick = onViewResult,
                 onOpenPaywall = onOpenPaywall
             )
         }
@@ -269,6 +301,9 @@ private fun ResultContent(
     diagnosisData: DiagnosisResponse?,
     confidence: Float?,
     isPremium: Boolean,
+    currentScanId: String?,
+    threadScans: List<PlantScanDto>,
+    onScanClick: (PlantScanDto) -> Unit,
     onOpenPaywall: () -> Unit
 ) {
     Column(
@@ -281,6 +316,16 @@ private fun ResultContent(
             diagnosisTitle = diagnosisTitle,
             confidence = confidence
         )
+
+        // ── Progress Timeline ───────────────────────────────
+        if (threadScans.size > 1) {
+            ProgressTimeline(
+                scans = threadScans,
+                currentScanId = currentScanId,
+                onScanClick = onScanClick,
+                modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)
+            )
+        }
 
         // ── Diagnosis Summary Card ─────────────────────────────
         if (diagnosisData != null) {
@@ -815,6 +860,110 @@ private fun ChecklistRow(
             textDecoration = if (checked) TextDecoration.LineThrough else TextDecoration.None,
             lineHeight = 20.sp
         )
+    }
+}
+
+// ── Progress Timeline Component ───────────────────────────────
+@Composable
+fun ProgressTimeline(
+    scans: List<PlantScanDto>,
+    currentScanId: String?,
+    onScanClick: (PlantScanDto) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    if (scans.size <= 1) return
+
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.25f)
+        )
+    ) {
+        Column(modifier = Modifier.padding(20.dp)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ListAlt,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "Plant Health Timeline",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+
+            scans.forEachIndexed { index, scan ->
+                val isCurrent = scan.id == currentScanId
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(if (isCurrent) MaterialTheme.colorScheme.primary.copy(alpha = 0.1f) else Color.Transparent)
+                        .clickable { onScanClick(scan) }
+                        .padding(10.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(28.dp)
+                            .background(
+                                color = if (isCurrent) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
+                                shape = CircleShape
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "${index + 1}",
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = if (isCurrent) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = formatScanDate(scan.createdAt),
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        val summaryText = scan.treatmentPlan.lines().firstOrNull()?.removePrefix("Status:")?.trim() ?: "Check-in"
+                        Text(
+                            text = if (index == 0) "Initial Diagnosis" else {
+                                if (summaryText.length > 35) summaryText.take(35) + "..." else summaryText
+                            },
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                        contentDescription = "View detail",
+                        modifier = Modifier.size(16.dp),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                    )
+                }
+
+                if (index < scans.size - 1) {
+                    Box(
+                        modifier = Modifier
+                            .padding(start = 23.dp)
+                            .width(2.dp)
+                            .height(16.dp)
+                            .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
+                    )
+                }
+            }
+        }
     }
 }
 
