@@ -37,10 +37,11 @@ class HomeViewModel(
 
     val uiState: StateFlow<HomeUiState> = repository.getHistoryFlow()
         .map { scans ->
-            if (scans.isEmpty()) {
+            val rootScans = scans.filter { it.parentId.isNullOrBlank() }
+            if (rootScans.isEmpty()) {
                 HomeUiState.Empty
             } else {
-                HomeUiState.Success(scans)
+                HomeUiState.Success(rootScans)
             }
         }
         .stateIn(
@@ -52,6 +53,27 @@ class HomeViewModel(
     // Holds the last-deleted scan so the caller can show an "Undo" snackbar
     private val _lastDeletedScan = MutableStateFlow<PlantScanDto?>(null)
     val lastDeletedScan: StateFlow<PlantScanDto?> = _lastDeletedScan.asStateFlow()
+
+    private val _threadScans = MutableStateFlow<List<PlantScanDto>>(emptyList())
+    val threadScans: StateFlow<List<PlantScanDto>> = _threadScans.asStateFlow()
+
+    fun loadThreadScans(parentId: String) {
+        viewModelScope.launch {
+            _threadScans.value = emptyList()
+            try {
+                val local = repository.getThreadScansLocal(parentId)
+                if (local.isNotEmpty()) {
+                    _threadScans.value = local
+                }
+                val remote = repository.getThreadScansRemote(parentId)
+                if (remote.isNotEmpty()) {
+                    _threadScans.value = remote
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to load thread scans for parentId: $parentId", e)
+            }
+        }
+    }
 
     // One-time event for showing snackbar messages (e.g., slow connection)
     private val _snackbarEvent = MutableStateFlow<com.pixeleye.plantdoctor.ui.components.SnackbarState?>(null)

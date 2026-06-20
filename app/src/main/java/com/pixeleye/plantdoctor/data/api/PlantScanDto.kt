@@ -18,5 +18,7 @@ data class PlantScanDto(
     @SerialName("treatment_plan")
     val treatmentPlan: String,
     @SerialName("created_at")
-    val createdAt: String? = null
+    val createdAt: String? = null,
+    @SerialName("parent_id")
+    val parentId: String? = null
 )

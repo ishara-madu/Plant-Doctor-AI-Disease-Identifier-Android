@@ -26,4 +26,10 @@ interface HistoryDao {
 
     @Query("DELETE FROM history_table")
     suspend fun clearAll()
+
+    @Query("SELECT * FROM history_table WHERE id = :parentId OR parentId = :parentId ORDER BY createdAt ASC")
+    suspend fun getThreadScans(parentId: String): List<HistoryEntity>
+
+    @Query("SELECT * FROM history_table WHERE parentId = :parentId")
+    suspend fun getFollowUps(parentId: String): List<HistoryEntity>
 }

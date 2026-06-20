@@ -71,12 +71,8 @@ class PlantScanRepository(
         }
     }
 
-    suspend fun deleteScan(scan: PlantScanDto) {
+    private suspend fun deleteSingleScanInternal(scan: PlantScanDto) {
         val scanId = scan.id ?: return
-
-        // Step 1: Delete the image from Supabase Storage FIRST.
-        // If this fails (e.g. file not found / already deleted), we log the error
-        // but still proceed to delete the database row so we don't leave a zombie record.
         val filePath = extractStorageFilePath(scan.imageUrl)
         if (filePath != null) {
             try {
@@ -87,21 +83,55 @@ class PlantScanRepository(
             }
         }
 
-        // Step 2: Delete the remote database record
+        supabaseClient.from(TABLE_NAME).delete {
+            filter {
+                eq("id", scanId)
+            }
+        }
+        historyDao.deleteHistoryById(scanId)
+        Log.d(TAG, "Deleted DB record locally: $scanId")
+    }
+
+    suspend fun deleteScan(scan: PlantScanDto) {
         try {
-            supabaseClient.from(TABLE_NAME).delete {
-                filter {
-                    eq("id", scanId)
+            // If it's a root scan, delete all follow-ups first!
+            if (scan.parentId.isNullOrBlank()) {
+                val scanId = scan.id
+                if (scanId != null) {
+                    val followUps = historyDao.getFollowUps(scanId)
+                    followUps.forEach { followUp ->
+                        try {
+                            deleteSingleScanInternal(followUp.toDto())
+                        } catch (e: Exception) {
+                            Log.e(TAG, "Failed to delete follow-up scan: ${followUp.id}", e)
+                        }
+                    }
                 }
             }
-            Log.d("DELETE_ACTION", "Supabase delete successful")
-
-            // Step 3: ONLY if Supabase DB delete succeeds, delete from local Room cache
-            historyDao.deleteHistoryById(scanId)
-            Log.d(TAG, "Deleted DB record locally: $scanId")
+            // Finally delete the scan itself
+            deleteSingleScanInternal(scan)
         } catch (e: Exception) {
             Log.e("DELETE_ACTION", "Supabase delete failed: ${e.message}", e)
             throw e
+        }
+    }
+
+    suspend fun getThreadScansLocal(parentId: String): List<PlantScanDto> {
+        return historyDao.getThreadScans(parentId).map { it.toDto() }
+    }
+
+    suspend fun getThreadScansRemote(parentId: String): List<PlantScanDto> {
+        return try {
+            val allScans = supabaseClient
+                .from(TABLE_NAME)
+                .select()
+                .decodeList<PlantScanDto>()
+            allScans
+                .filter { it.id == parentId || it.parentId == parentId }
+                .sortedBy { it.createdAt }
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to get thread scans from remote for parentId: $parentId", e)
+            emptyList()
         }
     }
 

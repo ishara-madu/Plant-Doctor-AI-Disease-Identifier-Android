@@ -12,7 +12,8 @@ data class HistoryEntity(
     val imageUrl: String,
     val diseaseTitle: String,
     val treatmentPlan: String,
-    val createdAt: String
+    val createdAt: String,
+    val parentId: String?
 ) {
     fun toDto(): PlantScanDto {
         return PlantScanDto(
@@ -21,7 +22,8 @@ data class HistoryEntity(
             imageUrl = imageUrl,
             diseaseTitle = diseaseTitle,
             treatmentPlan = treatmentPlan,
-            createdAt = createdAt
+            createdAt = createdAt,
+            parentId = parentId
         )
     }
 }
@@ -33,6 +35,7 @@ fun PlantScanDto.toEntity(): HistoryEntity {
         imageUrl = imageUrl,
         diseaseTitle = diseaseTitle,
         treatmentPlan = treatmentPlan,
-        createdAt = createdAt ?: ""
+        createdAt = createdAt ?: "",
+        parentId = parentId
     )
 }
