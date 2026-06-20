@@ -503,21 +503,38 @@ Rules:
                         parentId = inserted.parentId ?: scanDto.parentId
                     )
                 }
-            } catch (e: TimeoutCancellationException) {
-                Log.e("SupabaseError", "Supabase upload timed out", e)
-                _uploadState.value = UploadState.Error(
-                    "Connection is too slow. Please check your internet and try again."
-                )
-            } catch (e: IOException) {
-                Log.e("SupabaseError", "Supabase upload network error: ${e.message}", e)
-                _uploadState.value = UploadState.Error(
-                    "Network error during upload. Please check your internet and try again."
-                )
             } catch (e: Exception) {
-                Log.e("SupabaseError", "Supabase upload failed: ${e.message}", e)
-                _uploadState.value = UploadState.Error(
-                    e.message ?: "Failed to save scan to cloud."
-                )
+                Log.e("SupabaseError", "Supabase upload failed, falling back to local save: ${e.message}", e)
+                try {
+                    val fallbackScanId = UUID.randomUUID().toString()
+                    val guestUserId = supabaseClient.auth.currentUserOrNull()?.id ?: "guest_user"
+                    val localImageUrl = imageUri?.toString() ?: ""
+
+                    val fallbackScanDto = PlantScanDto(
+                        id = fallbackScanId,
+                        userId = guestUserId,
+                        imageUrl = localImageUrl,
+                        diseaseTitle = diseaseTitle,
+                        treatmentPlan = treatmentPlan,
+                        parentId = parentId
+                    )
+
+                    plantScanRepository.insertScanLocal(fallbackScanDto)
+                    Log.d(TAG, "Successfully saved scan locally as fallback")
+
+                    _uploadState.value = UploadState.Success(
+                        imageUrl = localImageUrl,
+                        scanId = fallbackScanId,
+                        parentId = parentId ?: fallbackScanId
+                    )
+
+                    showSnackbar("Saved locally (offline mode)", com.pixeleye.plantdoctor.ui.components.SnackbarType.SUCCESS)
+                } catch (localEx: Exception) {
+                    Log.e(TAG, "Local save fallback failed", localEx)
+                    _uploadState.value = UploadState.Error(
+                        e.message ?: "Failed to save scan."
+                    )
+                }
             }
         }
     }

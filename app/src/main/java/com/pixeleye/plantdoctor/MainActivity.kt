@@ -554,7 +554,9 @@ fun PlantDoctorNavHost(
             val uploadState by diagnosisViewModel.uploadState.collectAsStateWithLifecycle()
 
             val currentScanId = (uploadState as? UploadState.Success)?.scanId
-            val currentParentId = (uploadState as? UploadState.Success)?.parentId ?: currentScanId
+            val currentParentId = (uploadState as? UploadState.Success)?.parentId 
+                ?: (uploadState as? UploadState.Success)?.scanId 
+                ?: parentId
 
             LaunchedEffect(uploadState) {
                 val state = uploadState

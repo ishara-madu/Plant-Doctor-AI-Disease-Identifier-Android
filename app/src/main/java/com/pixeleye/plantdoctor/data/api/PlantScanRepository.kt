@@ -71,6 +71,12 @@ class PlantScanRepository(
         }
     }
 
+    suspend fun insertScanLocal(scan: PlantScanDto): PlantScanDto {
+        historyDao.insertHistory(scan.toEntity())
+        historyDao.enforceSizeLimit()
+        return scan
+    }
+
     private suspend fun deleteSingleScanInternal(scan: PlantScanDto) {
         val scanId = scan.id ?: return
         val filePath = extractStorageFilePath(scan.imageUrl)
