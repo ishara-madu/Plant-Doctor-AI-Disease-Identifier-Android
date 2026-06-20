@@ -59,7 +59,9 @@ class PlantScanRepository(
         return try {
             val inserted = supabaseClient
                 .from(TABLE_NAME)
-                .insert(scan)
+                .insert(scan) {
+                    select()
+                }
                 .decodeSingleOrNull<PlantScanDto>() ?: scan
             
             historyDao.insertHistory(inserted.toEntity())
