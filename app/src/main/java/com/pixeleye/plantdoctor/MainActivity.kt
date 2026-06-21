@@ -425,6 +425,18 @@ fun PlantDoctorNavHost(
             var isSaving by remember { mutableStateOf(false) }
 
             OnboardingScreen(
+                initialLanguage = prefs.selectedAiLanguage,
+                onLanguageChanged = { newLanguage ->
+                    scope.launch {
+                        userPreferencesRepository.saveUserPreferences(
+                            country = prefs.country,
+                            language = prefs.language,
+                            selectedAiLanguage = newLanguage,
+                            onboardingCompleted = false
+                        )
+                        LanguageHelper.setAppLocale(context, newLanguage)
+                    }
+                },
                 onSaveAndContinue = { country, language, aiLanguage ->
                     isSaving = true
                     scope.launch {

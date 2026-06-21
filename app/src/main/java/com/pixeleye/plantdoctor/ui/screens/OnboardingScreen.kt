@@ -94,10 +94,12 @@ val countryOptions = listOf(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OnboardingScreen(
+    initialLanguage: String = "English",
+    onLanguageChanged: (String) -> Unit = {},
     onSaveAndContinue: (country: String, language: String, aiLanguage: String) -> Unit,
     isSaving: Boolean = false
 ) {
-    var selectedAiLanguage by remember { mutableStateOf("English") }
+    var selectedAiLanguage by remember(initialLanguage) { mutableStateOf(initialLanguage) }
     var aiLanguageExpanded by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
@@ -254,6 +256,7 @@ fun OnboardingScreen(
                                     onClick = {
                                         selectedAiLanguage = option.value
                                         aiLanguageExpanded = false
+                                        onLanguageChanged(option.value)
                                     }
                                 )
                             }
