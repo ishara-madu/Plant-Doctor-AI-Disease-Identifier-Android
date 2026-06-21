@@ -68,6 +68,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.revenuecat.purchases.Package
 import kotlin.math.roundToInt
+import androidx.compose.ui.res.stringResource
+import com.pixeleye.plantdoctor.R
 
 // ── Paywall Screen ────────────────────────────────────────────
 @Composable
@@ -92,7 +94,7 @@ fun PaywallScreen(
         val symbol = yearlyPrice.takeWhile { !it.isDigit() }
         val perMonth = (yearlyNum / 12)
         val formatted = "%.2f".format(perMonth)
-        "Just $symbol$formatted / month"
+        stringResource(R.string.just_per_month, "$symbol$formatted")
     } else {
         null
     }
@@ -157,7 +159,7 @@ fun PaywallScreen(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Close,
-                                contentDescription = "Close",
+                                contentDescription = stringResource(R.string.close_button),
                                 modifier = Modifier.size(22.dp)
                             )
                         }
@@ -173,7 +175,7 @@ fun PaywallScreen(
                     Spacer(modifier = Modifier.height(20.dp))
 
                     Text(
-                        text = "Unlock Plant Doctor PRO",
+                        text = stringResource(R.string.unlock_pro_title),
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.ExtraBold,
                         color = Color.White,
@@ -184,7 +186,7 @@ fun PaywallScreen(
                     Spacer(modifier = Modifier.height(10.dp))
 
                     Text(
-                        text = "Get unlimited scans, expert AI treatments,\nand an ad-free experience.",
+                        text = stringResource(R.string.unlock_pro_subtitle),
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color.White.copy(alpha = 0.85f),
                         textAlign = TextAlign.Center,
@@ -203,32 +205,32 @@ fun PaywallScreen(
             ) {
                 ProFeatureRow(
                     icon = Icons.Default.AllInclusive,
-                    title = "Unlimited Plant Scans",
-                    subtitle = "No daily limits — scan as many plants as you need"
+                    title = stringResource(R.string.feature_scans_title),
+                    subtitle = stringResource(R.string.feature_scans_subtitle)
                 )
 
                 Spacer(modifier = Modifier.height(14.dp))
 
                 ProFeatureRow(
                     icon = Icons.Default.Science,
-                    title = "Expert Chemical & Organic Treatments",
-                    subtitle = "AI-powered solutions with local availability"
+                    title = stringResource(R.string.feature_treatments_title),
+                    subtitle = stringResource(R.string.feature_treatments_subtitle)
                 )
 
                 Spacer(modifier = Modifier.height(14.dp))
 
                 ProFeatureRow(
                     icon = Icons.Default.CloudQueue,
-                    title = "Unlimited Cloud History",
-                    subtitle = "Every scan saved — never lose a diagnosis"
+                    title = stringResource(R.string.feature_history_title),
+                    subtitle = stringResource(R.string.feature_history_subtitle)
                 )
 
                 Spacer(modifier = Modifier.height(14.dp))
 
                 ProFeatureRow(
                     icon = Icons.Default.Block,
-                    title = "Zero Advertisements",
-                    subtitle = "A clean, focused experience every time"
+                    title = stringResource(R.string.feature_ads_title),
+                    subtitle = stringResource(R.string.feature_ads_subtitle)
                 )
 
                 Spacer(modifier = Modifier.height(28.dp))
@@ -242,9 +244,9 @@ fun PaywallScreen(
             ) {
                 // Yearly — Best Value
                 SubscriptionCard(
-                    title = "Yearly",
+                    title = stringResource(R.string.yearly),
                     price = yearlyPrice.ifBlank { "..." },
-                    period = " / year",
+                    period = stringResource(R.string.per_year),
                     monthlyEquivalent = monthlyEquivalent,
                     isSelected = selectedPlan == "yearly",
                     isBestValue = true,
@@ -256,9 +258,9 @@ fun PaywallScreen(
 
                 // Monthly
                 SubscriptionCard(
-                    title = "Monthly",
+                    title = stringResource(R.string.monthly),
                     price = monthlyPrice.ifBlank { "..." },
-                    period = " / month",
+                    period = stringResource(R.string.per_month),
                     monthlyEquivalent = null,
                     isSelected = selectedPlan == "monthly",
                     isBestValue = false,
@@ -300,7 +302,7 @@ fun PaywallScreen(
                         Spacer(modifier = Modifier.width(12.dp))
                     }
                     Text(
-                        text = "Subscribe Now",
+                        text = stringResource(R.string.subscribe_now),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         letterSpacing = 0.5.sp
@@ -316,7 +318,7 @@ fun PaywallScreen(
                 ) {
                     TextButton(onClick = onRestorePurchases, enabled = !isProcessing) {
                         Text(
-                            text = "Restore",
+                            text = stringResource(R.string.restore),
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -330,7 +332,7 @@ fun PaywallScreen(
 
                     TextButton(onClick = onTermsClick) {
                         Text(
-                            text = "Terms",
+                            text = stringResource(R.string.terms),
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -344,7 +346,7 @@ fun PaywallScreen(
 
                     TextButton(onClick = onPrivacyClick) {
                         Text(
-                            text = "Privacy",
+                            text = stringResource(R.string.privacy),
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -430,7 +432,7 @@ private fun SubscriptionCard(
                     if (isSelected) {
                         Icon(
                             imageVector = Icons.Default.Check,
-                            contentDescription = "Selected",
+                            contentDescription = stringResource(R.string.selected),
                             tint = Color.White,
                             modifier = Modifier.size(14.dp)
                         )
@@ -804,7 +806,7 @@ fun SavingsBadge(
                 .padding(horizontal = 10.dp, vertical = 4.dp)
         ) {
             Text(
-                text = "SAVE $discountPercentage%",
+                text = stringResource(R.string.save_discount, discountPercentage),
                 style = MaterialTheme.typography.labelSmall,
                 fontWeight = FontWeight.ExtraBold,
                 color = Color(0xFF1A1C18),

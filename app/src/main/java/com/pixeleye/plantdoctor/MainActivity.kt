@@ -70,7 +70,12 @@ import com.pixeleye.plantdoctor.data.api.BillingManager
 import com.pixeleye.plantdoctor.data.api.SupabaseClientProvider
 import com.pixeleye.plantdoctor.data.api.UserQuotaRepository
 import com.pixeleye.plantdoctor.viewmodel.PremiumViewModel
+import com.pixeleye.plantdoctor.viewmodel.ReminderViewModel
+import com.pixeleye.plantdoctor.ui.screens.RemindersScreen
 import com.pixeleye.plantdoctor.utils.NavigationDebouncer
+import com.pixeleye.plantdoctor.utils.LanguageHelper
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -86,7 +91,20 @@ class MainActivity : ComponentActivity() {
         val billingManager = BillingManager()
         billingManager.initialize(this, BuildConfig.REVENUECAT_API_KEY)
 
+        // Initialize Plant Care Notification Channel
+        createNotificationChannel()
+
         val userPreferencesRepository = UserPreferencesRepository(applicationContext)
+
+        // Read and apply saved app language locale on startup
+        try {
+            runBlocking {
+                val prefs = userPreferencesRepository.userPreferences.first()
+                LanguageHelper.setAppLocale(applicationContext, prefs.selectedAiLanguage)
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("MainActivity", "Failed to load locale preferences on startup", e)
+        }
 
         setContent {
             PlantDoctorTheme {
@@ -101,6 +119,21 @@ class MainActivity : ComponentActivity() {
                 )
                 }
             }
+        }
+    }
+
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = android.app.NotificationChannel(
+                "plant_care_channel",
+                "Plant Care Reminders",
+                android.app.NotificationManager.IMPORTANCE_DEFAULT
+            ).apply {
+                description = "Notifications to remind you to water or fertilize your plants."
+            }
+            val notificationManager: android.app.NotificationManager =
+                getSystemService(android.content.Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
+            notificationManager.createNotificationChannel(channel)
         }
     }
 }
@@ -129,7 +162,7 @@ fun PlantDoctorApp(
             supabaseKey = BuildConfig.SUPABASE_ANON_KEY
         )
     }
-    val repository = remember { PlantScanRepository(supabaseClient, database.historyDao()) }
+    val repository = remember { PlantScanRepository(supabaseClient, database.historyDao(), database.reminderDao(), context.applicationContext) }
     val userQuotaRepository = remember { UserQuotaRepository(supabaseClient) }
 
     // ── Shared ViewModels ──────────────────────────────────
@@ -145,6 +178,12 @@ fun PlantDoctorApp(
     val settingsViewModel: SettingsViewModel = viewModel(
         factory = SettingsViewModel.Factory(userPreferencesRepository)
     )
+    val reminderViewModel: ReminderViewModel = viewModel(
+        factory = ReminderViewModel.Factory(
+            context.applicationContext as android.app.Application,
+            database.reminderDao()
+        )
+    )
 
     LaunchedEffect(isOnline) {
         if (!isOnline) {
@@ -158,6 +197,8 @@ fun PlantDoctorApp(
     }
 
     // ── Global Premium State Management ────────────────────
+    val isPremium by premiumViewModel.isPremium.collectAsStateWithLifecycle()
+
     // Listen for real-time premium status updates from RevenueCat
     LaunchedEffect(Unit) {
         billingManager.setUpdatedCustomerInfoListener { customerInfo ->
@@ -165,6 +206,10 @@ fun PlantDoctorApp(
             Log.d("MainActivity", "Real-time update: isPremium=$isPro")
             premiumViewModel.setPremium(isPro)
         }
+    }
+
+    LaunchedEffect(isPremium) {
+        homeViewModel.setPremiumStatus(isPremium)
     }
 
     val authState by authViewModel.authState.collectAsStateWithLifecycle()
@@ -213,6 +258,16 @@ fun PlantDoctorApp(
         }
     }
 
+    // Prefetch weather forecast on startup/authentication if location is available
+    LaunchedEffect(authState) {
+        if (authState is AuthState.Authenticated) {
+            val coords = LocationHelper.getCoordinates(context)
+            if (coords != null) {
+                com.pixeleye.plantdoctor.data.api.WeatherRepository.fetchAndCacheForecast(coords.latitude, coords.longitude)
+            }
+        }
+    }
+
     Scaffold(
         snackbarHost = {
             SnackbarHost(hostState = snackbarHostState) { data ->
@@ -257,6 +312,8 @@ fun PlantDoctorApp(
                     premiumViewModel = premiumViewModel,
                     settingsViewModel = settingsViewModel,
                     database = database,
+                    isOnline = isOnline,
+                    reminderViewModel = reminderViewModel,
                     onSignOut = { authViewModel.signOut() }
                 )
             }
@@ -289,6 +346,8 @@ fun PlantDoctorNavHost(
     premiumViewModel: PremiumViewModel,
     settingsViewModel: SettingsViewModel,
     database: com.pixeleye.plantdoctor.data.local.AppDatabase,
+    isOnline: Boolean,
+    reminderViewModel: ReminderViewModel,
     onSignOut: () -> Unit = {}
 ) {
     val navController = rememberNavController()
@@ -297,6 +356,7 @@ fun PlantDoctorNavHost(
     val uriHandler = androidx.compose.ui.platform.LocalUriHandler.current
 
     val homeUiState by homeViewModel.uiState.collectAsStateWithLifecycle()
+    val reminders by reminderViewModel.reminders.collectAsStateWithLifecycle()
     val diagnosisState by diagnosisViewModel.diagnosisState.collectAsStateWithLifecycle()
     val isPremium by premiumViewModel.isPremium.collectAsStateWithLifecycle()
     val prefs by userPreferencesRepository.userPreferences.collectAsStateWithLifecycle(initialValue = com.pixeleye.plantdoctor.data.UserPreferences())
@@ -374,6 +434,7 @@ fun PlantDoctorNavHost(
                             selectedAiLanguage = aiLanguage,
                             onboardingCompleted = true
                         )
+                        LanguageHelper.setAppLocale(context, aiLanguage)
                         navController.navigate("home") {
                             popUpTo("onboarding") { inclusive = true }
                         }
@@ -416,6 +477,11 @@ fun PlantDoctorNavHost(
                 onOpenSettings = {
                     if (NavigationDebouncer.canNavigate()) {
                         navController.navigate("settings")
+                    }
+                },
+                onOpenReminders = {
+                    if (NavigationDebouncer.canNavigate()) {
+                        navController.navigate("reminders")
                     }
                 },
                 onOpenPaywall = {
@@ -586,6 +652,32 @@ fun PlantDoctorNavHost(
                 id = currentScanId,
                 parentId = currentParentId,
                 threadScans = threadScans,
+                trackProgressEnabled = isOnline && (authState is AuthState.Authenticated),
+                onAddReminders = { plantName, wateringEnabled, wateringHour, wateringMinute, fertilizingEnabled, fertilizingHour, fertilizingMinute ->
+                    reminderViewModel.addReminders(
+                        scanId = currentParentId ?: currentScanId ?: "",
+                        plantName = plantName,
+                        wateringEnabled = wateringEnabled,
+                        wateringHour = wateringHour,
+                        wateringMinute = wateringMinute,
+                        fertilizingEnabled = fertilizingEnabled,
+                        fertilizingHour = fertilizingHour,
+                        fertilizingMinute = fertilizingMinute
+                    )
+                },
+                existingReminders = reminders,
+                onGoToReminders = {
+                    try {
+                        if (NavigationDebouncer.canNavigate()) {
+                            navController.navigate("reminders")
+                        }
+                    } catch (e: Exception) {
+                        Log.e("PlantDoctor", "Navigation to reminders failed: ${e.message}")
+                    }
+                },
+                onUpdateReminderTime = { reminder, hour, minute ->
+                    reminderViewModel.updateReminderTime(reminder, hour, minute)
+                },
                 onBack = {
                     diagnosisViewModel.resetState()
                     homeViewModel.fetchHistory()
@@ -681,23 +773,35 @@ fun PlantDoctorNavHost(
             val threadScans by homeViewModel.threadScans.collectAsStateWithLifecycle()
 
             // Reconstruct DiagnosisResponse from history plain text
-            // Support new format (Organic/Chemical sections) and legacy format (Action Plan section)
+            // Support new format (Organic/Chemical/Plant info sections) and legacy format (Action Plan section)
             val diagnosisData = if (plan.contains("Organic Treatments:") || plan.contains("Chemical Treatments:")) {
                 val summaryEnd = listOfNotNull(
                     plan.indexOf("\n\nOrganic Treatments:\n").takeIf { it >= 0 },
-                    plan.indexOf("\n\nChemical Treatments:\n").takeIf { it >= 0 }
+                    plan.indexOf("\n\nChemical Treatments:\n").takeIf { it >= 0 },
+                    plan.indexOf("\n\nPlant Name:").takeIf { it >= 0 }
                 ).minOrNull() ?: plan.length
                 val summary = plan.substring(0, summaryEnd).trim()
 
-                val organicBlock = """Organic Treatments:\n(.*?)(?=\n\nChemical Treatments:|$)""".toRegex(RegexOption.DOT_MATCHES_ALL)
+                val organicBlock = """Organic Treatments:\n(.*?)(?=\n*Chemical Treatments:|\n*Plant Name:|\n*Watering Time:|\n*Fertilizing Time:|$)""".toRegex(RegexOption.DOT_MATCHES_ALL)
                     .find(plan)?.groupValues?.getOrNull(1) ?: ""
                 val organicList = organicBlock.lines().map { it.removePrefix("- ").trim() }.filter { it.isNotBlank() }
 
-                val chemicalBlock = """Chemical Treatments:\n(.*)""".toRegex(RegexOption.DOT_MATCHES_ALL)
+                val chemicalBlock = """Chemical Treatments:\n(.*?)(?=\n*Plant Name:|\n*Watering Time:|\n*Fertilizing Time:|$)""".toRegex(RegexOption.DOT_MATCHES_ALL)
                     .find(plan)?.groupValues?.getOrNull(1) ?: ""
                 val chemicalList = chemicalBlock.lines().map { it.removePrefix("- ").trim() }.filter { it.isNotBlank() }
 
-                com.pixeleye.plantdoctor.data.api.DiagnosisResponse(summary = summary, organicTreatments = organicList, chemicalTreatments = chemicalList)
+                val plantName = """Plant Name:\s*(.*)""".toRegex().find(plan)?.groupValues?.getOrNull(1)?.substringBefore("\n")?.trim()
+                val wateringTime = """Watering Time:\s*(.*)""".toRegex().find(plan)?.groupValues?.getOrNull(1)?.substringBefore("\n")?.trim()
+                val fertilizingTime = """Fertilizing Time:\s*(.*)""".toRegex().find(plan)?.groupValues?.getOrNull(1)?.trim()
+
+                com.pixeleye.plantdoctor.data.api.DiagnosisResponse(
+                    summary = summary,
+                    organicTreatments = organicList,
+                    chemicalTreatments = chemicalList,
+                    plantName = plantName,
+                    wateringTime = wateringTime,
+                    fertilizingTime = fertilizingTime
+                )
             } else {
                 val legacyPlanParts = plan.split("\n\nAction Plan:\n")
                 val legacySummary = legacyPlanParts.getOrNull(0) ?: plan
@@ -719,6 +823,32 @@ fun PlantDoctorNavHost(
                 id = id,
                 parentId = parentId,
                 threadScans = threadScans,
+                trackProgressEnabled = isOnline && (authState is AuthState.Authenticated),
+                onAddReminders = { plantName, wateringEnabled, wateringHour, wateringMinute, fertilizingEnabled, fertilizingHour, fertilizingMinute ->
+                    reminderViewModel.addReminders(
+                        scanId = parentId ?: id ?: "",
+                        plantName = plantName,
+                        wateringEnabled = wateringEnabled,
+                        wateringHour = wateringHour,
+                        wateringMinute = wateringMinute,
+                        fertilizingEnabled = fertilizingEnabled,
+                        fertilizingHour = fertilizingHour,
+                        fertilizingMinute = fertilizingMinute
+                    )
+                },
+                existingReminders = reminders,
+                onGoToReminders = {
+                    try {
+                        if (NavigationDebouncer.canNavigate()) {
+                            navController.navigate("reminders")
+                        }
+                    } catch (e: Exception) {
+                        Log.e("PlantDoctor", "Navigation to reminders failed: ${e.message}")
+                    }
+                },
+                onUpdateReminderTime = { reminder, hour, minute ->
+                    reminderViewModel.updateReminderTime(reminder, hour, minute)
+                },
                 onBack = {
                     homeViewModel.clearThreadScans()
                     try {
@@ -785,7 +915,9 @@ fun PlantDoctorNavHost(
                 currentPrefs = currentPrefs,
                 isSaving = isSaving,
                 onSave = { country, language, aiLanguage ->
-                    settingsViewModel.savePreferences(country, language, aiLanguage)
+                    settingsViewModel.savePreferences(country, language, aiLanguage) {
+                        LanguageHelper.setAppLocale(context, aiLanguage)
+                    }
                 },
                 onLogout = {
                     premiumViewModel.setPremium(false)
@@ -891,6 +1023,21 @@ fun PlantDoctorNavHost(
                 },
                 onPrivacyClick = {
                     uriHandler.openUri("https://ishara-madu.github.io/Plant-Doctor-AI-Disease-Identifier-Android/privacy-policy.html")
+                }
+            )
+        }
+
+        composable("reminders") {
+            RemindersScreen(
+                viewModel = reminderViewModel,
+                onBack = {
+                    try {
+                        if (NavigationDebouncer.canNavigate()) {
+                            navController.popBackStack()
+                        }
+                    } catch (e: Exception) {
+                        Log.e("PlantDoctor", "Navigation error on reminders back: ${e.message}")
+                    }
                 }
             )
         }

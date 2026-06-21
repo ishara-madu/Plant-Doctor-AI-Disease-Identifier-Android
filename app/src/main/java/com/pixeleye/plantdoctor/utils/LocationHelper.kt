@@ -131,4 +131,40 @@ object LocationHelper {
             }
         }.trim()
     }
+
+    @SuppressLint("MissingPermission")
+    suspend fun getCoordinates(context: Context): SimpleCoordinates? {
+        val hasCoarse = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        val hasFine = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+
+        if (!hasCoarse && !hasFine) {
+            Log.w(TAG, "Location permission not granted. Cannot fetch coordinates.")
+            return null
+        }
+
+        return try {
+            val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
+            val location = suspendCancellableCoroutine<android.location.Location?> { continuation ->
+                fusedLocationClient.lastLocation
+                    .addOnSuccessListener { loc -> continuation.resume(loc) }
+                    .addOnFailureListener { e ->
+                        Log.e(TAG, "Failed to get last location for coordinates", e)
+                        continuation.resume(null)
+                    }
+            }
+
+            if (location == null) {
+                Log.w(TAG, "Location returned is null for coordinates.")
+                return null
+            }
+
+            SimpleCoordinates(location.latitude, location.longitude)
+        } catch (e: Exception) {
+            Log.e(TAG, "Critical failure fetching coordinates: ${e.message}", e)
+            null
+        }
+    }
 }
+
+data class SimpleCoordinates(val latitude: Double, val longitude: Double)
+

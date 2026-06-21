@@ -79,6 +79,15 @@ class HomeViewModel(
         _threadScans.value = emptyList()
     }
 
+    private var isPremiumUser: Boolean = false
+
+    fun setPremiumStatus(isPremium: Boolean) {
+        if (isPremiumUser != isPremium) {
+            isPremiumUser = isPremium
+            fetchHistory()
+        }
+    }
+
     // One-time event for showing snackbar messages (e.g., slow connection)
     private val _snackbarEvent = MutableStateFlow<com.pixeleye.plantdoctor.ui.components.SnackbarState?>(null)
     val snackbarEvent: StateFlow<com.pixeleye.plantdoctor.ui.components.SnackbarState?> = _snackbarEvent.asStateFlow()
@@ -163,9 +172,10 @@ class HomeViewModel(
                 showSnackbar("Scan deleted successfully", com.pixeleye.plantdoctor.ui.components.SnackbarType.SUCCESS)
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to delete scan, refreshing list", e)
-                // Re-fetch to restore the item if server deletion failed
-                fetchHistory()
                 showSnackbar("Failed to delete scan. Re-syncing history...", com.pixeleye.plantdoctor.ui.components.SnackbarType.ERROR)
+            } finally {
+                // Refresh to repopulate the list with the next available item from Supabase
+                fetchHistory()
             }
         }
     }

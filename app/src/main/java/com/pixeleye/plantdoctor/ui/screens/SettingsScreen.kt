@@ -79,6 +79,8 @@ import androidx.core.app.NotificationManagerCompat
 import com.onesignal.OneSignal
 import com.pixeleye.plantdoctor.data.UserPreferences
 import kotlinx.coroutines.launch
+import androidx.compose.ui.res.stringResource
+import com.pixeleye.plantdoctor.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -117,7 +119,7 @@ fun SettingsScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "Settings",
+                        text = stringResource(R.string.settings_title),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold
                     )
@@ -126,7 +128,7 @@ fun SettingsScreen(
                     IconButton(onClick = onBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = stringResource(R.string.back)
                         )
                     }
                 },
@@ -149,7 +151,7 @@ fun SettingsScreen(
             // ── Personalization Section ──────────────────────────
             SectionHeader(
                 icon = Icons.Default.Tune,
-                title = "Personalization"
+                title = stringResource(R.string.personalization)
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -157,7 +159,7 @@ fun SettingsScreen(
             // ── AI Language Dropdown ──────────────────────────────
             SettingLabel(
                 icon = Icons.Default.Translate,
-                text = "AI Response Language"
+                text = stringResource(R.string.ai_response_language)
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -171,7 +173,7 @@ fun SettingsScreen(
                     onValueChange = {},
                     readOnly = true,
                     placeholder = {
-                        Text("Select AI language")
+                        Text(stringResource(R.string.select_ai_language))
                     },
                     trailingIcon = {
                         ExposedDropdownMenuDefaults.TrailingIcon(expanded = aiLanguageExpanded)
@@ -226,7 +228,7 @@ fun SettingsScreen(
 
             Spacer(modifier = Modifier.height(6.dp))
             Text(
-                text = "Note: This changes only the language of the AI's diagnosis text, not the app's interface.",
+                text = stringResource(R.string.ai_language_note),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(horizontal = 4.dp)
@@ -237,7 +239,7 @@ fun SettingsScreen(
             // ── Location Permissions ──────────────────────────────
             SettingLabel(
                 icon = Icons.Default.LocationOn,
-                text = "Location Access"
+                text = stringResource(R.string.location_access)
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -259,7 +261,7 @@ fun SettingsScreen(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Granted",
+                        text = stringResource(R.string.granted),
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.primary
@@ -274,13 +276,13 @@ fun SettingsScreen(
                     Spacer(modifier = Modifier.width(8.dp))
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "Denied",
+                            text = stringResource(R.string.denied),
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.error
                         )
                         Text(
-                            text = "Required for accurate diagnosis.",
+                            text = stringResource(R.string.location_required),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.error.copy(alpha = 0.8f)
                         )
@@ -298,17 +300,26 @@ fun SettingsScreen(
                         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
                         modifier = Modifier.height(32.dp)
                     ) {
-                        Text("Grant", fontSize = 12.sp)
+                        Text(stringResource(R.string.grant_permission), fontSize = 12.sp)
                     }
                 }
             }
+
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(
+                text = stringResource(R.string.location_rationale),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(horizontal = 4.dp),
+                lineHeight = 16.sp
+            )
 
             Spacer(modifier = Modifier.height(24.dp))
 
             // ── Notification Settings ───────────────────────────
             SettingLabel(
                 icon = Icons.Default.Notifications,
-                text = "Notifications"
+                text = stringResource(R.string.notifications)
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -340,7 +351,7 @@ fun SettingsScreen(
                     )
                 } else {
                     Text(
-                        text = "Save Changes",
+                        text = stringResource(R.string.save_changes),
                         style = MaterialTheme.typography.labelLarge,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -358,7 +369,7 @@ fun SettingsScreen(
             // ── About Section ────────────────────────────────────
             SectionHeader(
                 icon = Icons.Default.Info,
-                title = "About"
+                title = stringResource(R.string.about)
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -377,7 +388,7 @@ fun SettingsScreen(
                 border = ButtonDefaults.outlinedButtonBorder(enabled = true)
             ) {
                 Text(
-                    text = "Terms of Service",
+                    text = stringResource(R.string.terms_of_service),
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.SemiBold
                 )
@@ -397,7 +408,7 @@ fun SettingsScreen(
                 border = ButtonDefaults.outlinedButtonBorder(enabled = true)
             ) {
                 Text(
-                    text = "Privacy Policy",
+                    text = stringResource(R.string.privacy_policy),
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.SemiBold
                 )
@@ -414,7 +425,7 @@ fun SettingsScreen(
             // ── Account Section ──────────────────────────────────
             SectionHeader(
                 icon = Icons.Default.Person,
-                title = "Account"
+                title = stringResource(R.string.account)
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -438,7 +449,7 @@ fun SettingsScreen(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "Log Out",
+                    text = stringResource(R.string.log_out),
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.SemiBold
                 )
@@ -542,14 +553,14 @@ fun NotificationSettingItem() {
     ) {
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = "Push Notifications",
+                text = stringResource(R.string.push_notifications),
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSurface
             )
             Spacer(modifier = Modifier.height(2.dp))
             Text(
-                text = "Receive alerts for plant care and updates",
+                text = stringResource(R.string.push_notifications_desc),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -557,7 +568,7 @@ fun NotificationSettingItem() {
             if (!areNotificationsEnabled) {
                 Spacer(modifier = Modifier.height(6.dp))
                 Text(
-                    text = "Enable in System Settings",
+                    text = stringResource(R.string.enable_in_system_settings),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.clickable {

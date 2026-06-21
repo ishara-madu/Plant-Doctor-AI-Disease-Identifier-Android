@@ -32,7 +32,7 @@ class SettingsViewModel(
         }
     }
 
-    fun savePreferences(country: String, language: String, selectedAiLanguage: String) {
+    fun savePreferences(country: String, language: String, selectedAiLanguage: String, onSuccess: () -> Unit = {}) {
         viewModelScope.launch {
             _isSaving.value = true
             repository.saveUserPreferences(
@@ -43,6 +43,7 @@ class SettingsViewModel(
             )
             _isSaving.value = false
             showSnackbar("Preferences saved successfully", com.pixeleye.plantdoctor.ui.components.SnackbarType.SUCCESS)
+            onSuccess()
         }
     }
 

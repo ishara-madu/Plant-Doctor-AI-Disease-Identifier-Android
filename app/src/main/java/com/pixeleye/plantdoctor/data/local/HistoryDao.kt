@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -21,8 +22,36 @@ interface HistoryDao {
     @Query("DELETE FROM history_table WHERE id = :id")
     suspend fun deleteHistoryById(id: String)
 
-    @Query("DELETE FROM history_table WHERE id NOT IN (SELECT id FROM history_table ORDER BY createdAt DESC LIMIT 10)")
+    @Query("""
+        DELETE FROM history_table 
+        WHERE id NOT IN (
+            SELECT id FROM history_table 
+            WHERE parentId IS NULL OR parentId = '' 
+            ORDER BY createdAt DESC LIMIT 10
+        )
+        AND (
+            parentId IS NULL 
+            OR parentId = '' 
+            OR parentId NOT IN (
+                SELECT id FROM history_table 
+                WHERE parentId IS NULL OR parentId = '' 
+                ORDER BY createdAt DESC LIMIT 10
+            )
+        )
+    """)
     suspend fun enforceSizeLimit()
+
+    @Transaction
+    suspend fun insertAllAndEnforceLimit(items: List<HistoryEntity>) {
+        insertAll(items)
+        enforceSizeLimit()
+    }
+
+    @Transaction
+    suspend fun insertHistoryAndEnforceLimit(item: HistoryEntity) {
+        insertHistory(item)
+        enforceSizeLimit()
+    }
 
     @Query("DELETE FROM history_table")
     suspend fun clearAll()

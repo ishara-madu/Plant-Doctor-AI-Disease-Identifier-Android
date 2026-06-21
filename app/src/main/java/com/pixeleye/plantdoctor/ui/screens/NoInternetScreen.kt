@@ -18,6 +18,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import com.pixeleye.plantdoctor.R
 
 @Composable
 fun NoInternetScreen() {
@@ -38,7 +40,7 @@ fun NoInternetScreen() {
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(
-            text = "No Internet Connection",
+            text = stringResource(R.string.no_internet_title),
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface,
@@ -48,7 +50,7 @@ fun NoInternetScreen() {
         Spacer(modifier = Modifier.height(12.dp))
 
         Text(
-            text = "Please check your network settings and try again. The app will automatically resume when the connection is restored.",
+            text = stringResource(R.string.no_internet_desc),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center

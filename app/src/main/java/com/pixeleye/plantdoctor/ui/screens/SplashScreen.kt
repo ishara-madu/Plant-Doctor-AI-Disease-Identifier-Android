@@ -30,6 +30,8 @@ import com.pixeleye.plantdoctor.data.UserPreferencesRepository
 import com.pixeleye.plantdoctor.viewmodel.AuthState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
+import androidx.compose.ui.res.stringResource
+import com.pixeleye.plantdoctor.R
 
 /**
  * Animated splash screen that acts as the routing hub.
@@ -117,7 +119,7 @@ fun SplashScreen(
             ) {
                 Icon(
                     imageVector = Icons.Rounded.Eco,
-                    contentDescription = "Plant Doctor Logo",
+                    contentDescription = stringResource(R.string.app_logo_description),
                     modifier = Modifier.size(72.dp),
                     tint = Color.White
                 )
@@ -127,7 +129,7 @@ fun SplashScreen(
 
             // App name — fade-in animation
             Text(
-                text = "Plant Doctor",
+                text = stringResource(R.string.app_name),
                 style = MaterialTheme.typography.headlineLarge,
                 fontWeight = FontWeight.Bold,
                 color = Color.White,
@@ -137,7 +139,7 @@ fun SplashScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "AI Plant Health Scanner",
+                text = stringResource(R.string.splash_subtitle),
                 style = MaterialTheme.typography.bodyMedium,
                 color = Color.White.copy(alpha = 0.7f),
                 modifier = Modifier.alpha(textAlpha.value)

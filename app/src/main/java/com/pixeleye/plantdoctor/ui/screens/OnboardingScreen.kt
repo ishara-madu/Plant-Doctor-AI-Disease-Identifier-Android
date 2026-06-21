@@ -59,6 +59,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.pixeleye.plantdoctor.R
 
 data class SelectionOption(
     val label: String,
@@ -160,7 +162,7 @@ fun OnboardingScreen(
                     Spacer(modifier = Modifier.height(28.dp))
 
                     Text(
-                        text = "Welcome to Plant Doctor",
+                        text = stringResource(R.string.welcome_title),
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface,
@@ -170,7 +172,7 @@ fun OnboardingScreen(
                     Spacer(modifier = Modifier.height(12.dp))
 
                     Text(
-                        text = "Help us personalize your experience.\nConfigure your AI assistant language and allow location access for region-specific treatment plans.",
+                        text = stringResource(R.string.onboarding_subtitle),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center,
@@ -188,7 +190,7 @@ fun OnboardingScreen(
             ) {
                 Column {
                     Text(
-                        text = "AI Response Language",
+                        text = stringResource(R.string.ai_response_language),
                         style = MaterialTheme.typography.labelLarge,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onSurface,
@@ -207,7 +209,7 @@ fun OnboardingScreen(
                             readOnly = true,
                             placeholder = {
                                 Text(
-                                    "Select AI language",
+                                    stringResource(R.string.select_ai_language),
                                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                                 )
                             },
@@ -260,7 +262,7 @@ fun OnboardingScreen(
 
                     Spacer(modifier = Modifier.height(6.dp))
                     Text(
-                        text = "Note: This changes only the language of the AI's diagnosis text, not the app's interface.",
+                        text = stringResource(R.string.ai_language_note),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(horizontal = 4.dp)
@@ -275,46 +277,56 @@ fun OnboardingScreen(
                 visible = showContent,
                 enter = fadeIn(tween(600, delayMillis = 350)) + slideInVertically(tween(600, delayMillis = 350)) { it / 3 }
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(12.dp))
-                        .clickable {
-                            if (!hasLocationPermission) {
-                                locationPermissionLauncher.launch(
-                                    arrayOf(
-                                        Manifest.permission.ACCESS_COARSE_LOCATION,
-                                        Manifest.permission.ACCESS_FINE_LOCATION
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                            .clickable {
+                                if (!hasLocationPermission) {
+                                    locationPermissionLauncher.launch(
+                                        arrayOf(
+                                            Manifest.permission.ACCESS_COARSE_LOCATION,
+                                            Manifest.permission.ACCESS_FINE_LOCATION
+                                        )
                                     )
-                                )
+                                }
                             }
-                        }
-                        .padding(vertical = 8.dp, horizontal = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    RadioButton(
-                        selected = hasLocationPermission,
-                        onClick = {
-                            if (!hasLocationPermission) {
-                                locationPermissionLauncher.launch(
-                                    arrayOf(
-                                        Manifest.permission.ACCESS_COARSE_LOCATION,
-                                        Manifest.permission.ACCESS_FINE_LOCATION
+                            .padding(vertical = 8.dp, horizontal = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        RadioButton(
+                            selected = hasLocationPermission,
+                            onClick = {
+                                if (!hasLocationPermission) {
+                                    locationPermissionLauncher.launch(
+                                        arrayOf(
+                                            Manifest.permission.ACCESS_COARSE_LOCATION,
+                                            Manifest.permission.ACCESS_FINE_LOCATION
+                                        )
                                     )
-                                )
-                            }
-                        },
-                        colors = RadioButtonDefaults.colors(
-                            selectedColor = MaterialTheme.colorScheme.primary,
-                            unselectedColor = MaterialTheme.colorScheme.outline
+                                }
+                            },
+                            colors = RadioButtonDefaults.colors(
+                                selectedColor = MaterialTheme.colorScheme.primary,
+                                unselectedColor = MaterialTheme.colorScheme.outline
+                            )
                         )
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = if (hasLocationPermission) stringResource(R.string.location_access_granted) else stringResource(R.string.allow_location_access),
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = if (hasLocationPermission) FontWeight.SemiBold else FontWeight.Normal,
+                            color = if (hasLocationPermission) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                    
                     Text(
-                        text = if (hasLocationPermission) "Location Access Granted" else "Allow Automatic Location Access",
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = if (hasLocationPermission) FontWeight.SemiBold else FontWeight.Normal,
-                        color = if (hasLocationPermission) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                        text = stringResource(R.string.location_rationale),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
+                        modifier = Modifier.padding(start = 36.dp, top = 2.dp, end = 8.dp),
+                        lineHeight = 16.sp
                     )
                 }
             }
@@ -350,13 +362,13 @@ fun OnboardingScreen(
                         )
                         Spacer(modifier = Modifier.width(10.dp))
                         Text(
-                            text = "Saving...",
+                            text = stringResource(R.string.saving),
                             style = MaterialTheme.typography.labelLarge,
                             fontWeight = FontWeight.SemiBold
                         )
                     } else {
                         Text(
-                            text = "Save & Continue",
+                            text = stringResource(R.string.save_and_continue),
                             style = MaterialTheme.typography.labelLarge,
                             fontWeight = FontWeight.SemiBold
                         )

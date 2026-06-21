@@ -37,6 +37,8 @@ android {
         buildConfigField("String", "ADMOB_REWARDED_ID", "\"${localProperties.getProperty("ADMOB_REWARDED_ID", "")}\"")
         buildConfigField("String", "ADMOB_BANNER_ID", "\"${localProperties.getProperty("ADMOB_BANNER_ID", "")}\"")
         buildConfigField("String", "ONESIGNAL_APP_ID", "\"${localProperties.getProperty("ONESIGNAL_APP_ID", "")}\"")
+        buildConfigField("String", "OPENWEATHER_API_KEYS", "\"${localProperties.getProperty("OPENWEATHER_API_KEYS", "")}\"")
+
 
 
         manifestPlaceholders["ADMOB_APP_ID"] = localProperties.getProperty("ADMOB_APP_ID", "")
@@ -49,7 +51,7 @@ android {
 
         // Optimization: Prevent bundling unused library translations
         androidResources {
-            localeFilters += "en"
+            localeFilters.addAll(listOf("en", "si", "ta", "es", "hi", "fr", "pt", "ja"))
         }
     }
 

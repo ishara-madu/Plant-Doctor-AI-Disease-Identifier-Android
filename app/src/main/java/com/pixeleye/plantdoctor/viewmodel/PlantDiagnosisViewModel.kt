@@ -46,6 +46,7 @@ import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.time.LocalDate
 import java.util.UUID
+import com.pixeleye.plantdoctor.utils.LocationHelper
 
 sealed class DiagnosisState {
     data object Idle : DiagnosisState()
@@ -67,6 +68,9 @@ sealed class UploadState {
  */
 private data class GeminiAnalysisResponse(
     @SerializedName("is_plant") val isPlant: Boolean,
+    @SerializedName("plant_name") val plantName: String?,
+    @SerializedName("watering_time") val wateringTime: String?,
+    @SerializedName("fertilizing_time") val fertilizingTime: String?,
     @SerializedName("diagnosis_summary") val diagnosisSummary: String,
     @SerializedName("organic_treatments") val organicTreatments: List<String>,
     @SerializedName("chemical_treatments") val chemicalTreatments: List<String>
@@ -107,6 +111,9 @@ You MUST return ONLY a single valid JSON object. No markdown, no prose. The JSON
 
 {
   "is_plant": true or false,
+  "plant_name": "The common name of the plant (e.g. Tomato, Rose, Mango, etc.) in the user's preferred language or null if not a plant",
+  "watering_time": "The recommended daily time for watering in 'HH:mm' format (e.g., '08:00' or '17:00') or null if not a plant",
+  "fertilizing_time": "The recommended daily time for applying treatment/fertilizer/medicine in 'HH:mm' format (e.g., '09:00' or '16:30') or null if not a plant",
   "diagnosis_summary": "A detailed explanation of the disease, pest, or nutrient deficiency.",
   "organic_treatments": ["Organic step 1", "Natural step 2"],
   "chemical_treatments": ["Chemical step 1", "Agrochemical step 2"]
@@ -118,7 +125,11 @@ Rules:
 3. "organic_treatments": List actionable, natural, DIY, or organic farming methods (e.g., Neem oil, pruning, compost).
 4. "chemical_treatments": List specific, commercially available agrochemical treatments, synthetic fertilizers, or pesticides.
 5. CRITICAL SAFETY RULE: For chemical treatments, suggest the active ingredient or class of chemical, but STRICTLY advise the user to 'read the manufacturer's label for dosage and safety'.
-6. The lists "organic_treatments" and "chemical_treatments" MUST contain ONLY direct, actionable, step-by-step treatment items. Any general advice, localization availability notes, supplier/brand information, or descriptive paragraphs MUST be written inside "diagnosis_summary" instead of the treatment lists.""".trimIndent())
+6. The lists "organic_treatments" and "chemical_treatments" MUST contain ONLY direct, actionable, step-by-step treatment items. Any general advice, localization availability notes, supplier/brand information, or descriptive paragraphs MUST be written inside "diagnosis_summary" instead of the treatment lists.
+7. ENVIRONMENT-AWARE ANALYSIS: Analyze the visual background and lighting of the image to determine if the plant is located indoors (e.g. a room, windowsill, indoor pot) or outdoors (e.g. garden, yard, field).
+   - If Outdoors: Directly align your watering schedule, treatment application times, and protection tips with the provided 5-day weather forecast.
+   - If Indoors: Tailor recommendations for indoor environments (e.g. emphasize airflow/ventilation to prevent fungal buildup, ensure proper light, and warn against overwatering). Clarify that the outdoor weather has less direct impact but still affects ambient conditions.
+   - If visual context is ambiguous or a close-up: State this in the "diagnosis_summary" and provide conditional advice (e.g., "If this plant is outdoors, do X; if it is indoors, do Y").""".trimIndent())
             },
             generationConfig = generationConfig {
                 temperature = 0.7f
@@ -242,17 +253,32 @@ Rules:
                     image
                 }
 
+                // Fetch coordinates & weather forecast if not cached yet
+                var weatherForecast: String? = com.pixeleye.plantdoctor.data.api.WeatherRepository.cachedForecastText
+                if (weatherForecast == null && context != null) {
+                    try {
+                        val coords = LocationHelper.getCoordinates(context)
+                        if (coords != null) {
+                            Log.d(TAG, "Weather cache miss. Fetching forecast for coordinates: ${coords.latitude}, ${coords.longitude}")
+                            weatherForecast = com.pixeleye.plantdoctor.data.api.WeatherRepository.fetchAndCacheForecast(coords.latitude, coords.longitude)
+                        }
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Failed to dynamically fetch weather during scan", e)
+                    }
+                }
+
                 // Read saved preferences to personalize the prompt
                 val prefs = userPreferencesRepository.userPreferences.first()
                 val country = prefs.country
                 val aiLanguage = prefs.selectedAiLanguage
 
                 val personalizationContext = buildString {
-                    if (country.isNotBlank() || aiLanguage.isNotBlank() || locationStr != null) {
+                    if (country.isNotBlank() || aiLanguage.isNotBlank() || locationStr != null || !weatherForecast.isNullOrBlank()) {
                         appendLine("CONTEXT:")
                         if (aiLanguage.isNotBlank()) {
                             appendLine("- You MUST provide your final JSON structured diagnosis ONLY in $aiLanguage.")
-                            appendLine("- CRITICAL: Translate ONLY the values (text content) of the JSON fields. The JSON keys ('is_plant', 'diagnosis_summary', 'organic_treatments', 'chemical_treatments') MUST remain exactly in English as specified in the system instructions. Do not translate the keys.")
+                            appendLine("- The 'plant_name' field MUST also be in $aiLanguage (e.g. 'තක්කාලි' or 'රෝස' if language is Sinhala, 'தக்காளி' or 'ரோஜா' if Tamil). Do not provide the plant name in English if language is $aiLanguage.")
+                            appendLine("- CRITICAL: Translate ONLY the values (text content) of the JSON fields. The JSON keys ('is_plant', 'plant_name', 'watering_time', 'fertilizing_time', 'diagnosis_summary', 'organic_treatments', 'chemical_treatments') MUST remain exactly in English as specified in the system instructions. Do not translate the keys.")
                             if (aiLanguage.equals("Sinhala", ignoreCase = true)) {
                                 appendLine("- SAFETY & COMPLIANCE: In Sinhala, describe chemical and organic treatments using mild, safe terminology (e.g., use 'පාලනය සදහා' (for control) or 'ප්‍රතිකාර' (treatments) instead of words meaning poison/toxin like 'විෂ' or 'වස'). Avoid copying long passages verbatim from external websites to prevent automated copyright/citation blocks.")
                             }
@@ -263,6 +289,13 @@ Rules:
                         if (targetLocation.isNotBlank()) {
                             appendLine("- The user is located at/in: $targetLocation. Suggest agricultural treatments, chemical compositions, and organic solutions that are locally available and commonly used in this region.")
                             appendLine("- Mention specific local brands, agrochemical suppliers, or farming practices relevant to $targetLocation when appropriate. CRITICAL: Any local supplier/brand notes, general availability advice, or regional context MUST be included inside the 'diagnosis_summary' text and NOT as items in the 'chemical_treatments' or 'organic_treatments' lists.")
+                        }
+
+                        if (!weatherForecast.isNullOrBlank()) {
+                            appendLine("- ENVIRONMENTAL & WEATHER FORECAST CONTEXT:")
+                            appendLine("The upcoming 5-day weather forecast at the user's location is:")
+                            appendLine(weatherForecast)
+                            appendLine("- Factor this weather forecast into your recommended care timeline (e.g., watering schedules, treatment timings). If rain is expected, warn the user about chemical wash-off and advise appropriate protective measures.")
                         }
                         appendLine()
                     }
@@ -276,8 +309,22 @@ Rules:
                     buildString {
                         appendLine("PROGRESS TRACKING / FOLLOW-UP CONTEXT:")
                         appendLine("This is a follow-up check-in for a plant that was diagnosed previously. The historical timeline of this plant is:")
-                        threadScans.forEachIndexed { index, scan ->
-                            appendLine("- Day/Scan ${index + 1} (${com.pixeleye.plantdoctor.ui.screens.formatScanDate(scan.createdAt)}):")
+                        
+                        val firstScan = threadScans.first()
+                        val last10Scans = threadScans.takeLast(10)
+                        val selectedScans = if (last10Scans.contains(firstScan)) {
+                            last10Scans
+                        } else {
+                            listOf(firstScan) + last10Scans
+                        }
+
+                        selectedScans.forEachIndexed { index, scan ->
+                            val prefix = if (scan == firstScan && scan != last10Scans.firstOrNull()) {
+                                "Day 1 / Initial Diagnosis"
+                            } else {
+                                "Recent History Log (Scan Date: ${com.pixeleye.plantdoctor.ui.screens.formatScanDate(scan.createdAt)})"
+                            }
+                            appendLine("- $prefix:")
                             appendLine("  Diagnosis: ${scan.diseaseTitle}")
                             appendLine("  Treatment Plan & Progress: ${scan.treatmentPlan}")
                         }
@@ -289,6 +336,7 @@ Rules:
                         appendLine("4. Update the organic and chemical treatments list to reflect the next steps. Explain what to continue doing, what to stop, and any new measures to take.")
                         appendLine("5. Start your 'diagnosis_summary' with a clear status header (e.g. 'Status: Improving', 'Status: Worsening', or 'Status: No Change') followed by the comparison analysis.")
                         appendLine("6. CRITICAL SAFETY: If the new image contains a completely different plant species or a different plant compared to the previous context, set the status header to 'Status: Mismatch - Different Plant Detected' and warn the user in the summary, advising them to photograph the original plant. Do not generate treatment plans for mismatched plants.")
+                        appendLine("7. CRITICAL: This is a progress update. The plant has already been identified in previous scans. Set the 'plant_name' JSON field to null. Do not attempt to identify or name it.")
                         appendLine()
                     }
                 } else {
@@ -391,7 +439,10 @@ Rules:
                 val diagnosisResponse = DiagnosisResponse(
                     summary = geminiResult.diagnosisSummary,
                     organicTreatments = geminiResult.organicTreatments,
-                    chemicalTreatments = geminiResult.chemicalTreatments
+                    chemicalTreatments = geminiResult.chemicalTreatments,
+                    plantName = geminiResult.plantName,
+                    wateringTime = geminiResult.wateringTime,
+                    fertilizingTime = geminiResult.fertilizingTime
                 )
 
                 _diagnosisState.value = DiagnosisState.Success(diagnosisResponse)
@@ -410,6 +461,15 @@ Rules:
                         geminiResult.chemicalTreatments.forEach { step ->
                             append("- $step\n")
                         }
+                    }
+                    if (!geminiResult.plantName.isNullOrBlank()) {
+                        append("\n\nPlant Name: ${geminiResult.plantName}")
+                    }
+                    if (!geminiResult.wateringTime.isNullOrBlank()) {
+                        append("\nWatering Time: ${geminiResult.wateringTime}")
+                    }
+                    if (!geminiResult.fertilizingTime.isNullOrBlank()) {
+                        append("\nFertilizing Time: ${geminiResult.fertilizingTime}")
                     }
                 }.trim()
 

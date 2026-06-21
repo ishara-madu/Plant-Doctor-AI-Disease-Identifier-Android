@@ -78,6 +78,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import com.pixeleye.plantdoctor.viewmodel.DiagnosisState
+import androidx.compose.ui.res.stringResource
+import com.pixeleye.plantdoctor.R
 import java.util.concurrent.TimeUnit
 import com.google.android.gms.ads.rewarded.RewardedAd
 import com.pixeleye.plantdoctor.utils.loadRewardedAd
@@ -368,7 +370,7 @@ private fun CameraContent(
             ) {
                 Icon(
                     imageVector = Icons.Default.Close,
-                    contentDescription = "Close",
+                    contentDescription = stringResource(R.string.close_button),
                     tint = Color.White
                 )
             }
@@ -401,7 +403,7 @@ private fun CameraContent(
                 ) {
                     Icon(
                         imageVector = Icons.Default.PhotoLibrary,
-                        contentDescription = "Gallery",
+                        contentDescription = stringResource(R.string.gallery_description),
                         tint = Color.White,
                         modifier = Modifier.size(26.dp)
                     )
@@ -443,13 +445,13 @@ private fun CameraContent(
                 onDismissRequest = { showLimitDialog = false },
                 title = {
                     Text(
-                        text = "Free Scans Exhausted",
+                        text = stringResource(R.string.free_scans_exhausted),
                         style = MaterialTheme.typography.headlineSmall
                     )
                 },
                 text = {
                     Text(
-                        text = "Watch a short video ad to unlock an extra scan! ($remaining remaining today)",
+                        text = stringResource(R.string.ad_unlock_desc, remaining),
                         style = MaterialTheme.typography.bodyMedium
                     )
                 },
@@ -479,7 +481,7 @@ private fun CameraContent(
                                 )
                             } else {
                                 diagnosisViewModel.showSnackbar(
-                                    "Ad is still loading. Please check your connection and try again.",
+                                    context.getString(R.string.ad_loading_error),
                                     com.pixeleye.plantdoctor.ui.components.SnackbarType.WARNING
                                 )
                                 loadRewardedAd(context) { newAd ->
@@ -488,12 +490,12 @@ private fun CameraContent(
                             }
                         }
                     }) {
-                        Text("Watch Ad")
+                        Text(stringResource(R.string.watch_ad))
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { showLimitDialog = false }) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.cancel))
                     }
                 }
             )
@@ -505,13 +507,13 @@ private fun CameraContent(
                 onDismissRequest = { showHardLimitDialog = false },
                 title = {
                     Text(
-                        text = "Daily Limit Reached",
+                        text = stringResource(R.string.daily_limit_reached),
                         style = MaterialTheme.typography.headlineSmall
                     )
                 },
                 text = {
                     Text(
-                        text = "You have used all your free and ad-supported scans for today. Upgrade to PRO for unlimited access!",
+                        text = stringResource(R.string.daily_limit_desc),
                         style = MaterialTheme.typography.bodyMedium
                     )
                 },
@@ -520,12 +522,12 @@ private fun CameraContent(
                         showHardLimitDialog = false
                         onOpenPaywall()
                     }) {
-                        Text("Upgrade to PRO")
+                        Text(stringResource(R.string.upgrade_to_pro))
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { showHardLimitDialog = false }) {
-                        Text("Maybe Later")
+                        Text(stringResource(R.string.maybe_later))
                     }
                 }
             )
@@ -549,7 +551,7 @@ private fun ConfirmationContent(
         // Full-screen image
         AsyncImage(
             model = uri,
-            contentDescription = "Selected image",
+            contentDescription = stringResource(R.string.scanned_plant_content_desc),
             contentScale = ContentScale.Fit,
             modifier = Modifier
                 .fillMaxSize()
@@ -570,7 +572,7 @@ private fun ConfirmationContent(
         ) {
             Icon(
                 imageVector = Icons.Default.Close,
-                contentDescription = "Close",
+                contentDescription = stringResource(R.string.close_button),
                 tint = Color.White
             )
         }
@@ -588,7 +590,7 @@ private fun ConfirmationContent(
             // Retake
             ActionButton(
                 icon = Icons.Default.Refresh,
-                label = "Retake",
+                label = stringResource(R.string.retake),
                 containerColor = Color.White.copy(alpha = 0.2f),
                 contentColor = Color.White,
                 onClick = onRetake
@@ -599,7 +601,7 @@ private fun ConfirmationContent(
             // Confirm
             ActionButton(
                 icon = Icons.Default.Check,
-                label = "Confirm",
+                label = stringResource(R.string.confirm),
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary,
                 onClick = onConfirm,
@@ -704,14 +706,14 @@ private fun PermissionDeniedContent(
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = "Camera Permission Required",
+            text = stringResource(R.string.camera_permission_title),
             style = MaterialTheme.typography.headlineSmall,
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
         Text(
-            text = "To capture plant images for disease detection, please grant camera permission.",
+            text = stringResource(R.string.camera_permission_desc),
             style = MaterialTheme.typography.bodyMedium,
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(bottom = 32.dp)
@@ -723,11 +725,11 @@ private fun PermissionDeniedContent(
                 .fillMaxWidth()
                 .padding(bottom = 16.dp)
         ) {
-            Text("Grant Camera Permission")
+            Text(stringResource(R.string.grant_camera_permission))
         }
 
         Button(onClick = onCancel) {
-            Text("Cancel")
+            Text(stringResource(R.string.cancel))
         }
     }
 }

@@ -20,6 +20,8 @@ import android.Manifest
 import android.content.pm.PackageManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
+import androidx.compose.ui.res.stringResource
+import com.pixeleye.plantdoctor.R
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -45,6 +47,7 @@ import androidx.compose.material.icons.filled.LocalFlorist
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Spa
 import androidx.compose.material.icons.filled.WarningAmber
 import androidx.compose.material.icons.outlined.History
@@ -121,8 +124,9 @@ import kotlin.math.sin
 import kotlinx.coroutines.launch
 
 // ── Date Formatting ────────────────────────────────────────────
+@Composable
 fun formatScanDate(isoDateString: String?): String {
-    if (isoDateString.isNullOrBlank()) return "Unknown date"
+    if (isoDateString.isNullOrBlank()) return stringResource(R.string.unknown_date)
     return try {
         val zonedDateTime = ZonedDateTime.parse(isoDateString)
         val outputFormatter = DateTimeFormatter.ofPattern("MMM dd, yyyy", Locale.getDefault())
@@ -150,6 +154,7 @@ fun HomeScreen(
     isPremium: Boolean = false,
     onRetry: () -> Unit = {},
     onOpenSettings: () -> Unit = {},
+    onOpenReminders: () -> Unit = {},
     onOpenPaywall: () -> Unit = {},
     onResume: () -> Unit = {},
     // ── Showcase walkthrough ──────────────────────────────────
@@ -210,12 +215,12 @@ fun HomeScreen(
                         Spacer(modifier = Modifier.width(10.dp))
                         Column {
                             Text(
-                                text = "Plant Doctor",
+                                text = stringResource(R.string.app_name),
                                 style = MaterialTheme.typography.titleLarge,
                                 fontWeight = FontWeight.Bold
                             )
                             Text(
-                                text = "AI Plant Health Scanner",
+                                text = stringResource(R.string.app_subtitle),
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -228,6 +233,18 @@ fun HomeScreen(
                         Spacer(modifier = Modifier.width(4.dp))
                     }
                     IconButton(
+                        onClick = onOpenReminders,
+                        colors = IconButtonDefaults.iconButtonColors(
+                            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Notifications,
+                            contentDescription = stringResource(R.string.care_reminders_title),
+                            modifier = Modifier.size(22.dp)
+                        )
+                    }
+                    IconButton(
                         onClick = onOpenSettings,
                         colors = IconButtonDefaults.iconButtonColors(
                             contentColor = MaterialTheme.colorScheme.onSurfaceVariant
@@ -235,7 +252,7 @@ fun HomeScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Settings,
-                            contentDescription = "Settings",
+                            contentDescription = stringResource(R.string.settings_title),
                             modifier = Modifier.size(22.dp)
                         )
                     }
@@ -259,7 +276,7 @@ fun HomeScreen(
                 val safeAiLanguage = if (selectedAiLanguage.isBlank()) "English" else selectedAiLanguage
 
                 if (!hasLocationPermission) {
-                    onTriggerSnackbar("Location access is required to scan. Please enable it in Settings.", com.pixeleye.plantdoctor.ui.components.SnackbarType.ERROR)
+                    onTriggerSnackbar(context.getString(R.string.location_required_to_scan), com.pixeleye.plantdoctor.ui.components.SnackbarType.ERROR)
                 } else {
                     onScanPlantClick()
                 }
@@ -326,9 +343,9 @@ fun HomeScreen(
             ShowcaseOverlay(
                 targetRect  = fabRect!!,
                 icon        = Icons.Outlined.PhotoCamera,
-                title       = "Scan a Plant",
-                message     = "Tap this button to open the camera and instantly analyse any plant for diseases.",
-                buttonLabel = "Got it",
+                title       = stringResource(R.string.showcase_scan_plant_title),
+                message     = stringResource(R.string.showcase_scan_plant_desc),
+                buttonLabel = stringResource(R.string.got_it),
                 onDismiss   = onCameraShowcaseDismissed,
                 // Tapping the highlighted FAB area → dismiss showcase + open camera
                 onTargetTap = {
@@ -342,9 +359,9 @@ fun HomeScreen(
             ShowcaseOverlay(
                 targetRect        = firstCardRect!!,
                 icon              = Icons.Default.TouchApp,
-                title             = "Select & Delete",
-                message           = "Long-press a scan card to enter selection mode. You can then delete scans at once.",
-                buttonLabel       = "Got it",
+                title             = stringResource(R.string.showcase_select_delete_title),
+                message           = stringResource(R.string.showcase_select_delete_desc),
+                buttonLabel       = stringResource(R.string.got_it),
                 onDismiss         = onLongPressShowcaseDismissed,
                 // Long-pressing the card → dismiss showcase; gesture is not consumed
                 // so the card’s combinedClickable also fires → enters selection mode.
@@ -376,7 +393,7 @@ private fun LoadingContent(
             )
             Spacer(modifier = Modifier.height(20.dp))
             Text(
-                text = "Loading history...",
+                text = stringResource(R.string.loading_history),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -404,7 +421,7 @@ private fun ErrorContent(
         )
         Spacer(modifier = Modifier.height(20.dp))
         Text(
-            text = "Could not load history",
+            text = stringResource(R.string.could_not_load_history),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.onSurface
@@ -431,7 +448,7 @@ private fun ErrorContent(
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = "Retry",
+                text = stringResource(R.string.retry),
                 style = MaterialTheme.typography.labelLarge,
                 fontWeight = FontWeight.SemiBold
             )
@@ -504,7 +521,7 @@ private fun ScanHistoryContent(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Mark All",
+                        text = stringResource(R.string.mark_all),
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Medium,
                         color = MaterialTheme.colorScheme.onPrimary
@@ -524,11 +541,11 @@ private fun ScanHistoryContent(
                 ) {
                     Icon(
                         imageVector = Icons.Default.DeleteOutline,
-                        contentDescription = "Delete",
+                        contentDescription = stringResource(R.string.delete),
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text(text = "Delete (${selectedScans.size})")
+                    Text(text = stringResource(R.string.delete_selected_count, selectedScans.size))
                 }
             }
         }
@@ -625,21 +642,21 @@ private fun ProUnlockCard(
             Spacer(modifier = Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "Unlock your full scan history with PRO",
+                    text = stringResource(R.string.unlock_pro_history_title),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "View all $totalScans scans and more",
+                    text = stringResource(R.string.unlock_pro_history_desc, totalScans),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                contentDescription = "Upgrade",
+                contentDescription = stringResource(R.string.upgrade),
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(20.dp)
             )
@@ -668,7 +685,7 @@ private fun RecentScansHeader(
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = "Recent Scans",
+                text = stringResource(R.string.recent_scans),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSurface
@@ -676,7 +693,7 @@ private fun RecentScansHeader(
         }
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
-                text = "$count scan${if (count != 1) "s" else ""}",
+                text = if (count == 1) stringResource(R.string.scan_count_singular) else stringResource(R.string.scan_count_plural, count),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -687,7 +704,7 @@ private fun RecentScansHeader(
             ) {
                 Icon(
                     imageVector = Icons.Default.Refresh,
-                    contentDescription = "Refresh",
+                    contentDescription = stringResource(R.string.refresh),
                     modifier = Modifier.size(18.dp),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -762,7 +779,7 @@ private fun ScanCard(
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = scan.diseaseTitle.ifBlank { "Unknown diagnosis" },
+                    text = scan.diseaseTitle.ifBlank { stringResource(R.string.unknown_diagnosis) },
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface,
@@ -778,7 +795,7 @@ private fun ScanCard(
                         .firstOrNull { it.isNotBlank() }
                         ?.take(80)
                         .orEmpty()
-                        .ifBlank { "View details..." },
+                        .ifBlank { stringResource(R.string.view_details) },
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 2,
@@ -835,7 +852,7 @@ private fun PlantThumbnail(
         if (!imageUrl.isNullOrBlank()) {
             SubcomposeAsyncImage(
                 model = imageUrl,
-                contentDescription = "Plant scan",
+                contentDescription = stringResource(R.string.plant_scan_content_desc),
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize(),
                 loading = {
@@ -854,7 +871,7 @@ private fun PlantThumbnail(
                 error = {
                     Icon(
                         imageVector = Icons.Default.LocalFlorist,
-                        contentDescription = "No image",
+                        contentDescription = stringResource(R.string.no_image_content_desc),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                         modifier = Modifier.size(24.dp)
                     )
@@ -863,7 +880,7 @@ private fun PlantThumbnail(
         } else {
             Icon(
                 imageVector = Icons.Default.LocalFlorist,
-                contentDescription = "No image available",
+                contentDescription = stringResource(R.string.no_image_available_content_desc),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                 modifier = Modifier.size(24.dp)
             )
@@ -900,7 +917,7 @@ private fun EmptyHistoryState(
         Spacer(modifier = Modifier.height(32.dp))
 
         Text(
-            text = "No scans yet",
+            text = stringResource(R.string.no_scans_yet_title),
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface
@@ -909,7 +926,7 @@ private fun EmptyHistoryState(
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "Scan your first plant to get started!\nPoint your camera at any leaf to detect diseases.",
+            text = stringResource(R.string.no_scans_yet_desc),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
@@ -935,7 +952,7 @@ private fun EmptyHistoryState(
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = "Scan a Plant",
+                text = stringResource(R.string.showcase_scan_plant_title),
                 style = MaterialTheme.typography.labelLarge,
                 fontWeight = FontWeight.SemiBold
             )
@@ -1168,7 +1185,7 @@ private fun ScanFAB(
 
                 Icon(
                     imageVector = Icons.Default.CameraAlt,
-                    contentDescription = "Scan Plant",
+                    contentDescription = stringResource(R.string.scan_plant_fab_desc),
                     modifier = Modifier.size(28.dp)
                 )
             }

@@ -1,0 +1,169 @@
+<resources>
+    <string name="app_name">Plant Doctor</string>
+    <string name="welcome_title">Plant Doctor වෙත සාදරයෙන් පිළිගනිමු</string>
+    <string name="onboarding_subtitle">ඔබගේ අත්දැකීම වඩාත් හොඳ කිරීමට අපට උදවු කරන්න.\nඔබගේ කලාපයට ගැළපෙන ප්‍රතිකාර සැලසුම් ලබා දීමට AI සහායකයාගේ භාෂාව සකසා, ඔබ සිටින ස්ථානය (location) ලබා ගැනීමට අවසර දෙන්න.</string>
+    <string name="ai_response_language">යෙදුමේ සහ AI හි භාෂාව</string>
+    <string name="allow_location_access">ස්වයංක්‍රීයව ස්ථානය ලබාගැනීමට ඉඩ දෙන්න</string>
+    <string name="location_access_granted">ස්ථානය ලබා ගැනීමට අවසර දී ඇත</string>
+    <string name="save_and_continue">සුරකින්න සහ ඉදිරියට යන්න</string>
+
+    <!-- Settings -->
+    <string name="settings_title">සැකසුම්</string>
+    <string name="ai_language_note">සටහන: මෙයින් යෙදුමේ මුහුණත සහ AI රෝග විනිශ්චය කරන භාෂාව යන දෙකම යාවත්කාලීන වේ.</string>
+    <string name="personalization">පෞද්ගලීකරණය</string>
+    <string name="select_ai_language">භාෂාව තෝරන්න</string>
+    <string name="saving">සුරකිමින් පවතී...</string>
+    <string name="save_changes">වෙනස්කම් සුරකින්න</string>
+    <string name="back">ආපසු</string>
+    <string name="location_access">ස්ථාන ප්‍රවේශය</string>
+    <string name="granted">අවසර දී ඇත</string>
+    <string name="denied">ප්‍රතික්ෂේප කර ඇත</string>
+    <string name="grant_permission">අවසර දෙන්න</string>
+    <string name="location_required">නිවැරදි රෝග විනිශ්චයක් සඳහා මෙය අවශ්‍ය වේ.</string>
+    <string name="location_rationale">ප්‍රාදේශීය කාලගුණ අනාවැකි (උෂ්ණත්වය, ආර්ද්‍රතාවය, වර්ෂාව) ලබා ගැනීමට සහ ඔබගේ ප්‍රදේශයේ පහසුවෙන් ලබාගත හැකි ප්‍රතිකාර යෝජනා කිරීමට අපි ඔබ සිටින ස්ථානය භාවිත කරමු.</string>
+    <string name="notifications">දැනුම්දීම්</string>
+    <string name="push_notifications">ක්ෂණික දැනුම්දීම් (Push Notifications)</string>
+    <string name="push_notifications_desc">ශාක රැකබලා ගැනීම සහ යාවත්කාලීන කිරීම් පිළිබඳ ඇඟවීම් ලබා ගන්න</string>
+    <string name="enable_in_system_settings">දුරකථනයේ සැකසුම් (System Settings) හරහා සක්‍රිය කරන්න</string>
+    <string name="about">මේ ගැන</string>
+    <string name="terms_of_service">සේවා කොන්දේසි</string>
+    <string name="privacy_policy">රහස්‍යතා ප්‍රතිපත්තිය</string>
+    <string name="account">ගිණුම</string>
+    <string name="log_out">ඉවත් වන්න</string>
+
+    <!-- Splash / NoInternet / Reminders -->
+    <string name="app_logo_description">Plant Doctor ලාංඡනය</string>
+    <string name="splash_subtitle">AI ශාක සෞඛ්‍ය ස්කෑනරය</string>
+    <string name="no_internet_title">අන්තර්ජාල සම්බන්ධතාවයක් නොමැත</string>
+    <string name="no_internet_desc">කරුණාකර ඔබගේ ජාල සැකසුම් පරීක්ෂා කර නැවත උත්සාහ කරන්න. සම්බන්ධතාවය යථා තත්ත්වයට පත් වූ පසු යෙදුම ස්වයංක්‍රීයව ක්‍රියාත්මක වේ.</string>
+    <string name="care_reminders_title">රැකවරණ සිහිකැඳවීම්</string>
+    <string name="watering">වතුර දැමීම</string>
+    <string name="fertilizing">පොහොර දැමීම</string>
+    <string name="daily_at">දිනපතා</string>
+    <string name="delete_reminder">සිහිකැඳවීම මකන්න</string>
+    <string name="no_reminders_active">සක්‍රිය සිහිකැඳවීම් නොමැත</string>
+    <string name="no_reminders_set">සිහිකැඳවීම් කිසිවක් සකසා නැත</string>
+    <string name="no_reminders_desc">ශාකයක් ස්කෑන් කිරීමෙන් පසු ලැබෙන ප්‍රතිඵල තිරයෙන් ඔබට රැකවරණ සිහිකැඳවීම් සැකසිය හැක.</string>
+
+    <!-- Camera -->
+    <string name="gallery_description">ගැලරිය</string>
+    <string name="free_scans_exhausted">නොමිලේ ලබා දුන් ස්කෑන් කිරීම් අවසන්</string>
+    <string name="ad_unlock_desc">අමතර ස්කෑන් එකක් ලබාගැනීමට කෙටි වීඩියෝ දැන්වීමක් නරඹන්න! (අද දිනට තව %1$d ක් ඉතිරිව ඇත)</string>
+    <string name="ad_loading_error">දැන්වීම තවමත් ලෝඩ් වෙමින් පවතී. කරුණාකර ඔබගේ අන්තර්ජාල සම්බන්ධතාවය පරීක්ෂා කර නැවත උත්සාහ කරන්න.</string>
+    <string name="watch_ad">දැන්වීම නරඹන්න</string>
+    <string name="cancel">අවලංගු කරන්න</string>
+    <string name="daily_limit_reached">දෛනික සීමාවට ළඟා වී ඇත</string>
+    <string name="daily_limit_desc">ඔබ අද දිනට අදාළ සියලුම නොමිලේ ලබාදෙන සහ දැන්වීම් බලා ලබාදෙන ස්කෑන් කිරීම් භාවිතා කර ඇත. අසීමිතව භාවිත කිරීමට PRO වෙත මාරු වන්න!</string>
+    <string name="upgrade_to_pro">PRO වෙත මාරු වන්න</string>
+    <string name="maybe_later">පසුව බලමු</string>
+    <string name="camera_permission_title">කැමරාව සඳහා අවසරය අවශ්‍යයි</string>
+    <string name="camera_permission_desc">රෝග හඳුනා ගැනීම සඳහා ශාකවල ඡායාරූප ගැනීමට, කරුණාකර කැමරාවට අවසර ලබා දෙන්න.</string>
+    <string name="grant_camera_permission">කැමරාව සඳහා අවසර දෙන්න</string>
+
+    <!-- Paywall -->
+    <string name="close_button">වසන්න</string>
+    <string name="selected">තෝරාගෙන ඇත</string>
+    <string name="unlock_pro_title">Plant Doctor PRO ලබාගන්න</string>
+    <string name="unlock_pro_subtitle">අසීමිත ස්කෑන් කිරීම්, විශේෂඥ AI ප්‍රතිකාර,\nසහ දැන්වීම්වලින් තොර අත්දැකීමක් ලබා ගන්න.</string>
+    <string name="feature_scans_title">අසීමිත ශාක ස්කෑන් කිරීම්</string>
+    <string name="feature_scans_subtitle">දෛනික සීමාවන් නොමැත — ඔබට අවශ්‍ය තරම් ශාක ස්කෑන් කරන්න</string>
+    <string name="feature_treatments_title">විශේෂඥ රසායනික සහ කාබනික ප්‍රතිකාර</string>
+    <string name="feature_treatments_subtitle">ඔබගේ ප්‍රදේශයෙන් ලබාගත හැකි AI මගින් බලගන්වන විසඳුම්</string>
+    <string name="feature_history_title">අසීමිත Cloud ඉතිහාසය</string>
+    <string name="feature_history_subtitle">සෑම ස්කෑන් එකක්ම සුරකිනු ලබයි — කිසිදා රෝග විනිශ්චයක් මගහැරෙන්නේ නැත</string>
+    <string name="feature_ads_title">දැන්වීම් කිසිවක් නොමැත</string>
+    <string name="feature_ads_subtitle">සෑම විටම කරදරයකින් තොර පැහැදිලි අත්දැකීමක්</string>
+    <string name="subscribe_now">දැන්ම දායක වන්න</string>
+    <string name="restore">නැවත පිහිටුවන්න</string>
+    <string name="terms">කොන්දේසි</string>
+    <string name="privacy">රහස්‍යතාව</string>
+    <string name="save_discount">%1$d%% ක් ඉතිරි කරගන්න</string>
+
+    <!-- Home / Main -->
+    <string name="scan_now">දැන්ම ස්කෑන් කරන්න</string>
+    <string name="treatment_plan">ප්‍රතිකාර සැලසුම</string>
+    <string name="got_it">තේරුණා</string>
+    <string name="confirm">තහවුරු කරන්න</string>
+    <string name="retake">නැවත ලබාගන්න</string>
+    <string name="saving_dots">සුරකිමින් පවතී...</string>
+    <string name="delete">මකන්න</string>
+    <string name="watering_reminder">වතුර දැමීමේ සිහිකැඳවීම</string>
+    <string name="app_subtitle">AI ශාක සෞඛ්‍ය ස්කෑනරය</string>
+    <string name="location_required_to_scan">ස්කෑන් කිරීම සඳහා ස්ථාන ප්‍රවේශය (location) අවශ්‍ය වේ. කරුණාකර එය Settings තුළින් සක්‍රිය කරන්න.</string>
+    <string name="showcase_scan_plant_title">ශාකයක් ස්කෑන් කරන්න</string>
+    <string name="showcase_scan_plant_desc">කැමරාව විවෘත කර ඕනෑම ශාකයක රෝග ක්ෂණිකව හඳුනාගැනීමට මෙම බොත්තම ඔබන්න.</string>
+    <string name="showcase_select_delete_title">තෝරා මකන්න</string>
+    <string name="showcase_select_delete_desc">ස්කෑන් කාඩ්පතක් තේරීමේ මාදිලියට පිවිසීමට එය මත මඳ වේලාවක් ඔබාගෙන සිටින්න. ඉන්පසු ඔබට ස්කෑන් කිහිපයක් එකවර මකා දැමිය හැක.</string>
+    <string name="loading_history">ඉතිහාසය ලෝඩ් වෙමින් පවතී...</string>
+    <string name="could_not_load_history">ඉතිහාසය ලෝඩ් කිරීමට නොහැකි විය</string>
+    <string name="retry">නැවත උත්සාහ කරන්න</string>
+    <string name="mark_all">සියල්ල ලකුණු කරන්න</string>
+    <string name="delete_selected_count">මකන්න (%1$d)</string>
+    <string name="unlock_pro_history_title">PRO සමඟින් ඔබගේ සම්පූර්ණ ස්කෑන් ඉතිහාසය ලබාගන්න</string>
+    <string name="unlock_pro_history_desc">ස්කෑන් %1$d ක් ඇතුළු තවත් දේවල් බලන්න</string>
+    <string name="upgrade">Upgrade කරන්න</string>
+    <string name="recent_scans">මෑතකදී කළ ස්කෑන් කිරීම්</string>
+    <string name="scan_count_singular">එක් ස්කෑන් එකක්</string>
+    <string name="scan_count_plural">ස්කෑන් %1$d ක්</string>
+    <string name="refresh">යාවත්කාලීන කරන්න</string>
+    <string name="unknown_diagnosis">නොදන්නා රෝග විනිශ්චයක්</string>
+    <string name="view_details">විස්තර බලන්න...</string>
+    <string name="plant_scan_content_desc">ශාක ස්කෑන් කිරීම</string>
+    <string name="no_image_content_desc">ඡායාරූප නොමැත</string>
+    <string name="no_image_available_content_desc">ඡායාරූප කිසිවක් ලබාගත නොහැක</string>
+    <string name="no_scans_yet_title">තවම ස්කෑන් කර නැත</string>
+    <string name="no_scans_yet_desc">ආරම්භ කිරීමට ඔබගේ පළමු ශාකය ස්කෑන් කරන්න!\nරෝග හඳුනා ගැනීම සඳහා කැමරාව ඕනෑම පත්‍රයකට යොමු කරන්න.</string>
+    <string name="scan_plant_fab_desc">ශාකයක් ස්කෑන් කරන්න</string>
+    <string name="unknown_date">නොදන්නා දිනයක්</string>
+    <string name="unknown_plant">නොදන්නා ශාකයක්</string>
+
+    <!-- Result Screen -->
+    <string name="diagnosis_result_title">රෝග විනිශ්චය ප්‍රතිඵලය</string>
+    <string name="scan_new">අලුතින් ස්කෑන් කරන්න</string>
+    <string name="track_progress">ප්‍රගතිය නිරීක්ෂණය කරන්න</string>
+    <string name="analyzing_plant">ඔබගේ ශාකය විශ්ලේෂණය කරමින් පවතී...</string>
+    <string name="analyzing_plant_desc">අපගේ AI තාක්ෂණය මගින් රෝග සහ ඌනතාවන් සඳහා ඡායාරූපය පරීක්ෂා කරමින් සිටී</string>
+    <string name="image_unavailable">ඡායාරූපය ලබාගත නොහැක</string>
+    <string name="scanned_plant_content_desc">ස්කෑන් කළ ශාකය</string>
+    <string name="confident_percent">%1$d%% ක විශ්වාසයක් ඇත</string>
+    <string name="diagnosis_label">රෝග විනිශ්චය</string>
+    <string name="plant_analysis_complete">ශාක විශ්ලේෂණය සම්පූර්ණයි</string>
+    <string name="ai_analysis_summary_label">AI විශ්ලේෂණයේ සාරාංශය</string>
+    <string name="no_analysis_available">විශ්ලේෂණයක් ලබාගත නොහැක.</string>
+    <string name="organic_treatments_title">කාබනික සහ ස්වාභාවික ප්‍රතිකාර</string>
+    <string name="chemical_treatments_title">රසායනික ප්‍රතිකාර සහ පොහොර</string>
+    <string name="recommended_badge">නිර්දේශිතයි</string>
+    <string name="pro_feature_chemical_title">PRO විශේෂාංගය: රසායනික ප්‍රතිකාර ලබාගන්න</string>
+    <string name="plant_health_timeline_title">ශාක සෞඛ්‍ය කාලරේඛාව</string>
+    <string name="view_detail_content_desc">විස්තරය බලන්න</string>
+    <string name="initial_diagnosis">මූලික රෝග විනිශ්චය</string>
+
+    <!-- Care Reminders update in Result -->
+    <string name="new_care_times_recommended">නව රැකවරණ වේලාවන් නිර්දේශ කර ඇත</string>
+    <string name="new_care_times_desc">Gemini AI විසින් මෙම ශාකය සඳහා නව රැකවරණ වේලාවන් නිර්දේශ කර ඇත. ඔබගේ කාලසටහන යාවත්කාලීන කිරීමට අවශ්‍යද?</string>
+    <string name="watering_reminder_title">වතුර දැමීමේ සිහිකැඳවීම</string>
+    <string name="treatment_fertilizer_reminder_title">ප්‍රතිකාර/පොහොර සිහිකැඳවීම</string>
+    <string name="current_vs_recommended">දැනට: %1$s | නිර්දේශිත: %2$s</string>
+    <string name="use_ai_time">AI වේලාව භාවිත කරන්න</string>
+    <string name="custom_time">වෙනත් වේලාවක්</string>
+    <string name="keep_existing_times">දැනට ඇති වේලාවන් තබාගන්න</string>
+    <string name="manage_reminders">සිහිකැඳවීම් කළමනාකරණය කරන්න</string>
+    <string name="care_reminders_scheduled_title">රැකවරණ සිහිකැඳවීම් උපලේඛනගත කර ඇත</string>
+    <string name="care_reminders_active_desc">මෙම ශාකය සඳහා වතුර දැමීම සහ පොහොර දැමීම පිළිබඳ දැනුම්දීම් සක්‍රියයි.</string>
+    <string name="my_plant_default">මගේ ශාකය</string>
+    <string name="reminders_scheduled_success">රැකවරණ සිහිකැඳවීම් සාර්ථකව උපලේඛනගත කරන ලදී! 🌿</string>
+    <string name="schedule_care_reminders">රැකවරණ සිහිකැඳවීම් උපලේඛනගත කරන්න</string>
+    <string name="plant_name_label">ශාකයේ නම</string>
+    <string name="plant_name_duplicate_error">මෙම නමින් ශාකයක් දැනටමත් පවතී</string>
+    <string name="plant_name_display">ශාකය: %1$s</string>
+    <string name="daily_watering_reminder_label">දිනපතා වතුර දැමීමේ සිහිකැඳවීම</string>
+    <string name="daily_watering_scheduled_at">%1$s ට උපලේඛනගත කර ඇත</string>
+    <string name="daily_treatment_fertilizer_label">දිනපතා ප්‍රතිකාර/පොහොර යෙදීම</string>
+
+    <!-- Paywall Screen -->
+    <string name="yearly">වාර්ෂිකව</string>
+    <string name="monthly">මාසිකව</string>
+    <string name="per_year"> / වසරකට</string>
+    <string name="per_month"> / මාසයකට</string>
+    <string name="just_per_month">මාසයකට %1$s ක් පමණයි</string>
+</resources>

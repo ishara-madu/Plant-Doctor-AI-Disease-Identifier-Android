@@ -8,11 +8,16 @@ import io.github.jan.supabase.storage.storage
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import com.pixeleye.plantdoctor.data.local.HistoryDao
+import com.pixeleye.plantdoctor.data.local.ReminderDao
 import com.pixeleye.plantdoctor.data.local.toEntity
+import com.pixeleye.plantdoctor.receiver.ReminderReceiver
+import android.content.Context
 
 class PlantScanRepository(
     private val supabaseClient: SupabaseClient,
-    private val historyDao: HistoryDao
+    private val historyDao: HistoryDao,
+    private val reminderDao: ReminderDao,
+    private val context: Context
 ) {
 
     companion object {
@@ -44,8 +49,7 @@ class PlantScanRepository(
             Log.d(TAG, "Fetched ${results.size} scans from remote")
             
             // Insert into local DB
-            historyDao.insertAll(results.map { it.toEntity() })
-            historyDao.enforceSizeLimit()
+            historyDao.insertAllAndEnforceLimit(results.map { it.toEntity() })
         } catch (e: Exception) {
             Log.e(TAG, "Failed to refresh history from remote", e)
             throw e
@@ -64,8 +68,7 @@ class PlantScanRepository(
                 }
                 .decodeSingleOrNull<PlantScanDto>() ?: scan
             
-            historyDao.insertHistory(inserted.toEntity())
-            historyDao.enforceSizeLimit()
+            historyDao.insertHistoryAndEnforceLimit(inserted.toEntity())
             inserted
         } catch (e: Exception) {
             Log.e(TAG, "Failed to insert new scan to remote", e)
@@ -74,8 +77,7 @@ class PlantScanRepository(
     }
 
     suspend fun insertScanLocal(scan: PlantScanDto): PlantScanDto {
-        historyDao.insertHistory(scan.toEntity())
-        historyDao.enforceSizeLimit()
+        historyDao.insertHistoryAndEnforceLimit(scan.toEntity())
         return scan
     }
 
@@ -113,6 +115,18 @@ class PlantScanRepository(
                         } catch (e: Exception) {
                             Log.e(TAG, "Failed to delete follow-up scan: ${followUp.id}", e)
                         }
+                    }
+
+                    // Automatically delete associated care reminders / notifications
+                    try {
+                        val reminders = reminderDao.getRemindersByScanId(scanId)
+                        reminders.forEach { reminder ->
+                            ReminderReceiver.cancelAlarm(context, reminder.id)
+                        }
+                        reminderDao.deleteRemindersByScanId(scanId)
+                        Log.d(TAG, "Deleted reminders associated with root scan: $scanId")
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Failed to delete reminders for scan: $scanId", e)
                     }
                 }
             }
