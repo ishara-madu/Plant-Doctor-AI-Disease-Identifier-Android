@@ -1106,7 +1106,7 @@ fun ProgressTimeline(
                     Spacer(modifier = Modifier.width(12.dp))
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = formatScanDate(scan.createdAt),
+                            text = formatScanDate(scan.createdAt, stringResource(R.string.unknown_date)),
                             style = MaterialTheme.typography.labelMedium,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurfaceVariant

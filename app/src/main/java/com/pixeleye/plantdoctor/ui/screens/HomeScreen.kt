@@ -124,9 +124,8 @@ import kotlin.math.sin
 import kotlinx.coroutines.launch
 
 // ── Date Formatting ────────────────────────────────────────────
-@Composable
-fun formatScanDate(isoDateString: String?): String {
-    if (isoDateString.isNullOrBlank()) return stringResource(R.string.unknown_date)
+fun formatScanDate(isoDateString: String?, fallback: String = "Unknown date"): String {
+    if (isoDateString.isNullOrBlank()) return fallback
     return try {
         val zonedDateTime = ZonedDateTime.parse(isoDateString)
         val outputFormatter = DateTimeFormatter.ofPattern("MMM dd, yyyy", Locale.getDefault())
@@ -142,7 +141,7 @@ fun formatScanDate(isoDateString: String?): String {
             }
         } catch (_: Exception) {
             isoDateString.take(10)
-    }
+        }
     }
 }
 
@@ -817,7 +816,7 @@ private fun ScanCard(
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = formatScanDate(scan.createdAt),
+                        text = formatScanDate(scan.createdAt, stringResource(R.string.unknown_date)),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.primary
                     )
