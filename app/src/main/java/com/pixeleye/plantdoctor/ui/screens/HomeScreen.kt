@@ -466,16 +466,22 @@ private fun ScanHistoryContent(
     val selectedScans = remember { mutableStateSetOf<String>() }
     val isInSelectionMode = selectedScans.isNotEmpty()
     
+    val allUnlockedIds = remember(displayList) { displayList.mapNotNull { it.id } }
+    val isAllUnlockedSelected = allUnlockedIds.isNotEmpty() && selectedScans.containsAll(allUnlockedIds)
+    
     fun toggleSelection(scanId: String) {
         if (selectedScans.contains(scanId)) {
             selectedScans.remove(scanId)
         } else {
-            selectedScans.add(scanId)
+            if (allUnlockedIds.contains(scanId)) {
+                selectedScans.add(scanId)
+            }
         }
     }
     
     fun selectAll() {
-        selectedScans.addAll(displayList.mapNotNull { it.id })
+        selectedScans.clear()
+        selectedScans.addAll(allUnlockedIds)
     }
     
     fun deselectAll() {
@@ -483,10 +489,10 @@ private fun ScanHistoryContent(
     }
     
     fun toggleSelectAll() {
-        if (selectedScans.size == displayList.size) {
-            deselectAll()
+        if (isAllUnlockedSelected) {
+            selectedScans.removeAll(allUnlockedIds)
         } else {
-            selectAll()
+            selectedScans.addAll(allUnlockedIds)
         }
     }
 
@@ -502,7 +508,7 @@ private fun ScanHistoryContent(
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Checkbox(
-                        checked = selectedScans.size == displayList.size,
+                        checked = isAllUnlockedSelected,
                         onCheckedChange = { toggleSelectAll() },
                         colors = CheckboxDefaults.colors(
                             checkmarkColor = MaterialTheme.colorScheme.primary,

@@ -333,7 +333,7 @@ fun OnboardingScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.weight(1f).height(32.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
             // ── Save & Continue Button ──────────────────────────
             AnimatedVisibility(
