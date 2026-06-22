@@ -8,6 +8,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInVertically
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -145,20 +146,13 @@ fun OnboardingScreen(
                 enter = fadeIn(tween(600)) + slideInVertically(tween(600)) { it / 3 }
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Box(
+                    Image(
+                        painter = painterResource(id = R.drawable.logo),
+                        contentDescription = null,
                         modifier = Modifier
                             .size(80.dp)
                             .clip(RoundedCornerShape(22.dp))
-                            .background(MaterialTheme.colorScheme.primaryContainer),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Eco,
-                            contentDescription = null,
-                            modifier = Modifier.size(44.dp),
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                    }
+                    )
 
                     Spacer(modifier = Modifier.height(28.dp))
 
