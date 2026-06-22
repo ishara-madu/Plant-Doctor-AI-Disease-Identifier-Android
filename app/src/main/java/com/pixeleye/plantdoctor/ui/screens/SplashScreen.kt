@@ -106,6 +106,15 @@ fun SplashScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
+import androidx.compose.foundation.Image
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.draw.clip
+
+// Rest of the imports...
+import androidx.compose.ui.res.stringResource
+import com.pixeleye.plantdoctor.R
+
+// Rest of the code...
             // Logo — scale-up animation
             Box(
                 modifier = Modifier
@@ -117,11 +126,12 @@ fun SplashScreen(
                     ),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    imageVector = Icons.Rounded.Eco,
+                Image(
+                    painter = painterResource(id = R.drawable.logo),
                     contentDescription = stringResource(R.string.app_logo_description),
-                    modifier = Modifier.size(72.dp),
-                    tint = Color.White
+                    modifier = Modifier
+                        .size(80.dp)
+                        .clip(CircleShape)
                 )
             }
 
