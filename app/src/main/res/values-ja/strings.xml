@@ -1,3 +1,184 @@
 <resources>
     <string name="app_name">Plant Doctor</string>
+    <string name="welcome_title">Plant Doctorへようこそ</string>
+    <string name="onboarding_subtitle">より良い体験のためにご協力ください。\nAIアシスタントの言語を設定し、地域固有の治療プランを取得するために位置情報へのアクセスを許可してください。</string>
+    <string name="ai_response_language">アプリとAIの言語</string>
+    <string name="allow_location_access">位置情報への自動アクセスを許可する</string>
+    <string name="location_access_granted">位置情報へのアクセスが許可されました</string>
+    <string name="save_and_continue">保存して続行</string>
+
+    <!-- Settings -->
+    <string name="settings_title">設定</string>
+    <string name="ai_language_note">注：これにより、アプリのインターフェースとAIによる診断言語の両方が更新されます。</string>
+    <string name="personalization">カスタマイズ</string>
+    <string name="select_ai_language">言語を選択</string>
+    <string name="saving">保存中...</string>
+    <string name="save_changes">変更を保存</string>
+    <string name="back">戻る</string>
+    <string name="location_access">位置情報へのアクセス</string>
+    <string name="granted">許可済み</string>
+    <string name="denied">拒否済み</string>
+    <string name="grant_permission">許可する</string>
+    <string name="location_required">正確な診断に必要です。</string>
+    <string name="location_rationale">お客様の地域で利用可能な治療薬のブランドを提案し、現地の天気予報（気温、湿度、雨）を取得するために位置情報を使用します。</string>
+    <string name="notifications">通知</string>
+    <string name="push_notifications">プッシュ通知</string>
+    <string name="push_notifications_desc">植物のケアや最新情報に関する通知を受け取る</string>
+    <string name="enable_in_system_settings">システム設定で有効にする</string>
+    <string name="about">アプリについて</string>
+    <string name="terms_of_service">利用規約</string>
+    <string name="privacy_policy">プライバシーポリシー</string>
+    <string name="account">アカウント</string>
+    <string name="log_out">ログアウト</string>
+
+    <!-- Splash / NoInternet / Reminders -->
+    <string name="app_logo_description">Plant Doctorロゴ</string>
+    <string name="splash_subtitle">AI植物健康スキャナー</string>
+    <string name="no_internet_title">インターネット接続がありません</string>
+    <string name="no_internet_desc">ネットワーク設定を確認して、もう一度お試しください。接続が復元されると、アプリは自動的に再開されます。</string>
+    <string name="care_reminders_title">ケアリマインダー</string>
+    <string name="watering">水やり</string>
+    <string name="fertilizing">肥料</string>
+    <string name="daily_at">毎日</string>
+    <string name="delete_reminder">リマインダーを削除</string>
+    <string name="no_reminders_active">有効なリマインダーはありません</string>
+    <string name="no_reminders_set">リマインダーが設定されていません</string>
+    <string name="no_reminders_desc">植物をスキャンした後、診断結果画面からケアリマインダーを設定できます。</string>
+
+    <!-- Camera -->
+    <string name="gallery_description">ギャラリー</string>
+    <string name="free_scans_exhausted">無料スキャンの上限に達しました</string>
+    <string name="ad_unlock_desc">短い動画広告を視聴して追加のスキャンをロック解除しましょう！（本日の残り: %1$d回）</string>
+    <string name="ad_loading_error">広告はまだ読み込み中です。接続を確認して、もう一度お試しください。</string>
+    <string name="watch_ad">広告を見る</string>
+    <string name="cancel">キャンセル</string>
+    <string name="daily_limit_reached">1日の制限に達しました</string>
+    <string name="daily_limit_desc">本日の無料スキャンと広告視聴スキャンをすべて使い切りました。無制限にアクセスするにはPROにアップグレードしてください！</string>
+    <string name="upgrade_to_pro">PROにアップグレード</string>
+    <string name="maybe_later">後で</string>
+    <string name="camera_permission_title">カメラの権限が必要です</string>
+    <string name="camera_permission_desc">病気を検出するための植物の画像を撮影するには、カメラの権限を許可してください。</string>
+    <string name="grant_camera_permission">カメラの権限を許可する</string>
+
+    <!-- Paywall -->
+    <string name="close_button">閉じる</string>
+    <string name="selected">選択済み</string>
+    <string name="unlock_pro_title">Plant Doctor PROをロック解除</string>
+    <string name="unlock_pro_subtitle">無制限のスキャン、AIによる専門的な治療、\n広告なしの体験を手に入れましょう。</string>
+    <string name="feature_scans_title">無制限の植物スキャン</string>
+    <string name="feature_scans_subtitle">1日の制限なし — 必要なだけ植物をスキャンできます</string>
+    <string name="feature_treatments_title">専門的な化学的および有機的治療</string>
+    <string name="feature_treatments_subtitle">現地で入手可能なAI主導のソリューション</string>
+    <string name="feature_history_title">無制限のクラウド履歴</string>
+    <string name="feature_history_subtitle">すべてのスキャンを保存 — 診断結果を決して失いません</string>
+    <string name="feature_ads_title">広告ゼロ</string>
+    <string name="feature_ads_subtitle">いつでもクリーンで集中できる体験</string>
+    <string name="subscribe_now">今すぐ登録</string>
+    <string name="restore">復元</string>
+    <string name="terms">利用規約</string>
+    <string name="privacy">プライバシー</string>
+    <string name="save_discount">%1$d%% オフ</string>
+
+    <!-- Home / Main -->
+    <string name="scan_now">今すぐスキャン</string>
+    <string name="treatment_plan">治療プラン</string>
+    <string name="got_it">OK</string>
+    <string name="confirm">確認</string>
+    <string name="retake">撮り直す</string>
+    <string name="saving_dots">保存中...</string>
+    <string name="delete">削除</string>
+    <string name="watering_reminder">水やりリマインダー</string>
+    <string name="app_subtitle">AI植物健康スキャナー</string>
+    <string name="location_required_to_scan">スキャンするには位置情報へのアクセスが必要です。設定で有効にしてください。</string>
+    <string name="showcase_scan_plant_title">植物をスキャンする</string>
+    <string name="showcase_scan_plant_desc">このボタンをタップしてカメラを開き、植物の病気を即座に分析します。</string>
+    <string name="showcase_select_delete_title">選択と削除</string>
+    <string name="showcase_select_delete_desc">スキャンカードを長押しすると選択モードになります。複数のスキャンを一度に削除できます。</string>
+    <string name="loading_history">履歴を読み込んでいます...</string>
+    <string name="could_not_load_history">履歴を読み込めませんでした</string>
+    <string name="retry">再試行</string>
+    <string name="mark_all">すべて選択</string>
+    <string name="delete_selected_count">削除（%1$d）</string>
+    <string name="unlock_pro_history_title">PROですべてのスキャン履歴をロック解除</string>
+    <string name="unlock_pro_history_desc">%1$d件のスキャンなどをすべて表示</string>
+    <string name="upgrade">アップグレード</string>
+    <string name="recent_scans">最近のスキャン</string>
+    <string name="scan_count_singular">1件のスキャン</string>
+    <string name="scan_count_plural">%1$d件のスキャン</string>
+    <string name="refresh">更新</string>
+    <string name="unknown_diagnosis">不明な診断</string>
+    <string name="view_details">詳細を見る...</string>
+    <string name="plant_scan_content_desc">植物のスキャン</string>
+    <string name="no_image_content_desc">画像なし</string>
+    <string name="no_image_available_content_desc">利用可能な画像がありません</string>
+    <string name="no_scans_yet_title">スキャンはまだありません</string>
+    <string name="no_scans_yet_desc">始めるには最初の植物をスキャンしてください！\n病気を検出するためにカメラを葉に向けてください。</string>
+    <string name="scan_plant_fab_desc">植物をスキャン</string>
+    <string name="unknown_date">日付不明</string>
+    <string name="unknown_plant">不明な植物</string>
+
+    <!-- Result Screen -->
+    <string name="diagnosis_result_title">診断結果</string>
+    <string name="scan_new">新しくスキャン</string>
+    <string name="track_progress">進行状況を追跡</string>
+    <string name="analyzing_plant">植物を分析しています...</string>
+    <string name="analyzing_plant_desc">AIが画像から病気や欠乏症を検査しています</string>
+    <string name="image_unavailable">画像が利用できません</string>
+    <string name="scanned_plant_content_desc">スキャンした植物</string>
+    <string name="confident_percent">信頼度 %1$d%%</string>
+    <string name="diagnosis_label">診断</string>
+    <string name="plant_analysis_complete">植物の分析が完了しました</string>
+    <string name="ai_analysis_summary_label">AI分析の概要</string>
+    <string name="no_analysis_available">分析は利用できません。</string>
+    <string name="organic_treatments_title">有機的および自然的治療</string>
+    <string name="chemical_treatments_title">化学的治療および肥料</string>
+    <string name="recommended_badge">推奨</string>
+    <string name="pro_feature_chemical_title">PRO機能：化学的治療をロック解除</string>
+    <string name="plant_health_timeline_title">植物の健康タイムライン</string>
+    <string name="view_detail_content_desc">詳細を表示</string>
+    <string name="initial_diagnosis">最初の診断</string>
+    <string name="collapse">折りたたむ</string>
+    <string name="expand">展開</string>
+
+    <!-- Care Reminders update in Result -->
+    <string name="new_care_times_recommended">新しいケア時間が推奨されました</string>
+    <string name="new_care_times_desc">Gemini AIがこの植物のアップデートに新しい推奨ケア時間を検出しました。スケジュールを更新しますか？</string>
+    <string name="watering_reminder_title">水やりリマインダー</string>
+    <string name="treatment_fertilizer_reminder_title">治療/肥料リマインダー</string>
+    <string name="current_vs_recommended">現在: %1$s | 推奨: %2$s</string>
+    <string name="use_ai_time">AIの時間を使用</string>
+    <string name="custom_time">カスタム時間</string>
+    <string name="keep_existing_times">現在の時間を維持</string>
+    <string name="manage_reminders">リマインダーを管理</string>
+    <string name="care_reminders_scheduled_title">ケアリマインダーがスケジュールされました</string>
+    <string name="care_reminders_active_desc">この植物に対する水やりと肥料の通知が有効になっています。</string>
+    <string name="my_plant_default">私の植物</string>
+    <string name="reminders_scheduled_success">ケアリマインダーが正常にスケジュールされました！ 🌿</string>
+    <string name="schedule_care_reminders">ケアリマインダーをスケジュールする</string>
+    <string name="plant_name_label">植物の名前</string>
+    <string name="plant_name_duplicate_error">この名前の植物は既に存在します</string>
+    <string name="plant_name_display">植物: %1$s</string>
+    <string name="daily_watering_reminder_label">毎日の水やりリマインダー</string>
+    <string name="daily_watering_scheduled_at">%1$s にスケジュール済み</string>
+    <string name="daily_treatment_fertilizer_label">毎日の治療/肥料</string>
+
+    <!-- Paywall Screen -->
+    <string name="yearly">年間</string>
+    <string name="monthly">月間</string>
+    <string name="per_year"> / 年</string>
+    <string name="per_month"> / 月</string>
+    <string name="just_per_month">月額わずか %1$s</string>
+
+    <!-- In-App Updates -->
+    <string name="update_downloaded_message">新しいアップデートがダウンロードされました。適用するにはアプリを再起動してください。</string>
+    <string name="update_restart_action">再起動</string>
+    <string name="not_a_plant_error">画像に植物が含まれていないようです。植物の写真でもう一度お試しください。</string>
+
+    <!-- Care Reminders Notifications -->
+    <string name="notification_title">植物ケアリマインダー 🌿</string>
+    <string name="notification_body_watering">%1$s に水やりをする時間です！ 🌿</string>
+    <string name="notification_body_fertilizing">%1$s に肥料をあげる時間です！ 🌿</string>
+    <string name="notification_body_default">%1$s のお手入れをする時間です！ 🌿</string>
+    <string name="notification_channel_name">植物ケアリマインダー</string>
+    <string name="notification_channel_desc">植物への水やりや肥料をリマインドする通知。</string>
 </resources>

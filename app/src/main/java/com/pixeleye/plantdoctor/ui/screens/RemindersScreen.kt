@@ -21,12 +21,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Alarm
-import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.Grass
-import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.WaterDrop
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -81,8 +79,9 @@ fun RemindersScreen(
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.back)
+                            painter = painterResource(id = R.drawable.arrow_left),
+                            contentDescription = stringResource(R.string.back),
+                            tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
                 },
@@ -147,9 +146,9 @@ private fun ReminderItemCard(
 ) {
     val context = LocalContext.current
     var showTimePicker by remember { mutableStateOf(false) }
-
     val isWatering = reminder.careType.equals("Watering", ignoreCase = true) || reminder.careType == "වතුර දැමීම"
-    val careIcon = if (isWatering) Icons.Default.WaterDrop else Icons.Default.Grass
+
+    val careIcon = if (isWatering) rememberVectorPainter(Icons.Default.WaterDrop) else rememberVectorPainter(Icons.Default.Grass)
     val careIconColor = if (isWatering) Color(0xFF2196F3) else Color(0xFF4CAF50)
     
     val careLabel = if (isWatering) stringResource(R.string.watering) else stringResource(R.string.fertilizing)
@@ -198,7 +197,7 @@ private fun ReminderItemCard(
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        imageVector = careIcon,
+                        painter = careIcon,
                         contentDescription = null,
                         tint = if (reminder.isEnabled) careIconColor else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                         modifier = Modifier.size(22.dp)
@@ -248,9 +247,9 @@ private fun ReminderItemCard(
                 Spacer(modifier = Modifier.width(8.dp))
                 IconButton(onClick = onDelete) {
                     Icon(
-                        imageVector = Icons.Default.DeleteOutline,
-                        contentDescription = stringResource(R.string.delete_reminder),
-                        tint = MaterialTheme.colorScheme.error.copy(alpha = 0.8f)
+                        painter = painterResource(id = R.drawable.trash__1_),
+                        contentDescription = stringResource(R.string.delete),
+                        tint = MaterialTheme.colorScheme.error
                     )
                 }
             }
@@ -283,10 +282,10 @@ private fun EmptyRemindersState(
         verticalArrangement = Arrangement.Center
     ) {
         Icon(
-            imageVector = Icons.Default.NotificationsActive,
-            contentDescription = stringResource(R.string.no_reminders_active),
-            tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f),
-            modifier = Modifier.size(64.dp)
+            painter = painterResource(id = R.drawable.calendar_days),
+            contentDescription = null,
+            modifier = Modifier.size(64.dp),
+            tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)
         )
         Spacer(modifier = Modifier.height(24.dp))
         Text(

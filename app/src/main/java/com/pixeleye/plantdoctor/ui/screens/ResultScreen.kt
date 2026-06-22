@@ -27,9 +27,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.ListAlt
-import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.ui.res.painterResource
 import androidx.compose.material.icons.filled.CheckCircleOutline
 import androidx.compose.material.icons.filled.Eco
 import androidx.compose.material.icons.filled.ExpandLess
@@ -40,7 +38,6 @@ import androidx.compose.material.icons.filled.HealthAndSafety
 import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.LocalFlorist
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.MedicalServices
 import androidx.compose.material.icons.filled.MonitorHeart
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.Star
@@ -105,7 +102,6 @@ import com.pixeleye.plantdoctor.R
 import com.pixeleye.plantdoctor.data.api.DiagnosisResponse
 import com.pixeleye.plantdoctor.data.api.PlantScanDto
 import com.pixeleye.plantdoctor.data.local.PlantReminderEntity
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import com.pixeleye.plantdoctor.ui.theme.TreatmentAccent
 import com.pixeleye.plantdoctor.ui.theme.TreatmentCardBg
 import com.pixeleye.plantdoctor.ui.theme.TreatmentCardBorder
@@ -185,7 +181,7 @@ fun ResultScreen(
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            painter = painterResource(id = R.drawable.arrow_left),
                             contentDescription = stringResource(R.string.back)
                         )
                     }
@@ -426,7 +422,7 @@ private fun ResultContent(
                 if (hasChemical) {
                     ExpandableSectionCard(
                         title = stringResource(R.string.chemical_treatments_title),
-                        icon = Icons.Default.MedicalServices,
+                        icon = R.drawable.briefcase_medical,
                         items = diagnosisData.chemicalTreatments,
                         isHighlighted = true,
                         isPremium = isPremium,
@@ -580,7 +576,7 @@ private fun DiagnosisHeader(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
-                                imageVector = Icons.Default.Shield,
+                                painter = painterResource(id = R.drawable.shield_check),
                                 contentDescription = null,
                                 modifier = Modifier.size(14.dp),
                                 tint = MaterialTheme.colorScheme.onTertiary
@@ -616,7 +612,7 @@ private fun DiagnosisHeader(
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
-                            imageVector = Icons.Default.HealthAndSafety,
+                            painter = painterResource(id = R.drawable.heart_handshake),
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(22.dp)
@@ -660,7 +656,7 @@ private fun DiagnosisSummaryCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
-                    imageVector = Icons.Default.Lightbulb,
+                    painter = painterResource(id = R.drawable.lightbulb),
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.tertiary,
                     modifier = Modifier.size(20.dp)
@@ -688,7 +684,7 @@ private fun DiagnosisSummaryCard(
 @Composable
 private fun ExpandableSectionCard(
     title: String,
-    icon: ImageVector,
+    icon: Any,
     items: List<String>,
     isHighlighted: Boolean = false,
     isPremium: Boolean = true,
@@ -750,16 +746,29 @@ private fun ExpandableSectionCard(
                         ),
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = null,
-                        tint = if (isHighlighted) {
-                            onHighlightColor
-                        } else {
-                            MaterialTheme.colorScheme.primary
-                        },
-                        modifier = Modifier.size(20.dp)
-                    )
+                    if (icon is ImageVector) {
+                        Icon(
+                            imageVector = icon,
+                            contentDescription = null,
+                            tint = if (isHighlighted) {
+                                onHighlightColor
+                            } else {
+                                MaterialTheme.colorScheme.primary
+                            },
+                            modifier = Modifier.size(20.dp)
+                        )
+                    } else if (icon is Int) {
+                        Icon(
+                            painter = painterResource(id = icon),
+                            contentDescription = null,
+                            tint = if (isHighlighted) {
+                                onHighlightColor
+                            } else {
+                                MaterialTheme.colorScheme.primary
+                            },
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
                 }
                 Spacer(modifier = Modifier.width(14.dp))
                 Text(
@@ -785,7 +794,7 @@ private fun ExpandableSectionCard(
                     Spacer(modifier = Modifier.width(8.dp))
                 }
                 Icon(
-                    imageVector = if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                    painter = if (expanded) painterResource(id = R.drawable.chevron) else painterResource(id = R.drawable.chevron_down),
                     contentDescription = if (expanded) stringResource(R.string.collapse) else stringResource(R.string.expand),
                     tint = if (isHighlighted) onHighlightColor else MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -854,7 +863,7 @@ private fun ExpandableSectionCard(
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.Lock,
+                                    painter = painterResource(id = R.drawable.lock_keyhole),
                                     contentDescription = null,
                                     tint = Color.White,
                                     modifier = Modifier.size(32.dp)
@@ -908,7 +917,7 @@ private fun InstructionRow(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
-            imageVector = Icons.Default.Lightbulb,
+            painter = painterResource(id = R.drawable.lightbulb),
             contentDescription = "Instruction/Tip",
             tint = iconColor,
             modifier = Modifier.size(18.dp)
@@ -1060,7 +1069,7 @@ fun ProgressTimeline(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ListAlt,
+                    painter = painterResource(id = R.drawable.clipboard_list),
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(20.dp)
@@ -1121,7 +1130,7 @@ fun ProgressTimeline(
                         )
                     }
                     Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                        painter = painterResource(id = R.drawable.arrow_right),
                         contentDescription = stringResource(R.string.view_detail_content_desc),
                         modifier = Modifier.size(16.dp),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
@@ -1341,7 +1350,7 @@ private fun CareReminderCard(
     if (isAdded) {
         Card(modifier = modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f))) {
             Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-                Icon(imageVector = Icons.Default.CheckCircle, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(24.dp))
+                Icon(painter = painterResource(id = R.drawable.circle_check), contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(24.dp))
                 Spacer(modifier = Modifier.width(12.dp))
                 Text(text = stringResource(R.string.reminders_scheduled_success), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimaryContainer)
             }

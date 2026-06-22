@@ -44,6 +44,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -73,7 +74,7 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun ShowcaseOverlay(
     targetRect: Rect,
-    icon: ImageVector,
+    icon: Int,
     title: String,
     message: String,
     buttonLabel: String = "Got it",
@@ -254,7 +255,7 @@ fun ShowcaseOverlay(
                             ) {
                                 Box(contentAlignment = Alignment.Center) {
                                     Icon(
-                                        imageVector = icon,
+                                        painter = painterResource(id = icon),
                                         contentDescription = null,
                                         tint = MaterialTheme.colorScheme.primary,
                                         modifier = Modifier.size(22.dp)

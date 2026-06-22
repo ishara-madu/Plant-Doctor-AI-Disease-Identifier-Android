@@ -14,6 +14,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarData
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -32,14 +33,15 @@ fun CustomSnackbar(
         SnackbarType.ERROR -> Color(0xFFD32F2F)   // Material Red
         SnackbarType.INFO -> MaterialTheme.colorScheme.inverseSurface
         SnackbarType.WARNING -> Color(0xFFFFA000) // Amber/Warning
+        SnackbarType.OFFLINE -> MaterialTheme.colorScheme.inverseSurface
     }
 
-    val iconColor = if (type == SnackbarType.INFO) 
+    val iconColor = if (type == SnackbarType.INFO || type == SnackbarType.OFFLINE) 
         MaterialTheme.colorScheme.inverseOnSurface 
     else 
         Color.White
 
-    val textColor = if (type == SnackbarType.INFO) 
+    val textColor = if (type == SnackbarType.INFO || type == SnackbarType.OFFLINE) 
         MaterialTheme.colorScheme.inverseOnSurface 
     else 
         Color.White
@@ -58,7 +60,7 @@ fun CustomSnackbar(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
-                imageVector = type.getIcon(),
+                painter = painterResource(id = type.getIconRes()),
                 contentDescription = null,
                 tint = iconColor,
                 modifier = Modifier.size(24.dp)
@@ -68,12 +70,31 @@ fun CustomSnackbar(
 
             Text(
                 text = snackbarData.visuals.message,
+                modifier = Modifier.weight(1f),
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Medium,
                 color = textColor,
                 fontSize = 14.sp,
                 lineHeight = 20.sp
             )
+
+            snackbarData.visuals.actionLabel?.let { actionLabel ->
+                Spacer(modifier = Modifier.width(8.dp))
+                androidx.compose.material3.TextButton(
+                    onClick = { snackbarData.performAction() },
+                    contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp)
+                ) {
+                    Text(
+                        text = actionLabel,
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = if (type == SnackbarType.INFO || type == SnackbarType.OFFLINE) 
+                            MaterialTheme.colorScheme.primary 
+                        else 
+                            Color.White
+                    )
+                }
+            }
         }
     }
 }

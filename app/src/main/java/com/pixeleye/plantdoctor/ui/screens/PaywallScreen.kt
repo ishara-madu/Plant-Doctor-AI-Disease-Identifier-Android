@@ -7,6 +7,7 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -29,13 +30,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AllInclusive
-import androidx.compose.material.icons.filled.Block
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.CloudQueue
-import androidx.compose.material.icons.filled.Science
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -158,7 +154,7 @@ fun PaywallScreen(
                             )
                         ) {
                             Icon(
-                                imageVector = Icons.Default.Close,
+                                painter = painterResource(id = R.drawable.x__1_),
                                 contentDescription = stringResource(R.string.close_button),
                                 modifier = Modifier.size(22.dp)
                             )
@@ -174,11 +170,13 @@ fun PaywallScreen(
 
                     Spacer(modifier = Modifier.height(20.dp))
 
+                    val isDark = isSystemInDarkTheme()
+                    val textColor = if (isDark) Color.White else Color.Black
                     Text(
                         text = stringResource(R.string.unlock_pro_title),
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.ExtraBold,
-                        color = Color.White,
+                        color = textColor,
                         textAlign = TextAlign.Center,
                         letterSpacing = (-0.5).sp
                     )
@@ -188,7 +186,7 @@ fun PaywallScreen(
                     Text(
                         text = stringResource(R.string.unlock_pro_subtitle),
                         style = MaterialTheme.typography.bodyMedium,
-                        color = Color.White.copy(alpha = 0.85f),
+                        color = textColor.copy(alpha = 0.85f),
                         textAlign = TextAlign.Center,
                         lineHeight = 22.sp
                     )
@@ -204,7 +202,7 @@ fun PaywallScreen(
                     .padding(horizontal = 24.dp)
             ) {
                 ProFeatureRow(
-                    icon = Icons.Default.AllInclusive,
+                    painter = painterResource(id = R.drawable.infinity),
                     title = stringResource(R.string.feature_scans_title),
                     subtitle = stringResource(R.string.feature_scans_subtitle)
                 )
@@ -212,7 +210,7 @@ fun PaywallScreen(
                 Spacer(modifier = Modifier.height(14.dp))
 
                 ProFeatureRow(
-                    icon = Icons.Default.Science,
+                    painter = painterResource(id = R.drawable.flask_conical),
                     title = stringResource(R.string.feature_treatments_title),
                     subtitle = stringResource(R.string.feature_treatments_subtitle)
                 )
@@ -220,7 +218,7 @@ fun PaywallScreen(
                 Spacer(modifier = Modifier.height(14.dp))
 
                 ProFeatureRow(
-                    icon = Icons.Default.CloudQueue,
+                    painter = painterResource(id = R.drawable.cloud_upload),
                     title = stringResource(R.string.feature_history_title),
                     subtitle = stringResource(R.string.feature_history_subtitle)
                 )
@@ -228,7 +226,7 @@ fun PaywallScreen(
                 Spacer(modifier = Modifier.height(14.dp))
 
                 ProFeatureRow(
-                    icon = Icons.Default.Block,
+                    painter = painterResource(id = R.drawable.ban__1_),
                     title = stringResource(R.string.feature_ads_title),
                     subtitle = stringResource(R.string.feature_ads_subtitle)
                 )
@@ -402,7 +400,7 @@ private fun SubscriptionCard(
             containerColor = containerColor
         ),
         elevation = CardDefaults.cardElevation(
-            defaultElevation = if (isSelected) 3.dp else 0.dp
+            defaultElevation = 0.dp
         )
     ) {
         Box(
@@ -431,7 +429,7 @@ private fun SubscriptionCard(
                 ) {
                     if (isSelected) {
                         Icon(
-                            imageVector = Icons.Default.Check,
+                            painter = painterResource(id = R.drawable.check),
                             contentDescription = stringResource(R.string.selected),
                             tint = Color.White,
                             modifier = Modifier.size(14.dp)
@@ -495,7 +493,7 @@ private fun SubscriptionCard(
 // ── Pro Feature Row ───────────────────────────────────────────
 @Composable
 private fun ProFeatureRow(
-    icon: ImageVector,
+    painter: Painter,
     title: String,
     subtitle: String
 ) {
@@ -513,7 +511,7 @@ private fun ProFeatureRow(
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                imageVector = icon,
+                painter = painter,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(22.dp)

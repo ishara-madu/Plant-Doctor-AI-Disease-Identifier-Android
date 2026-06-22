@@ -25,9 +25,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Eco
-import androidx.compose.material.icons.filled.Translate
+import androidx.compose.ui.res.painterResource
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -217,7 +216,7 @@ fun OnboardingScreen(
                             },
                             leadingIcon = {
                                 Icon(
-                                    imageVector = Icons.Default.Translate,
+                                    painter = painterResource(id = R.drawable.languages),
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.primary
                                 )
@@ -377,7 +376,7 @@ fun OnboardingScreen(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                            painter = painterResource(id = R.drawable.arrow_right),
                             contentDescription = null,
                             modifier = Modifier.size(20.dp)
                         )

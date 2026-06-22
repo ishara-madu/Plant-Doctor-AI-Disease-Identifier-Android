@@ -32,11 +32,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.PhotoLibrary
-import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -369,7 +366,7 @@ private fun CameraContent(
                     )
             ) {
                 Icon(
-                    imageVector = Icons.Default.Close,
+                    painter = painterResource(id = R.drawable.x__1_),
                     contentDescription = stringResource(R.string.close_button),
                     tint = Color.White
                 )
@@ -402,7 +399,7 @@ private fun CameraContent(
                         )
                 ) {
                     Icon(
-                        imageVector = Icons.Default.PhotoLibrary,
+                        painter = painterResource(id = R.drawable.images),
                         contentDescription = stringResource(R.string.gallery_description),
                         tint = Color.White,
                         modifier = Modifier.size(26.dp)
@@ -571,7 +568,7 @@ private fun ConfirmationContent(
                 )
         ) {
             Icon(
-                imageVector = Icons.Default.Close,
+                painter = painterResource(id = R.drawable.x__1_),
                 contentDescription = stringResource(R.string.close_button),
                 tint = Color.White
             )
@@ -589,7 +586,7 @@ private fun ConfirmationContent(
         ) {
             // Retake
             ActionButton(
-                icon = Icons.Default.Refresh,
+                painter = painterResource(id = R.drawable.refresh),
                 label = stringResource(R.string.retake),
                 containerColor = Color.White.copy(alpha = 0.2f),
                 contentColor = Color.White,
@@ -600,7 +597,7 @@ private fun ConfirmationContent(
 
             // Confirm
             ActionButton(
-                icon = Icons.Default.Check,
+                painter = painterResource(id = R.drawable.check),
                 label = stringResource(R.string.confirm),
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary,
@@ -614,7 +611,7 @@ private fun ConfirmationContent(
 // ── Confirmation action button ──────────────────────────────────
 @Composable
 private fun ActionButton(
-    icon: ImageVector,
+    painter: Painter,
     label: String,
     containerColor: Color,
     contentColor: Color,
@@ -639,7 +636,7 @@ private fun ActionButton(
                 )
             } else {
                 Icon(
-                    imageVector = icon,
+                    painter = painter,
                     contentDescription = label,
                     tint = contentColor,
                     modifier = Modifier.size(28.dp)

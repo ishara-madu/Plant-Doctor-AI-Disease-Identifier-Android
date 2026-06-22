@@ -16,6 +16,7 @@ import com.google.ai.client.generativeai.type.BlockThreshold
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import com.pixeleye.plantdoctor.BuildConfig
+import com.pixeleye.plantdoctor.R
 import com.pixeleye.plantdoctor.data.UserPreferencesRepository
 import com.pixeleye.plantdoctor.data.api.DiagnosisResponse
 import com.pixeleye.plantdoctor.data.api.PlantScanDto
@@ -195,14 +196,9 @@ Rules:
                 // Local image verification with ML Kit
                 val isPlantLocal = checkIfImageContainsPlant(image)
                 if (!isPlantLocal) {
-                    val prefs = userPreferencesRepository.userPreferences.first()
-                    val aiLanguage = prefs.selectedAiLanguage
-                    val errorMsg = when (aiLanguage) {
-                        "Sinhala" -> "මෙම ඡායාරූපයෙහි පැලෑටියක් නොමැති බව පෙනේ. කරුණාකර පැලෑටියක ඡායාරූපයක් සමඟ නැවත උත්සාහ කරන්න."
-                        "Tamil" -> "இந்த படத்தில் தாவரங்கள் எதுவும் இல்லை போல் தெரிகிறது. தயவுசெய்து ஒரு தாவரத்தின் புகைப்படத்துடன் மீண்டும் முயற்சிக்கவும்."
-                        else -> "The image does not appear to contain a plant. Please try again with a plant photo."
-                    }
-                    Log.d(TAG, "Local validation rejected the image. Selected language: $aiLanguage")
+                    val errorMsg = context?.getString(R.string.not_a_plant_error)
+                        ?: "The image does not appear to contain a plant. Please try again with a plant photo."
+                    Log.d(TAG, "Local validation rejected the image.")
                     _diagnosisState.value = DiagnosisState.Error(errorMsg)
                     return@launch
                 }

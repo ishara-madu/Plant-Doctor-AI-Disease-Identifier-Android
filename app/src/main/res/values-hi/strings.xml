@@ -1,3 +1,184 @@
 <resources>
     <string name="app_name">Plant Doctor</string>
+    <string name="welcome_title">Plant Doctor में आपका स्वागत है</string>
+    <string name="onboarding_subtitle">अपने अनुभव को बेहतर बनाने में हमारी मदद करें।\nअपने AI सहायक की भाषा सेट करें और अपने क्षेत्र के अनुसार उपचार योजनाएं प्राप्त करने के लिए स्थान (location) की अनुमति दें।</string>
+    <string name="ai_response_language">ऐप और AI की भाषा</string>
+    <string name="allow_location_access">स्वचालित स्थान पहुंच की अनुमति दें</string>
+    <string name="location_access_granted">स्थान पहुंच प्रदान की गई</string>
+    <string name="save_and_continue">सहेजें और आगे बढ़ें</string>
+
+    <!-- Settings -->
+    <string name="settings_title">सेटिंग्स</string>
+    <string name="ai_language_note">नोट: यह एप्लिकेशन इंटरफ़ेस और AI डायग्नोसिस भाषा दोनों को अपडेट करता है।</string>
+    <string name="personalization">निजीकरण (Personalization)</string>
+    <string name="select_ai_language">भाषा चुनें</string>
+    <string name="saving">सहेजा जा रहा है...</string>
+    <string name="save_changes">बदलाव सहेजें</string>
+    <string name="back">पीछे</string>
+    <string name="location_access">स्थान पहुंच</string>
+    <string name="granted">अनुमति दी गई</string>
+    <string name="denied">अस्वीकृत</string>
+    <string name="grant_permission">अनुमति दें</string>
+    <string name="location_required">सटीक निदान के लिए आवश्यक है।</string>
+    <string name="location_rationale">हम स्थानीय मौसम पूर्वानुमान (तापमान, आर्द्रता, बारिश) प्राप्त करने और आपके क्षेत्र में उपलब्ध उपचार ब्रांडों का सुझाव देने के लिए आपके स्थान का उपयोग करते हैं।</string>
+    <string name="notifications">सूचनाएं</string>
+    <string name="push_notifications">पुश सूचनाएं</string>
+    <string name="push_notifications_desc">पौधों की देखभाल और अपडेट के लिए अलर्ट प्राप्त करें</string>
+    <string name="enable_in_system_settings">सिस्टम सेटिंग्स में सक्षम करें</string>
+    <string name="about">हमारे बारे में</string>
+    <string name="terms_of_service">सेवा की शर्तें</string>
+    <string name="privacy_policy">गोपनीयता नीति</string>
+    <string name="account">खाता</string>
+    <string name="log_out">लॉग आउट</string>
+
+    <!-- Splash / NoInternet / Reminders -->
+    <string name="app_logo_description">Plant Doctor लोगो</string>
+    <string name="splash_subtitle">AI प्लांट हेल्थ स्कैनर</string>
+    <string name="no_internet_title">कोई इंटरनेट कनेक्शन नहीं</string>
+    <string name="no_internet_desc">कृपया अपनी नेटवर्क सेटिंग्स जांचें और पुनः प्रयास करें। कनेक्शन बहाल होने पर ऐप स्वचालित रूप से फिर से शुरू हो जाएगा।</string>
+    <string name="care_reminders_title">देखभाल अनुस्मारक</string>
+    <string name="watering">पानी देना</string>
+    <string name="fertilizing">खाद डालना</string>
+    <string name="daily_at">प्रतिदिन</string>
+    <string name="delete_reminder">अनुस्मारक हटाएं</string>
+    <string name="no_reminders_active">कोई अनुस्मारक सक्रिय नहीं है</string>
+    <string name="no_reminders_set">कोई अनुस्मारक सेट नहीं किया गया</string>
+    <string name="no_reminders_desc">आप पौधे को स्कैन करने के बाद निदान परिणाम स्क्रीन से देखभाल अनुस्मारक सेट कर सकते हैं।</string>
+
+    <!-- Camera -->
+    <string name="gallery_description">गैलरी</string>
+    <string name="free_scans_exhausted">मुफ़्त स्कैन समाप्त हो गए</string>
+    <string name="ad_unlock_desc">एक अतिरिक्त स्कैन अनलॉक करने के लिए एक छोटा वीडियो विज्ञापन देखें! (आज %1$d शेष हैं)</string>
+    <string name="ad_loading_error">विज्ञापन अभी भी लोड हो रहा है। कृपया अपना कनेक्शन जांचें और पुनः प्रयास करें।</string>
+    <string name="watch_ad">विज्ञापन देखें</string>
+    <string name="cancel">रद्द करें</string>
+    <string name="daily_limit_reached">दैनिक सीमा पूरी हो गई</string>
+    <string name="daily_limit_desc">आपने आज के लिए अपने सभी मुफ़्त और विज्ञापन-समर्थित स्कैन का उपयोग कर लिया है। असीमित एक्सेस के लिए PRO में अपग्रेड करें!</string>
+    <string name="upgrade_to_pro">PRO में अपग्रेड करें</string>
+    <string name="maybe_later">शायद बाद में</string>
+    <string name="camera_permission_title">कैमरा अनुमति आवश्यक है</string>
+    <string name="camera_permission_desc">बीमारी का पता लगाने के लिए पौधों की तस्वीरें लेने हेतु, कृपया कैमरा अनुमति प्रदान करें।</string>
+    <string name="grant_camera_permission">कैमरा अनुमति दें</string>
+
+    <!-- Paywall -->
+    <string name="close_button">बंद करें</string>
+    <string name="selected">चयनित</string>
+    <string name="unlock_pro_title">Plant Doctor PRO अनलॉक करें</string>
+    <string name="unlock_pro_subtitle">असीमित स्कैन, विशेषज्ञ AI उपचार,\nऔर विज्ञापन-मुक्त अनुभव प्राप्त करें।</string>
+    <string name="feature_scans_title">असीमित प्लांट स्कैन</string>
+    <string name="feature_scans_subtitle">कोई दैनिक सीमा नहीं — जितने चाहें उतने पौधों को स्कैन करें</string>
+    <string name="feature_treatments_title">विशेषज्ञ रासायनिक और जैविक उपचार</string>
+    <string name="feature_treatments_subtitle">स्थानीय उपलब्धता के साथ AI-संचालित समाधान</string>
+    <string name="feature_history_title">असीमित क्लाउड हिस्ट्री</string>
+    <string name="feature_history_subtitle">हर स्कैन सहेजा गया — कोई भी निदान कभी न खोएं</string>
+    <string name="feature_ads_title">शून्य विज्ञापन</string>
+    <string name="feature_ads_subtitle">हर बार एक स्वच्छ, केंद्रित अनुभव</string>
+    <string name="subscribe_now">अभी सदस्यता लें</string>
+    <string name="restore">पुनर्स्थापित करें</string>
+    <string name="terms">शर्तें</string>
+    <string name="privacy">गोपनीयता</string>
+    <string name="save_discount">%1$d%% बचाएं</string>
+
+    <!-- Home / Main -->
+    <string name="scan_now">अभी स्कैन करें</string>
+    <string name="treatment_plan">उपचार योजना</string>
+    <string name="got_it">समझ गया</string>
+    <string name="confirm">पुष्टि करें</string>
+    <string name="retake">फिर से लें</string>
+    <string name="saving_dots">सहेजा जा रहा है...</string>
+    <string name="delete">हटाएं</string>
+    <string name="watering_reminder">पानी देने का अनुस्मारक</string>
+    <string name="app_subtitle">AI प्लांट हेल्थ स्कैनर</string>
+    <string name="location_required_to_scan">स्कैन करने के लिए स्थान पहुंच आवश्यक है। कृपया इसे सेटिंग्स में सक्षम करें।</string>
+    <string name="showcase_scan_plant_title">एक पौधा स्कैन करें</string>
+    <string name="showcase_scan_plant_desc">कैमरा खोलने और बीमारियों के लिए किसी भी पौधे का तुरंत विश्लेषण करने के लिए इस बटन पर टैप करें।</string>
+    <string name="showcase_select_delete_title">चुनें और हटाएं</string>
+    <string name="showcase_select_delete_desc">चयन मोड में प्रवेश करने के लिए स्कैन कार्ड को देर तक दबाएं। फिर आप एक साथ स्कैन हटा सकते हैं।</string>
+    <string name="loading_history">इतिहास लोड हो रहा है...</string>
+    <string name="could_not_load_history">इतिहास लोड नहीं किया जा सका</string>
+    <string name="retry">पुनः प्रयास करें</string>
+    <string name="mark_all">सभी को चिह्नित करें</string>
+    <string name="delete_selected_count">हटाएं (%1$d)</string>
+    <string name="unlock_pro_history_title">PRO के साथ अपना पूरा स्कैन इतिहास अनलॉक करें</string>
+    <string name="unlock_pro_history_desc">सभी %1$d स्कैन और बहुत कुछ देखें</string>
+    <string name="upgrade">अपग्रेड करें</string>
+    <string name="recent_scans">हाल के स्कैन</string>
+    <string name="scan_count_singular">1 स्कैन</string>
+    <string name="scan_count_plural">%1$d स्कैन</string>
+    <string name="refresh">रिफ्रेश करें</string>
+    <string name="unknown_diagnosis">अज्ञात निदान</string>
+    <string name="view_details">विवरण देखें...</string>
+    <string name="plant_scan_content_desc">प्लांट स्कैन</string>
+    <string name="no_image_content_desc">कोई छवि नहीं</string>
+    <string name="no_image_available_content_desc">कोई छवि उपलब्ध नहीं है</string>
+    <string name="no_scans_yet_title">अभी तक कोई स्कैन नहीं</string>
+    <string name="no_scans_yet_desc">शुरू करने के लिए अपना पहला पौधा स्कैन करें!\nबीमारियों का पता लगाने के लिए अपने कैमरे को किसी भी पत्ते पर इंगित करें।</string>
+    <string name="scan_plant_fab_desc">पौधा स्कैन करें</string>
+    <string name="unknown_date">अज्ञात तिथि</string>
+    <string name="unknown_plant">अज्ञात पौधा</string>
+
+    <!-- Result Screen -->
+    <string name="diagnosis_result_title">निदान परिणाम</string>
+    <string name="scan_new">नया स्कैन करें</string>
+    <string name="track_progress">प्रगति ट्रैक करें</string>
+    <string name="analyzing_plant">आपके पौधे का विश्लेषण किया जा रहा है...</string>
+    <string name="analyzing_plant_desc">हमारा AI बीमारियों और कमियों के लिए छवि की जांच कर रहा है</string>
+    <string name="image_unavailable">छवि अनुपलब्ध है</string>
+    <string name="scanned_plant_content_desc">स्कैन किया गया पौधा</string>
+    <string name="confident_percent">%1$d%% आश्वस्त</string>
+    <string name="diagnosis_label">निदान</string>
+    <string name="plant_analysis_complete">पौधे का विश्लेषण पूरा हुआ</string>
+    <string name="ai_analysis_summary_label">AI विश्लेषण सारांश</string>
+    <string name="no_analysis_available">कोई विश्लेषण उपलब्ध नहीं है।</string>
+    <string name="organic_treatments_title">जैविक और प्राकृतिक उपचार</string>
+    <string name="chemical_treatments_title">रासायनिक उपचार और उर्वरक</string>
+    <string name="recommended_badge">अनुशंसित</string>
+    <string name="pro_feature_chemical_title">PRO फीचर: रासायनिक उपचार अनलॉक करें</string>
+    <string name="plant_health_timeline_title">प्लांट हेल्थ टाइमलाइन</string>
+    <string name="view_detail_content_desc">विवरण देखें</string>
+    <string name="initial_diagnosis">प्रारंभिक निदान</string>
+    <string name="collapse">समेटें</string>
+    <string name="expand">विस्तार करें</string>
+
+    <!-- Care Reminders update in Result -->
+    <string name="new_care_times_recommended">नए देखभाल समय की अनुशंसा की गई</string>
+    <string name="new_care_times_desc">Gemini AI ने इस पौधे के लिए नए अनुशंसित देखभाल समय का पता लगाया है। क्या आप अपना शेड्यूल अपडेट करना चाहेंगे?</string>
+    <string name="watering_reminder_title">पानी देने का अनुस्मारक</string>
+    <string name="treatment_fertilizer_reminder_title">उपचार/उर्वरक अनुस्मारक</string>
+    <string name="current_vs_recommended">वर्तमान: %1$s | अनुशंसित: %2$s</string>
+    <string name="use_ai_time">AI समय का उपयोग करें</string>
+    <string name="custom_time">कस्टम समय</string>
+    <string name="keep_existing_times">मौजूदा समय बनाए रखें</string>
+    <string name="manage_reminders">अनुस्मारक प्रबंधित करें</string>
+    <string name="care_reminders_scheduled_title">देखभाल अनुस्मारक निर्धारित किए गए</string>
+    <string name="care_reminders_active_desc">इस पौधे के लिए पानी देने और खाद डालने की सूचनाएं सक्रिय हैं।</string>
+    <string name="my_plant_default">मेरा पौधा</string>
+    <string name="reminders_scheduled_success">देखभाल अनुस्मारक सफलतापूर्वक निर्धारित किए गए! 🌿</string>
+    <string name="schedule_care_reminders">देखभाल अनुस्मारक शेड्यूल करें</string>
+    <string name="plant_name_label">पौधे का नाम</string>
+    <string name="plant_name_duplicate_error">इस नाम का एक पौधा पहले से मौजूद है</string>
+    <string name="plant_name_display">पौधा: %1$s</string>
+    <string name="daily_watering_reminder_label">दैनिक पानी देने का अनुस्मारक</string>
+    <string name="daily_watering_scheduled_at">%1$s बजे निर्धारित</string>
+    <string name="daily_treatment_fertilizer_label">दैनिक उपचार/उर्वरक</string>
+
+    <!-- Paywall Screen -->
+    <string name="yearly">वार्षिक</string>
+    <string name="monthly">मासिक</string>
+    <string name="per_year"> / वर्ष</string>
+    <string name="per_month"> / माह</string>
+    <string name="just_per_month">केवल %1$s / माह</string>
+
+    <!-- In-App Updates -->
+    <string name="update_downloaded_message">एक नया अपडेट डाउनलोड हो गया है। इसे लागू करने के लिए ऐप को रीस्टार्ट करें।</string>
+    <string name="update_restart_action">रीस्टार्ट करें</string>
+    <string name="not_a_plant_error">ऐसा लगता है कि छवि में कोई पौधा नहीं है। कृपया किसी पौधे की तस्वीर के साथ पुनः प्रयास करें।</string>
+
+    <!-- Care Reminders Notifications -->
+    <string name="notification_title">प्लांट केयर रिमाइंडर 🌿</string>
+    <string name="notification_body_watering">आपके %1$s को पानी देने का समय हो गया है! 🌿</string>
+    <string name="notification_body_fertilizing">आपके %1$s में खाद डालने का समय हो गया है! 🌿</string>
+    <string name="notification_body_default">आपके %1$s की देखभाल करने का समय हो गया है! 🌿</string>
+    <string name="notification_channel_name">प्लांट केयर रिमाइंडर</string>
+    <string name="notification_channel_desc">आपके पौधों को पानी देने या खाद डालने की याद दिलाने के लिए सूचनाएं।</string>
 </resources>

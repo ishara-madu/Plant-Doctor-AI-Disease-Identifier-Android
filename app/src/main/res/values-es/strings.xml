@@ -1,3 +1,184 @@
 <resources>
     <string name="app_name">Plant Doctor</string>
+    <string name="welcome_title">Bienvenido a Plant Doctor</string>
+    <string name="onboarding_subtitle">Ayúdanos a personalizar tu experiencia.\nConfigura el idioma de tu asistente de IA y permite el acceso a la ubicación para obtener planes de tratamiento específicos para tu región.</string>
+    <string name="ai_response_language">Idioma de la aplicación y la IA</string>
+    <string name="allow_location_access">Permitir acceso automático a la ubicación</string>
+    <string name="location_access_granted">Acceso a la ubicación concedido</string>
+    <string name="save_and_continue">Guardar y continuar</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Configuración</string>
+    <string name="ai_language_note">Nota: Esto actualiza tanto la interfaz de la aplicación como el idioma de diagnóstico de la IA.</string>
+    <string name="personalization">Personalización</string>
+    <string name="select_ai_language">Seleccionar idioma</string>
+    <string name="saving">Guardando...</string>
+    <string name="save_changes">Guardar cambios</string>
+    <string name="back">Atrás</string>
+    <string name="location_access">Acceso a la ubicación</string>
+    <string name="granted">Concedido</string>
+    <string name="denied">Denegado</string>
+    <string name="grant_permission">Conceder</string>
+    <string name="location_required">Necesario para un diagnóstico preciso.</string>
+    <string name="location_rationale">Utilizamos tu ubicación para obtener previsiones meteorológicas locales (temperatura, humedad, lluvia) y sugerir marcas de tratamiento disponibles en tu región.</string>
+    <string name="notifications">Notificaciones</string>
+    <string name="push_notifications">Notificaciones push</string>
+    <string name="push_notifications_desc">Recibe alertas y actualizaciones sobre el cuidado de tus plantas</string>
+    <string name="enable_in_system_settings">Activar en la configuración del sistema</string>
+    <string name="about">Acerca de</string>
+    <string name="terms_of_service">Términos de servicio</string>
+    <string name="privacy_policy">Política de privacidad</string>
+    <string name="account">Cuenta</string>
+    <string name="log_out">Cerrar sesión</string>
+
+    <!-- Splash / NoInternet / Reminders -->
+    <string name="app_logo_description">Logo de Plant Doctor</string>
+    <string name="splash_subtitle">Escáner de salud de plantas con IA</string>
+    <string name="no_internet_title">Sin conexión a Internet</string>
+    <string name="no_internet_desc">Por favor, comprueba la configuración de tu red y vuelve a intentarlo. La aplicación se reanudará automáticamente cuando se restablezca la conexión.</string>
+    <string name="care_reminders_title">Recordatorios de cuidado</string>
+    <string name="watering">Riego</string>
+    <string name="fertilizing">Fertilización</string>
+    <string name="daily_at">Diariamente a las</string>
+    <string name="delete_reminder">Eliminar recordatorio</string>
+    <string name="no_reminders_active">No hay recordatorios activos</string>
+    <string name="no_reminders_set">No hay recordatorios configurados</string>
+    <string name="no_reminders_desc">Puedes configurar recordatorios de cuidado desde la pantalla de resultados del diagnóstico después de escanear una planta.</string>
+
+    <!-- Camera -->
+    <string name="gallery_description">Galería</string>
+    <string name="free_scans_exhausted">Escaneos gratuitos agotados</string>
+    <string name="ad_unlock_desc">¡Mira un anuncio de vídeo corto para desbloquear un escaneo adicional! (%1$d restantes hoy)</string>
+    <string name="ad_loading_error">El anuncio todavía se está cargando. Por favor, comprueba tu conexión y vuelve a intentarlo.</string>
+    <string name="watch_ad">Ver anuncio</string>
+    <string name="cancel">Cancelar</string>
+    <string name="daily_limit_reached">Límite diario alcanzado</string>
+    <string name="daily_limit_desc">Has utilizado todos tus escaneos gratuitos y con publicidad de hoy. ¡Actualiza a PRO para obtener acceso ilimitado!</string>
+    <string name="upgrade_to_pro">Actualizar a PRO</string>
+    <string name="maybe_later">Quizás más tarde</string>
+    <string name="camera_permission_title">Permiso de cámara requerido</string>
+    <string name="camera_permission_desc">Para capturar imágenes de plantas y detectar enfermedades, por favor concede permiso a la cámara.</string>
+    <string name="grant_camera_permission">Conceder permiso de cámara</string>
+
+    <!-- Paywall -->
+    <string name="close_button">Cerrar</string>
+    <string name="selected">Seleccionado</string>
+    <string name="unlock_pro_title">Desbloquea Plant Doctor PRO</string>
+    <string name="unlock_pro_subtitle">Obtén escaneos ilimitados, tratamientos expertos de IA\ny una experiencia sin anuncios.</string>
+    <string name="feature_scans_title">Escaneos de plantas ilimitados</string>
+    <string name="feature_scans_subtitle">Sin límites diarios: escanea todas las plantas que necesites</string>
+    <string name="feature_treatments_title">Tratamientos químicos y orgánicos expertos</string>
+    <string name="feature_treatments_subtitle">Soluciones basadas en IA con disponibilidad local</string>
+    <string name="feature_history_title">Historial ilimitado en la nube</string>
+    <string name="feature_history_subtitle">Cada escaneo guardado: nunca pierdas un diagnóstico</string>
+    <string name="feature_ads_title">Cero anuncios</string>
+    <string name="feature_ads_subtitle">Una experiencia limpia y sin distracciones en todo momento</string>
+    <string name="subscribe_now">Suscríbete ahora</string>
+    <string name="restore">Restaurar</string>
+    <string name="terms">Términos</string>
+    <string name="privacy">Privacidad</string>
+    <string name="save_discount">AHORRA %1$d%%</string>
+
+    <!-- Home / Main -->
+    <string name="scan_now">Escanear ahora</string>
+    <string name="treatment_plan">Plan de tratamiento</string>
+    <string name="got_it">Entendido</string>
+    <string name="confirm">Confirmar</string>
+    <string name="retake">Volver a tomar</string>
+    <string name="saving_dots">Guardando...</string>
+    <string name="delete">Eliminar</string>
+    <string name="watering_reminder">Recordatorio de riego</string>
+    <string name="app_subtitle">Escáner de salud de plantas con IA</string>
+    <string name="location_required_to_scan">Se requiere acceso a la ubicación para escanear. Por favor, actívalo en Configuración.</string>
+    <string name="showcase_scan_plant_title">Escanea una planta</string>
+    <string name="showcase_scan_plant_desc">Toca este botón para abrir la cámara y analizar instantáneamente cualquier planta en busca de enfermedades.</string>
+    <string name="showcase_select_delete_title">Seleccionar y eliminar</string>
+    <string name="showcase_select_delete_desc">Mantén presionada una tarjeta de escaneo para entrar en el modo de selección. Luego podrás eliminar varios escaneos a la vez.</string>
+    <string name="loading_history">Cargando historial...</string>
+    <string name="could_not_load_history">No se pudo cargar el historial</string>
+    <string name="retry">Reintentar</string>
+    <string name="mark_all">Marcar todo</string>
+    <string name="delete_selected_count">Eliminar (%1$d)</string>
+    <string name="unlock_pro_history_title">Desbloquea tu historial de escaneo completo con PRO</string>
+    <string name="unlock_pro_history_desc">Ver los %1$d escaneos y más</string>
+    <string name="upgrade">Actualizar</string>
+    <string name="recent_scans">Escaneos recientes</string>
+    <string name="scan_count_singular">1 escaneo</string>
+    <string name="scan_count_plural">%1$d escaneos</string>
+    <string name="refresh">Actualizar</string>
+    <string name="unknown_diagnosis">Diagnóstico desconocido</string>
+    <string name="view_details">Ver detalles...</string>
+    <string name="plant_scan_content_desc">Escaneo de planta</string>
+    <string name="no_image_content_desc">Sin imagen</string>
+    <string name="no_image_available_content_desc">Imagen no disponible</string>
+    <string name="no_scans_yet_title">Aún no hay escaneos</string>
+    <string name="no_scans_yet_desc">¡Escanea tu primera planta para empezar!\nApunta tu cámara a cualquier hoja para detectar enfermedades.</string>
+    <string name="scan_plant_fab_desc">Escanear planta</string>
+    <string name="unknown_date">Fecha desconocida</string>
+    <string name="unknown_plant">Planta desconocida</string>
+
+    <!-- Result Screen -->
+    <string name="diagnosis_result_title">Resultado del diagnóstico</string>
+    <string name="scan_new">Escanear nueva</string>
+    <string name="track_progress">Seguir progreso</string>
+    <string name="analyzing_plant">Analizando tu planta...</string>
+    <string name="analyzing_plant_desc">Nuestra IA está examinando la imagen en busca de enfermedades y deficiencias</string>
+    <string name="image_unavailable">Imagen no disponible</string>
+    <string name="scanned_plant_content_desc">Planta escaneada</string>
+    <string name="confident_percent">%1$d%% de confianza</string>
+    <string name="diagnosis_label">Diagnóstico</string>
+    <string name="plant_analysis_complete">Análisis de planta completado</string>
+    <string name="ai_analysis_summary_label">Resumen del análisis de IA</string>
+    <string name="no_analysis_available">Ningún análisis disponible.</string>
+    <string name="organic_treatments_title">Tratamientos orgánicos y naturales</string>
+    <string name="chemical_treatments_title">Tratamientos químicos y fertilizantes</string>
+    <string name="recommended_badge">RECOMENDADO</string>
+    <string name="pro_feature_chemical_title">Función PRO: Desbloquear tratamientos químicos</string>
+    <string name="plant_health_timeline_title">Cronología de salud de la planta</string>
+    <string name="view_detail_content_desc">Ver detalle</string>
+    <string name="initial_diagnosis">Diagnóstico inicial</string>
+    <string name="collapse">Contraer</string>
+    <string name="expand">Expandir</string>
+
+    <!-- Care Reminders update in Result -->
+    <string name="new_care_times_recommended">Nuevos horarios de cuidado recomendados</string>
+    <string name="new_care_times_desc">La IA de Gemini ha detectado nuevos horarios de cuidado recomendados para esta actualización de la planta. ¿Te gustaría actualizar tu horario?</string>
+    <string name="watering_reminder_title">Recordatorio de riego</string>
+    <string name="treatment_fertilizer_reminder_title">Recordatorio de tratamiento/fertilizante</string>
+    <string name="current_vs_recommended">Actual: %1$s | Recomendado: %2$s</string>
+    <string name="use_ai_time">Usar horario de la IA</string>
+    <string name="custom_time">Horario personalizado</string>
+    <string name="keep_existing_times">Mantener horarios existentes</string>
+    <string name="manage_reminders">Administrar recordatorios</string>
+    <string name="care_reminders_scheduled_title">Recordatorios de cuidado programados</string>
+    <string name="care_reminders_active_desc">Las notificaciones de riego y fertilización están activas para esta planta.</string>
+    <string name="my_plant_default">Mi planta</string>
+    <string name="reminders_scheduled_success">¡Recordatorios de cuidado programados con éxito! 🌿</string>
+    <string name="schedule_care_reminders">Programar recordatorios de cuidado</string>
+    <string name="plant_name_label">Nombre de la planta</string>
+    <string name="plant_name_duplicate_error">Ya existe una planta con este nombre</string>
+    <string name="plant_name_display">Planta: %1$s</string>
+    <string name="daily_watering_reminder_label">Recordatorio diario de riego</string>
+    <string name="daily_watering_scheduled_at">Programado a las %1$s</string>
+    <string name="daily_treatment_fertilizer_label">Tratamiento/Fertilizante diario</string>
+
+    <!-- Paywall Screen -->
+    <string name="yearly">Anual</string>
+    <string name="monthly">Mensual</string>
+    <string name="per_year"> / año</string>
+    <string name="per_month"> / mes</string>
+    <string name="just_per_month">Solo %1$s / mes</string>
+
+    <!-- In-App Updates -->
+    <string name="update_downloaded_message">Se ha descargado una nueva actualización. Reinicia la aplicación para aplicarla.</string>
+    <string name="update_restart_action">REINICIAR</string>
+    <string name="not_a_plant_error">La imagen no parece contener una planta. Por favor, inténtalo de nuevo con la foto de una planta.</string>
+
+    <!-- Care Reminders Notifications -->
+    <string name="notification_title">Recordatorio de cuidado de plantas 🌿</string>
+    <string name="notification_body_watering">¡Es hora de regar tu %1$s! 🌿</string>
+    <string name="notification_body_fertilizing">¡Es hora de fertilizar tu %1$s! 🌿</string>
+    <string name="notification_body_default">¡Es hora de cuidar tu %1$s! 🌿</string>
+    <string name="notification_channel_name">Recordatorios de cuidado de plantas</string>
+    <string name="notification_channel_desc">Notificaciones para recordarte que debes regar o fertilizar tus plantas.</string>
 </resources>

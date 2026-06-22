@@ -51,27 +51,29 @@ class ReminderReceiver : BroadcastReceiver() {
 
         // Create channel for API 26+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channelName = context.getString(R.string.notification_channel_name)
+            val channelDesc = context.getString(R.string.notification_channel_desc)
             val channel = NotificationChannel(
                 CHANNEL_ID,
-                "Plant Care Reminders",
+                channelName,
                 NotificationManager.IMPORTANCE_DEFAULT
             ).apply {
-                description = "Notifications to remind you to water or fertilize your plants."
+                description = channelDesc
             }
             notificationManager.createNotificationChannel(channel)
         }
 
-        val title = "Plant Care Reminder 🌿"
+        val title = context.getString(R.string.notification_title)
 
         val body = when {
             careType.equals("Watering", ignoreCase = true) -> {
-                "It's time to water your $plantName! 🌿"
+                context.getString(R.string.notification_body_watering, plantName)
             }
             careType.equals("Fertilizing", ignoreCase = true) -> {
-                "It's time to fertilize your $plantName! 🌿"
+                context.getString(R.string.notification_body_fertilizing, plantName)
             }
             else -> {
-                "It's time to take care of your $plantName! 🌿"
+                context.getString(R.string.notification_body_default, plantName)
             }
         }
 

@@ -1,16 +1,13 @@
 package com.pixeleye.plantdoctor.ui.components
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.ErrorOutline
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.ui.graphics.vector.ImageVector
+import com.pixeleye.plantdoctor.R
 
 enum class SnackbarType {
     SUCCESS,
     ERROR,
     INFO,
-    WARNING
+    WARNING,
+    OFFLINE
 }
 
 data class SnackbarState(
@@ -18,11 +15,12 @@ data class SnackbarState(
     val type: SnackbarType = SnackbarType.INFO
 )
 
-fun SnackbarType.getIcon(): ImageVector {
+fun SnackbarType.getIconRes(): Int {
     return when (this) {
-        SnackbarType.SUCCESS -> Icons.Default.CheckCircle
-        SnackbarType.ERROR -> Icons.Default.ErrorOutline
-        SnackbarType.INFO -> Icons.Default.Info
-        SnackbarType.WARNING -> Icons.Default.Info
+        SnackbarType.SUCCESS -> R.drawable.circle_check
+        SnackbarType.ERROR -> R.drawable.triangle_alert
+        SnackbarType.INFO -> R.drawable.bell
+        SnackbarType.WARNING -> R.drawable.triangle_alert
+        SnackbarType.OFFLINE -> R.drawable.wifi
     }
 }

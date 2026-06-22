@@ -165,4 +165,16 @@
     <string name="per_year"> / year</string>
     <string name="per_month"> / month</string>
     <string name="just_per_month">Just %1$s / month</string>
+    <!-- In-App Updates -->
+    <string name="update_downloaded_message">A new update has been downloaded. Restart the app to apply it.</string>
+    <string name="update_restart_action">RESTART</string>
+    <string name="not_a_plant_error">The image does not appear to contain a plant. Please try again with a plant photo.</string>
+
+    <!-- Care Reminders Notifications -->
+    <string name="notification_title">Plant Care Reminder 🌿</string>
+    <string name="notification_body_watering">It\'s time to water your %1$s! 🌿</string>
+    <string name="notification_body_fertilizing">It\'s time to fertilize your %1$s! 🌿</string>
+    <string name="notification_body_default">It\'s time to take care of your %1$s! 🌿</string>
+    <string name="notification_channel_name">Plant Care Reminders</string>
+    <string name="notification_channel_desc">Notifications to remind you to water or fertilize your plants.</string>
 </resources>

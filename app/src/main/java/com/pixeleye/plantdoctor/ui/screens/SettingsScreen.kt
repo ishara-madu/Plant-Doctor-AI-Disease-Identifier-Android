@@ -15,13 +15,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.Logout
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Translate
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Tune
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -127,7 +122,7 @@ fun SettingsScreen(
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            painter = painterResource(id = R.drawable.arrow_left),
                             contentDescription = stringResource(R.string.back)
                         )
                     }
@@ -150,7 +145,7 @@ fun SettingsScreen(
 
             // ── Personalization Section ──────────────────────────
             SectionHeader(
-                icon = Icons.Default.Tune,
+                painter = painterResource(id = R.drawable.sliders_horizontal),
                 title = stringResource(R.string.personalization)
             )
 
@@ -158,7 +153,7 @@ fun SettingsScreen(
 
             // ── AI Language Dropdown ──────────────────────────────
             SettingLabel(
-                icon = Icons.Default.Translate,
+                painter = painterResource(id = R.drawable.languages),
                 text = stringResource(R.string.ai_response_language)
             )
 
@@ -209,7 +204,7 @@ fun SettingsScreen(
                                     )
                                     if (option.value == selectedAiLanguage) {
                                         Icon(
-                                            imageVector = Icons.Default.Check,
+                                            painter = painterResource(id = R.drawable.check),
                                             contentDescription = null,
                                             tint = MaterialTheme.colorScheme.primary,
                                             modifier = Modifier.size(20.dp)
@@ -238,7 +233,7 @@ fun SettingsScreen(
 
             // ── Location Permissions ──────────────────────────────
             SettingLabel(
-                icon = Icons.Default.LocationOn,
+                painter = painterResource(id = R.drawable.map),
                 text = stringResource(R.string.location_access)
             )
 
@@ -254,7 +249,7 @@ fun SettingsScreen(
             ) {
                 if (hasLocationPermission) {
                     Icon(
-                        imageVector = Icons.Default.Check,
+                        painter = painterResource(id = R.drawable.check),
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(20.dp)
@@ -268,7 +263,7 @@ fun SettingsScreen(
                     )
                 } else {
                     Icon(
-                        imageVector = Icons.Default.WarningAmber,
+                        painter = painterResource(id = R.drawable.triangle_alert),
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.error,
                         modifier = Modifier.size(20.dp)
@@ -318,7 +313,7 @@ fun SettingsScreen(
 
             // ── Notification Settings ───────────────────────────
             SettingLabel(
-                icon = Icons.Default.Notifications,
+                painter = painterResource(id = R.drawable.bell),
                 text = stringResource(R.string.notifications)
             )
 
@@ -368,7 +363,7 @@ fun SettingsScreen(
 
             // ── About Section ────────────────────────────────────
             SectionHeader(
-                icon = Icons.Default.Info,
+                painter = painterResource(id = R.drawable.info),
                 title = stringResource(R.string.about)
             )
 
@@ -424,7 +419,7 @@ fun SettingsScreen(
 
             // ── Account Section ──────────────────────────────────
             SectionHeader(
-                icon = Icons.Default.Person,
+                painter = painterResource(id = R.drawable.user),
                 title = stringResource(R.string.account)
             )
 
@@ -443,7 +438,7 @@ fun SettingsScreen(
                 border = ButtonDefaults.outlinedButtonBorder(enabled = true)
             ) {
                 Icon(
-                    imageVector = Icons.AutoMirrored.Filled.Logout,
+                    painter = painterResource(id = R.drawable.log),
                     contentDescription = null,
                     modifier = Modifier.size(20.dp)
                 )
@@ -462,7 +457,7 @@ fun SettingsScreen(
 
 @Composable
 private fun SectionHeader(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    painter: androidx.compose.ui.graphics.painter.Painter,
     title: String
 ) {
     Row(
@@ -477,7 +472,7 @@ private fun SectionHeader(
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                imageVector = icon,
+                painter = painter,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(18.dp)
@@ -495,14 +490,14 @@ private fun SectionHeader(
 
 @Composable
 private fun SettingLabel(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    painter: androidx.compose.ui.graphics.painter.Painter,
     text: String
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
-            imageVector = icon,
+            painter = painter,
             contentDescription = null,
             tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier.size(18.dp)

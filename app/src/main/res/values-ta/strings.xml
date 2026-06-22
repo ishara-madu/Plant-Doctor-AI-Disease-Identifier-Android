@@ -1,3 +1,184 @@
 <resources>
     <string name="app_name">Plant Doctor</string>
+    <string name="welcome_title">Plant Doctor-க்கு வரவேற்கிறோம்</string>
+    <string name="onboarding_subtitle">உங்கள் அனுபவத்தை மேம்படுத்த எங்களுக்கு உதவுங்கள்.\nஉங்கள் AI உதவியாளரின் மொழியை அமைத்து, உங்கள் பகுதிக்கு ஏற்ற சிகிச்சைத் திட்டங்களைப் பெற இருப்பிட அணுகலை அனுமதிக்கவும்.</string>
+    <string name="ai_response_language">செயலி &amp; AI மொழி</string>
+    <string name="allow_location_access">தானியங்கி இருப்பிட அணுகலை அனுமதி</string>
+    <string name="location_access_granted">இருப்பிட அணுகல் வழங்கப்பட்டது</string>
+    <string name="save_and_continue">சேமித்து தொடர்க</string>
+
+    <!-- Settings -->
+    <string name="settings_title">அமைப்புகள்</string>
+    <string name="ai_language_note">குறிப்பு: இது செயலியின் இடைமுகம் (App Interface) மற்றும் AI நோயறிதல் மொழி இரண்டையும் புதுப்பிக்கும்.</string>
+    <string name="personalization">தனிப்பயனாக்கம்</string>
+    <string name="select_ai_language">மொழியைத் தேர்ந்தெடு</string>
+    <string name="saving">சேமிக்கப்படுகிறது...</string>
+    <string name="save_changes">மாற்றங்களைச் சேமி</string>
+    <string name="back">பின்செல்</string>
+    <string name="location_access">இருப்பிட அணுகல்</string>
+    <string name="granted">வழங்கப்பட்டது</string>
+    <string name="denied">மறுக்கப்பட்டது</string>
+    <string name="grant_permission">அனுமதி</string>
+    <string name="location_required">துல்லியமான நோயறிதலுக்கு இது அவசியம்.</string>
+    <string name="location_rationale">உள்ளூர் வானிலை முன்னறிவிப்புகளை (வெப்பநிலை, ஈரப்பதம், மழை) பெறவும், உங்கள் பகுதியில் கிடைக்கும் சிகிச்சை பிராண்டுகளைப் பரிந்துரைக்கவும் உங்கள் இருப்பிடத்தைப் பயன்படுத்துகிறோம்.</string>
+    <string name="notifications">அறிவிப்புகள்</string>
+    <string name="push_notifications">புஷ் அறிவிப்புகள் (Push Notifications)</string>
+    <string name="push_notifications_desc">தாவரப் பராமரிப்பு மற்றும் புதுப்பிப்புகளுக்கான விழிப்பூட்டல்களைப் பெறுங்கள்</string>
+    <string name="enable_in_system_settings">கணினி அமைப்புகளில் (System Settings) இயக்கு</string>
+    <string name="about">பற்றி</string>
+    <string name="terms_of_service">சேவை விதிமுறைகள்</string>
+    <string name="privacy_policy">தனியுரிமைக் கொள்கை</string>
+    <string name="account">கணக்கு</string>
+    <string name="log_out">வெளியேறு</string>
+
+    <!-- Splash / NoInternet / Reminders -->
+    <string name="app_logo_description">Plant Doctor லோகோ</string>
+    <string name="splash_subtitle">AI தாவர ஆரோக்கிய ஸ்கேனர்</string>
+    <string name="no_internet_title">இணைய இணைப்பு இல்லை</string>
+    <string name="no_internet_desc">தயவுசெய்து உங்கள் நெட்வொர்க் அமைப்புகளைச் சரிபார்த்து மீண்டும் முயற்சிக்கவும். இணைப்பு மீட்டமைக்கப்பட்டதும் செயலி தானாகவே தொடரும்.</string>
+    <string name="care_reminders_title">பராமரிப்பு நினைவூட்டல்கள்</string>
+    <string name="watering">நீர்ப்பாசனம்</string>
+    <string name="fertilizing">உரமிடுதல்</string>
+    <string name="daily_at">தினமும்</string>
+    <string name="delete_reminder">நினைவூட்டலை அழி</string>
+    <string name="no_reminders_active">செயலில் நினைவூட்டல்கள் இல்லை</string>
+    <string name="no_reminders_set">நினைவூட்டல்கள் எதுவும் அமைக்கப்படவில்லை</string>
+    <string name="no_reminders_desc">தாவரத்தை ஸ்கேன் செய்த பிறகு, நோயறிதல் முடிவுத் திரையில் இருந்து பராமரிப்பு நினைவூட்டல்களை அமைக்கலாம்.</string>
+
+    <!-- Camera -->
+    <string name="gallery_description">கேலரி</string>
+    <string name="free_scans_exhausted">இலவச ஸ்கேன்கள் முடிந்துவிட்டன</string>
+    <string name="ad_unlock_desc">கூடுதல் ஸ்கேனைத் திறக்க சிறிய வீடியோ விளம்பரத்தைப் பாருங்கள்! (இன்று %1$d மீதமுள்ளது)</string>
+    <string name="ad_loading_error">விளம்பரம் இன்னும் ஏற்றப்படுகிறது. உங்கள் இணைப்பைச் சரிபார்த்து மீண்டும் முயற்சிக்கவும்.</string>
+    <string name="watch_ad">விளம்பரத்தைப் பார்</string>
+    <string name="cancel">ரத்துசெய்</string>
+    <string name="daily_limit_reached">தினசரி வரம்பை எட்டிவிட்டது</string>
+    <string name="daily_limit_desc">இன்றைய உங்கள் இலவச மற்றும் விளம்பர ஆதரவு ஸ்கேன்கள் அனைத்தையும் பயன்படுத்திவிட்டீர்கள். வரம்பற்ற அணுகலுக்கு PRO-க்கு மேம்படுத்தவும்!</string>
+    <string name="upgrade_to_pro">PRO-க்கு மேம்படுத்து</string>
+    <string name="maybe_later">பிறகு பார்ப்போம்</string>
+    <string name="camera_permission_title">கேமரா அனுமதி தேவை</string>
+    <string name="camera_permission_desc">நோய் கண்டறிதலுக்காக தாவரங்களின் படங்களை எடுக்க, கேமரா அனுமதியை வழங்கவும்.</string>
+    <string name="grant_camera_permission">கேமரா அனுமதியை வழங்கு</string>
+
+    <!-- Paywall -->
+    <string name="close_button">மூடு</string>
+    <string name="selected">தேர்ந்தெடுக்கப்பட்டது</string>
+    <string name="unlock_pro_title">Plant Doctor PRO-ஐத் திற</string>
+    <string name="unlock_pro_subtitle">வரம்பற்ற ஸ்கேன்கள், நிபுணத்துவ AI சிகிச்சைகள்,\nமற்றும் விளம்பரமில்லா அனுபவத்தைப் பெறுங்கள்.</string>
+    <string name="feature_scans_title">வரம்பற்ற தாவர ஸ்கேன்கள்</string>
+    <string name="feature_scans_subtitle">தினசரி வரம்புகள் இல்லை — உங்களுக்குத் தேவையான அளவு தாவரங்களை ஸ்கேன் செய்யுங்கள்</string>
+    <string name="feature_treatments_title">நிபுணத்துவ இரசாயன மற்றும் கரிம சிகிச்சைகள்</string>
+    <string name="feature_treatments_subtitle">உள்ளூரில் கிடைக்கக்கூடிய AI-ஆல் இயங்கும் தீர்வுகள்</string>
+    <string name="feature_history_title">வரம்பற்ற Cloud வரலாறு</string>
+    <string name="feature_history_subtitle">ஒவ்வொரு ஸ்கேனும் சேமிக்கப்படும் — எந்த நோயறிதலையும் இழக்க வேண்டாம்</string>
+    <string name="feature_ads_title">விளம்பரங்கள் இல்லை</string>
+    <string name="feature_ads_subtitle">ஒவ்வொரு முறையும் சுத்தமான, தொந்தரவற்ற அனுபவம்</string>
+    <string name="subscribe_now">இப்போதே சந்தா செலுத்துங்கள்</string>
+    <string name="restore">மீட்டமை</string>
+    <string name="terms">விதிமுறைகள்</string>
+    <string name="privacy">தனியுரிமை</string>
+    <string name="save_discount">%1$d%% சேமி</string>
+
+    <!-- Home / Main -->
+    <string name="scan_now">இப்போது ஸ்கேன் செய்</string>
+    <string name="treatment_plan">சிகிச்சைத் திட்டம்</string>
+    <string name="got_it">புரிந்தது</string>
+    <string name="confirm">உறுதிப்படுத்து</string>
+    <string name="retake">மீண்டும் எடு</string>
+    <string name="saving_dots">சேமிக்கப்படுகிறது...</string>
+    <string name="delete">அழி</string>
+    <string name="watering_reminder">நீர்ப்பாசன நினைவூட்டல்</string>
+    <string name="app_subtitle">AI தாவர ஆரோக்கிய ஸ்கேனர்</string>
+    <string name="location_required_to_scan">ஸ்கேன் செய்ய இருப்பிட அணுகல் தேவை. Settings-இல் இதை இயக்கவும்.</string>
+    <string name="showcase_scan_plant_title">தாவரத்தை ஸ்கேன் செய்</string>
+    <string name="showcase_scan_plant_desc">கேமராவைத் திறந்து எந்தவொரு தாவரத்திலும் உள்ள நோய்களை உடனடியாகப் பகுப்பாய்வு செய்ய இந்தப் பொத்தானைத் தட்டவும்.</string>
+    <string name="showcase_select_delete_title">தேர்ந்தெடு &amp; அழி</string>
+    <string name="showcase_select_delete_desc">தேர்வு முறைக்குச் செல்ல ஸ்கேன் கார்டை நீண்ட நேரம் அழுத்தவும். பின்னர் நீங்கள் ஸ்கேன்களை ஒரே நேரத்தில் அழிக்கலாம்.</string>
+    <string name="loading_history">வரலாறு ஏற்றப்படுகிறது...</string>
+    <string name="could_not_load_history">வரலாற்றை ஏற்ற முடியவில்லை</string>
+    <string name="retry">மீண்டும் முயற்சிக்கவும்</string>
+    <string name="mark_all">அனைத்தையும் குறி</string>
+    <string name="delete_selected_count">அழி (%1$d)</string>
+    <string name="unlock_pro_history_title">PRO மூலம் உங்கள் முழு ஸ்கேன் வரலாற்றைத் திறக்கவும்</string>
+    <string name="unlock_pro_history_desc">அனைத்து %1$d ஸ்கேன்களையும் மற்றும் பலவற்றையும் காண்க</string>
+    <string name="upgrade">மேம்படுத்து (Upgrade)</string>
+    <string name="recent_scans">சமீபத்திய ஸ்கேன்கள்</string>
+    <string name="scan_count_singular">1 ஸ்கேன்</string>
+    <string name="scan_count_plural">%1$d ஸ்கேன்கள்</string>
+    <string name="refresh">புதுப்பி (Refresh)</string>
+    <string name="unknown_diagnosis">அறியப்படாத நோயறிதல்</string>
+    <string name="view_details">விவரங்களைக் காண்க...</string>
+    <string name="plant_scan_content_desc">தாவர ஸ்கேன்</string>
+    <string name="no_image_content_desc">படம் இல்லை</string>
+    <string name="no_image_available_content_desc">படம் கிடைக்கவில்லை</string>
+    <string name="no_scans_yet_title">இன்னும் ஸ்கேன்கள் இல்லை</string>
+    <string name="no_scans_yet_desc">தொடங்குவதற்கு உங்கள் முதல் தாவரத்தை ஸ்கேன் செய்யுங்கள்!\nநோய்களைக் கண்டறிய உங்கள் கேமராவை ஏதேனும் இலை நோக்கித் திருப்பவும்.</string>
+    <string name="scan_plant_fab_desc">தாவரத்தை ஸ்கேன் செய்</string>
+    <string name="unknown_date">அறியப்படாத தேதி</string>
+    <string name="unknown_plant">அறியப்படாத தாவரம்</string>
+
+    <!-- Result Screen -->
+    <string name="diagnosis_result_title">நோயறிதல் முடிவு</string>
+    <string name="scan_new">புதிதாக ஸ்கேன் செய்</string>
+    <string name="track_progress">முன்னேற்றத்தைக் கண்காணிக்கவும்</string>
+    <string name="analyzing_plant">உங்கள் தாவரம் பகுப்பாய்வு செய்யப்படுகிறது...</string>
+    <string name="analyzing_plant_desc">நோய்கள் மற்றும் குறைபாடுகளுக்காக எங்கள் AI படத்தைப் பரிசோதிக்கிறது</string>
+    <string name="image_unavailable">படம் கிடைக்கவில்லை</string>
+    <string name="scanned_plant_content_desc">ஸ்கேன் செய்யப்பட்ட தாவரம்</string>
+    <string name="confident_percent">%1$d%% நம்பிக்கை</string>
+    <string name="diagnosis_label">நோயறிதல்</string>
+    <string name="plant_analysis_complete">தாவரப் பகுப்பாய்வு முடிந்தது</string>
+    <string name="ai_analysis_summary_label">AI பகுப்பாய்வு சுருக்கம்</string>
+    <string name="no_analysis_available">பகுப்பாய்வு எதுவும் கிடைக்கவில்லை.</string>
+    <string name="organic_treatments_title">கரிம மற்றும் இயற்கை சிகிச்சைகள்</string>
+    <string name="chemical_treatments_title">இரசாயன சிகிச்சைகள் மற்றும் உரங்கள்</string>
+    <string name="recommended_badge">பரிந்துரைக்கப்பட்டது</string>
+    <string name="pro_feature_chemical_title">PRO அம்சம்: இரசாயன சிகிச்சைகளைத் திற</string>
+    <string name="plant_health_timeline_title">தாவர ஆரோக்கிய காலவரிசை</string>
+    <string name="view_detail_content_desc">விவரத்தைக் காண்க</string>
+    <string name="initial_diagnosis">ஆரம்ப நோயறிதல்</string>
+    <string name="collapse">சுருக்கு</string>
+    <string name="expand">விரிவாக்கு</string>
+
+    <!-- Care Reminders update in Result -->
+    <string name="new_care_times_recommended">புதிய பராமரிப்பு நேரங்கள் பரிந்துரைக்கப்பட்டுள்ளன</string>
+    <string name="new_care_times_desc">இந்தத் தாவரத்திற்கான புதிய பராமரிப்பு நேரங்களை Gemini AI பரிந்துரைக்கிறது. உங்கள் அட்டவணையைப் புதுப்பிக்க விரும்புகிறீர்களா?</string>
+    <string name="watering_reminder_title">நீர்ப்பாசன நினைவூட்டல்</string>
+    <string name="treatment_fertilizer_reminder_title">சிகிச்சை/உர நினைவூட்டல்</string>
+    <string name="current_vs_recommended">தற்போதைய: %1$s | பரிந்துரைக்கப்படுவது: %2$s</string>
+    <string name="use_ai_time">AI நேரத்தைப் பயன்படுத்து</string>
+    <string name="custom_time">விருப்ப நேரம்</string>
+    <string name="keep_existing_times">தற்போதைய நேரங்களை வைத்திரு</string>
+    <string name="manage_reminders">நினைவூட்டல்களை நிர்வகி</string>
+    <string name="care_reminders_scheduled_title">பராமரிப்பு நினைவூட்டல்கள் திட்டமிடப்பட்டுள்ளன</string>
+    <string name="care_reminders_active_desc">இந்தத் தாவரத்திற்கு நீர்ப்பாசனம் மற்றும் உரமிடுதல் அறிவிப்புகள் செயலில் உள்ளன.</string>
+    <string name="my_plant_default">என் தாவரம்</string>
+    <string name="reminders_scheduled_success">பராமரிப்பு நினைவூட்டல்கள் வெற்றிகரமாகத் திட்டமிடப்பட்டன! 🌿</string>
+    <string name="schedule_care_reminders">பராமரிப்பு நினைவூட்டல்களைத் திட்டமிடு</string>
+    <string name="plant_name_label">தாவரத்தின் பெயர்</string>
+    <string name="plant_name_duplicate_error">இந்தப் பெயரில் ஒரு தாவரம் ஏற்கனவே உள்ளது</string>
+    <string name="plant_name_display">தாவரம்: %1$s</string>
+    <string name="daily_watering_reminder_label">தினசரி நீர்ப்பாசன நினைவூட்டல்</string>
+    <string name="daily_watering_scheduled_at">%1$s மணிக்குத் திட்டமிடப்பட்டுள்ளது</string>
+    <string name="daily_treatment_fertilizer_label">தினசரி சிகிச்சை/உரம்</string>
+
+    <!-- Paywall Screen -->
+    <string name="yearly">ஆண்டுக்கு</string>
+    <string name="monthly">மாதத்திற்கு</string>
+    <string name="per_year"> / ஆண்டிற்கு</string>
+    <string name="per_month"> / மாதத்திற்கு</string>
+    <string name="just_per_month">மாதத்திற்கு %1$s மட்டுமே</string>
+
+    <!-- In-App Updates -->
+    <string name="update_downloaded_message">புதிய புதுப்பிப்பு (update) பதிவிறக்கப்பட்டது. அதைப் பயன்படுத்த செயலியை மீண்டும் தொடங்கவும்.</string>
+    <string name="update_restart_action">மீண்டும் தொடங்கு</string>
+    <string name="not_a_plant_error">படத்தில் தாவரம் எதுவும் இருப்பதாகத் தெரியவில்லை. தயவுசெய்து தாவரத்தின் படத்துடன் மீண்டும் முயற்சிக்கவும்.</string>
+
+    <!-- Care Reminders Notifications -->
+    <string name="notification_title">தாவரப் பராமரிப்பு நினைவூட்டல் 🌿</string>
+    <string name="notification_body_watering">உங்கள் %1$s-க்கு தண்ணீர் ஊற்ற வேண்டிய நேரம்! 🌿</string>
+    <string name="notification_body_fertilizing">உங்கள் %1$s-க்கு உரமிட வேண்டிய நேரம்! 🌿</string>
+    <string name="notification_body_default">உங்கள் %1$s-ஐ பராமரிக்க வேண்டிய நேரம்! 🌿</string>
+    <string name="notification_channel_name">தாவரப் பராமரிப்பு நினைவூட்டல்கள்</string>
+    <string name="notification_channel_desc">உங்கள் தாவரங்களுக்கு தண்ணீர் ஊற்ற அல்லது உரமிட நினைவூட்டும் அறிவிப்புகள்.</string>
 </resources>

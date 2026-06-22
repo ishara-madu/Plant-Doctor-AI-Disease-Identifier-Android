@@ -80,12 +80,42 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import com.google.android.gms.ads.MobileAds
+import androidx.compose.material3.SnackbarResult
+import com.google.android.play.core.appupdate.AppUpdateManager
+import com.google.android.play.core.appupdate.AppUpdateManagerFactory
+import com.google.android.play.core.install.model.AppUpdateType
+import com.google.android.play.core.install.model.UpdateAvailability
+import com.google.android.play.core.install.model.InstallStatus
+import com.google.android.play.core.install.InstallStateUpdatedListener
+import com.google.android.play.core.appupdate.AppUpdateOptions
 
 class MainActivity : ComponentActivity() {
+    private lateinit var appUpdateManager: AppUpdateManager
+    private var isUpdateDownloaded by mutableStateOf(false)
+
+    private val installStateUpdatedListener = InstallStateUpdatedListener { state ->
+        if (state.installStatus() == InstallStatus.DOWNLOADED) {
+            isUpdateDownloaded = true
+        }
+    }
+
+    private val updateLauncher = registerForActivityResult(
+        ActivityResultContracts.StartIntentSenderForResult()
+    ) { result ->
+        if (result.resultCode != RESULT_OK) {
+            Log.e("MainActivity", "In-app update flow failed or was cancelled by user. Result code: ${result.resultCode}")
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         MobileAds.initialize(this) {}
+
+        // Initialize In-App Updates
+        appUpdateManager = AppUpdateManagerFactory.create(this)
+        appUpdateManager.registerListener(installStateUpdatedListener)
+        checkForUpdates()
 
         // Initialize RevenueCat
         val billingManager = BillingManager()
@@ -114,9 +144,51 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     PlantDoctorApp(
-                    userPreferencesRepository = userPreferencesRepository,
-                    billingManager = billingManager
-                )
+                        userPreferencesRepository = userPreferencesRepository,
+                        billingManager = billingManager,
+                        isUpdateDownloaded = isUpdateDownloaded,
+                        onCompleteUpdate = {
+                            if (::appUpdateManager.isInitialized) {
+                                appUpdateManager.completeUpdate()
+                            }
+                        }
+                    )
+                }
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (::appUpdateManager.isInitialized) {
+            appUpdateManager.appUpdateInfo.addOnSuccessListener { appUpdateInfo ->
+                if (appUpdateInfo.installStatus() == InstallStatus.DOWNLOADED) {
+                    isUpdateDownloaded = true
+                }
+            }
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if (::appUpdateManager.isInitialized) {
+            appUpdateManager.unregisterListener(installStateUpdatedListener)
+        }
+    }
+
+    private fun checkForUpdates() {
+        appUpdateManager.appUpdateInfo.addOnSuccessListener { appUpdateInfo ->
+            if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
+                && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE)
+            ) {
+                try {
+                    appUpdateManager.startUpdateFlowForResult(
+                        appUpdateInfo,
+                        updateLauncher,
+                        AppUpdateOptions.newBuilder(AppUpdateType.FLEXIBLE).build()
+                    )
+                } catch (e: Exception) {
+                    Log.e("MainActivity", "Failed to start in-app update flow", e)
                 }
             }
         }
@@ -142,6 +214,8 @@ class MainActivity : ComponentActivity() {
 fun PlantDoctorApp(
     billingManager: BillingManager,
     userPreferencesRepository: UserPreferencesRepository,
+    isUpdateDownloaded: Boolean,
+    onCompleteUpdate: () -> Unit,
     authViewModel: AuthViewModel = viewModel(
         factory = AuthViewModel.Factory(
             LocalContext.current.applicationContext as android.app.Application,
@@ -153,6 +227,21 @@ fun PlantDoctorApp(
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+
+    LaunchedEffect(isUpdateDownloaded) {
+        if (isUpdateDownloaded) {
+            val message = context.getString(R.string.update_downloaded_message)
+            val actionLabel = context.getString(R.string.update_restart_action)
+            val result = snackbarHostState.showSnackbar(
+                message = "SUCCESS|$message",
+                actionLabel = actionLabel,
+                duration = SnackbarDuration.Indefinite
+            )
+            if (result == SnackbarResult.ActionPerformed) {
+                onCompleteUpdate()
+            }
+        }
+    }
 
     // ── Data Layer initialization (moved up for global VM access) ──
     val database = remember { AppDatabase.getDatabase(context) }
@@ -188,7 +277,7 @@ fun PlantDoctorApp(
     LaunchedEffect(isOnline) {
         if (!isOnline) {
             snackbarHostState.showSnackbar(
-                message = "INFO|No internet connection",
+                message = "OFFLINE|No internet connection",
                 duration = SnackbarDuration.Indefinite
             )
         } else {

@@ -137,6 +137,8 @@
     <string name="plant_health_timeline_title">ශාක සෞඛ්‍ය කාලරේඛාව</string>
     <string name="view_detail_content_desc">විස්තරය බලන්න</string>
     <string name="initial_diagnosis">මූලික රෝග විනිශ්චය</string>
+    <string name="collapse">හකුළන්න</string>
+    <string name="expand">දිග හරින්න</string>
 
     <!-- Care Reminders update in Result -->
     <string name="new_care_times_recommended">නව රැකවරණ වේලාවන් නිර්දේශ කර ඇත</string>
@@ -166,4 +168,16 @@
     <string name="per_year"> / වසරකට</string>
     <string name="per_month"> / මාසයකට</string>
     <string name="just_per_month">මාසයකට %1$s ක් පමණයි</string>
+    <!-- In-App Updates -->
+    <string name="update_downloaded_message">නව යාවත්කාලීනයක් (update) බාගත කර ඇත. එය ක්‍රියාත්මක කිරීමට යෙදුම නැවත ආරම්භ කරන්න.</string>
+    <string name="update_restart_action">රීස්ටාර්ට්</string>
+    <string name="not_a_plant_error">ඡායාරූපයේ ශාකයක් ඇති බවක් නොපෙනේ. කරුණාකර ශාකයක ඡායාරූපයක් සමඟ නැවත උත්සාහ කරන්න.</string>
+
+    <!-- Care Reminders Notifications -->
+    <string name="notification_title">ශාක රැකවරණ සිහිකැඳවීම 🌿</string>
+    <string name="notification_body_watering">ඔබගේ %1$s සඳහා වතුර දැමීමට කාලයයි! 🌿</string>
+    <string name="notification_body_fertilizing">ඔබගේ %1$s සඳහා පොහොර දැමීමට කාලයයි! 🌿</string>
+    <string name="notification_body_default">ඔබගේ %1$s රැකබලා ගැනීමට කාලයයි! 🌿</string>
+    <string name="notification_channel_name">ශාක රැකවරණ සිහිකැඳවීම්</string>
+    <string name="notification_channel_desc">ඔබේ ශාකවලට වතුර දැමීමට හෝ පොහොර දැමීමට ඔබට මතක් කිරීම සඳහා වන දැනුම්දීම්.</string>
 </resources>

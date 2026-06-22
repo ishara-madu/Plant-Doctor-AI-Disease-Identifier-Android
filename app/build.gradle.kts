@@ -197,6 +197,9 @@ dependencies {
     // RevenueCat (In-App Purchases)
     implementation("com.revenuecat.purchases:purchases:8.25.0")
 
+    // Google Play In-App Updates
+    implementation("com.google.android.play:app-update-ktx:2.1.0")
+
     // Fix for CameraX ListenableFuture conflict
     implementation("com.google.guava:guava:33.0.0-android")
 

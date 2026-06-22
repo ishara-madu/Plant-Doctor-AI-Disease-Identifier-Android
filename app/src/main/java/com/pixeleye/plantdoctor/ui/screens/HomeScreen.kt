@@ -1,5 +1,6 @@
 package com.pixeleye.plantdoctor.ui.screens
 
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -7,8 +8,10 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.ui.draw.rotate
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -37,22 +40,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CameraAlt
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.Eco
 import androidx.compose.material.icons.filled.Grass
-import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LocalFlorist
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Spa
-import androidx.compose.material.icons.filled.WarningAmber
-import androidx.compose.material.icons.outlined.History
-import androidx.compose.material.icons.outlined.PhotoCamera
-import androidx.compose.material.icons.filled.TouchApp
+import androidx.compose.ui.res.painterResource
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -238,7 +230,7 @@ fun HomeScreen(
                         )
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Notifications,
+                            painter = painterResource(id = R.drawable.bell),
                             contentDescription = stringResource(R.string.care_reminders_title),
                             modifier = Modifier.size(22.dp)
                         )
@@ -250,7 +242,7 @@ fun HomeScreen(
                         )
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Settings,
+                            painter = painterResource(id = R.drawable.bolt__1_),
                             contentDescription = stringResource(R.string.settings_title),
                             modifier = Modifier.size(22.dp)
                         )
@@ -341,7 +333,7 @@ fun HomeScreen(
         showCameraShowcase && fabRect != null -> {
             ShowcaseOverlay(
                 targetRect  = fabRect!!,
-                icon        = Icons.Outlined.PhotoCamera,
+                icon        = R.drawable.camera__1_,
                 title       = stringResource(R.string.showcase_scan_plant_title),
                 message     = stringResource(R.string.showcase_scan_plant_desc),
                 buttonLabel = stringResource(R.string.got_it),
@@ -357,7 +349,7 @@ fun HomeScreen(
         showLongPressShowcase && firstCardRect != null -> {
             ShowcaseOverlay(
                 targetRect        = firstCardRect!!,
-                icon              = Icons.Default.TouchApp,
+                icon              = R.drawable.hand,
                 title             = stringResource(R.string.showcase_select_delete_title),
                 message           = stringResource(R.string.showcase_select_delete_desc),
                 buttonLabel       = stringResource(R.string.got_it),
@@ -413,7 +405,7 @@ private fun ErrorContent(
         verticalArrangement = Arrangement.Center
     ) {
         Icon(
-            imageVector = Icons.Default.WarningAmber,
+            painter = painterResource(id = R.drawable.triangle_alert),
             contentDescription = null,
             modifier = Modifier.size(64.dp),
             tint = MaterialTheme.colorScheme.error.copy(alpha = 0.7f)
@@ -441,7 +433,7 @@ private fun ErrorContent(
             )
         ) {
             Icon(
-                imageVector = Icons.Default.Refresh,
+                painter = painterResource(id = R.drawable.refresh),
                 contentDescription = null,
                 modifier = Modifier.size(18.dp)
             )
@@ -520,31 +512,25 @@ private fun ScanHistoryContent(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = stringResource(R.string.mark_all),
+                        text = "${stringResource(R.string.mark_all)} (${selectedScans.size})",
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Medium,
                         color = MaterialTheme.colorScheme.onPrimary
                     )
                 }
                 
-                Button(
+                IconButton(
                     onClick = { 
                         onDeleteSelectedScans(selectedScans.toList())
                         deselectAll()
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.error,
-                        contentColor = MaterialTheme.colorScheme.onError
-                    ),
-                    shape = RoundedCornerShape(12.dp)
+                    }
                 ) {
                     Icon(
-                        imageVector = Icons.Default.DeleteOutline,
+                        painter = painterResource(id = R.drawable.trash__1_),
                         contentDescription = stringResource(R.string.delete),
-                        modifier = Modifier.size(18.dp)
+                        modifier = Modifier.size(22.dp),
+                        tint = Color.White
                     )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(text = stringResource(R.string.delete_selected_count, selectedScans.size))
                 }
             }
         }
@@ -605,6 +591,11 @@ private fun ProUnlockCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
+                shape = RoundedCornerShape(20.dp)
+            )
             .clickable(
                 interactionSource = interactionSource,
                 indication = ripple(bounded = true),
@@ -614,7 +605,7 @@ private fun ProUnlockCard(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.35f)
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Row(
             modifier = Modifier
@@ -632,7 +623,7 @@ private fun ProUnlockCard(
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = Icons.Default.Lock,
+                    painter = painterResource(id = R.drawable.lock_keyhole),
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(24.dp)
@@ -654,7 +645,7 @@ private fun ProUnlockCard(
                 )
             }
             Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                painter = painterResource(id = R.drawable.arrow_right),
                 contentDescription = stringResource(R.string.upgrade),
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(20.dp)
@@ -668,6 +659,9 @@ private fun RecentScansHeader(
     count: Int,
     onRefresh: () -> Unit
 ) {
+    val rotation = remember { Animatable(0f) }
+    val scope = rememberCoroutineScope()
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -677,7 +671,7 @@ private fun RecentScansHeader(
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
-                imageVector = Icons.Outlined.History,
+                painter = painterResource(id = R.drawable.history),
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(20.dp)
@@ -698,13 +692,21 @@ private fun RecentScansHeader(
             )
             Spacer(modifier = Modifier.width(4.dp))
             IconButton(
-                onClick = onRefresh,
+                onClick = {
+                    onRefresh()
+                    scope.launch {
+                        rotation.animateTo(
+                            targetValue = rotation.value + 720f,
+                            animationSpec = tween(durationMillis = 1500)
+                        )
+                    }
+                },
                 modifier = Modifier.size(32.dp)
             ) {
                 Icon(
-                    imageVector = Icons.Default.Refresh,
+                    painter = painterResource(id = R.drawable.refresh),
                     contentDescription = stringResource(R.string.refresh),
-                    modifier = Modifier.size(18.dp),
+                    modifier = Modifier.size(18.dp).rotate(rotation.value),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
@@ -762,7 +764,7 @@ private fun ScanCard(
         ) {
             if (isSelected) {
                 Icon(
-                    imageVector = Icons.Default.CheckCircle,
+                    painter = painterResource(id = R.drawable.circle_check),
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(24.dp)
@@ -808,12 +810,21 @@ private fun ScanCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     val icon = getDiseaseIcon(scan.diseaseTitle)
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(14.dp)
-                    )
+                    if (icon is ImageVector) {
+                        Icon(
+                            imageVector = icon,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(14.dp)
+                        )
+                    } else if (icon is Int) {
+                        Icon(
+                            painter = painterResource(id = icon),
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(14.dp)
+                        )
+                    }
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = formatScanDate(scan.createdAt, stringResource(R.string.unknown_date)),
@@ -887,13 +898,13 @@ private fun PlantThumbnail(
     }
 }
 
-private fun getDiseaseIcon(diagnosis: String): ImageVector {
+private fun getDiseaseIcon(diagnosis: String): Any {
     val lower = diagnosis.lowercase()
     return when {
         lower.contains("healthy") -> Icons.Default.Spa
         lower.contains("nutrient") -> Icons.Default.Grass
         lower.contains("fung") || lower.contains("blight") || lower.contains("mildew") -> Icons.Default.Eco
-        lower.contains("pest") || lower.contains("bug") || lower.contains("insect") -> Icons.Default.CameraAlt
+        lower.contains("pest") || lower.contains("bug") || lower.contains("insect") -> R.drawable.camera__1_
         else -> Icons.Default.Eco
     }
 }
@@ -945,7 +956,7 @@ private fun EmptyHistoryState(
             )
         ) {
             Icon(
-                imageVector = Icons.Outlined.PhotoCamera,
+                painter = painterResource(id = R.drawable.camera__1_),
                 contentDescription = null,
                 modifier = Modifier.size(20.dp)
             )
@@ -1183,7 +1194,7 @@ private fun ScanFAB(
                 }
 
                 Icon(
-                    imageVector = Icons.Default.CameraAlt,
+                    painter = painterResource(id = R.drawable.camera__1_),
                     contentDescription = stringResource(R.string.scan_plant_fab_desc),
                     modifier = Modifier.size(28.dp)
                 )
