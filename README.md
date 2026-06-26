@@ -271,6 +271,7 @@ cd PlantDoctor
 ```properties
 # Google Gemini AI
 GEMINI_API_KEY=your_gemini_api_key_here
+GEMINI_API_KEYS=your_comma_separated_gemini_api_keys_here
 
 # Supabase
 SUPABASE_URL=https://your-project.supabase.co
@@ -284,8 +285,15 @@ REVENUECAT_API_KEY=your_revenuecat_api_key_here
 
 # AdMob
 ADMOB_APP_ID=ca-app-pub-xxxxxxxxxxxxxxxx~xxxxxxxxxx
+ADMOB_BANNER_ID=ca-app-pub-xxxxxxxxxxxxxxxx/xxxxxxxxxx
 ADMOB_INTERSTITIAL_ID=ca-app-pub-xxxxxxxxxxxxxxxx/xxxxxxxxxx
 ADMOB_REWARDED_ID=ca-app-pub-xxxxxxxxxxxxxxxx/xxxxxxxxxx
+
+# OneSignal
+ONESIGNAL_APP_ID=your_onesignal_app_id_here
+
+# OpenWeather
+OPENWEATHER_API_KEYS=your_openweather_api_keys_here
 ```
 
 > **Note:** `local.properties` is git-ignored and must never be committed.
