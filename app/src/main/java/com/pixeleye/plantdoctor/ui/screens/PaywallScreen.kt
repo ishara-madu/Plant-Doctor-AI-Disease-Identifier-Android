@@ -383,8 +383,10 @@ fun PaywallScreen(
                         disabledContentColor = MaterialTheme.colorScheme.onPrimary
                     ),
                     elevation = ButtonDefaults.buttonElevation(
-                        defaultElevation = 4.dp,
-                        pressedElevation = 8.dp
+                        defaultElevation = 0.dp,
+                        pressedElevation = 0.dp,
+                        hoveredElevation = 0.dp,
+                        focusedElevation = 0.dp
                     )
                 ) {
                     if (isProcessing) {
@@ -393,14 +395,14 @@ fun PaywallScreen(
                             color = MaterialTheme.colorScheme.onPrimary,
                             strokeWidth = 2.5.dp
                         )
-                        Spacer(modifier = Modifier.width(12.dp))
+                    } else {
+                        Text(
+                            text = stringResource(R.string.subscribe_now),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 0.5.sp
+                        )
                     }
-                    Text(
-                        text = stringResource(R.string.subscribe_now),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        letterSpacing = 0.5.sp
-                    )
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
