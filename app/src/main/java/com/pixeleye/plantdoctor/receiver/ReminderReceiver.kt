@@ -28,13 +28,14 @@ class ReminderReceiver : BroadcastReceiver() {
         val plantName = intent.getStringExtra("PLANT_NAME") ?: "Plant"
         val careType = intent.getStringExtra("CARE_TYPE") ?: "Watering"
         val customMessage = intent.getStringExtra("CUSTOM_MESSAGE")
+        val rootScanId = intent.getStringExtra("ROOT_SCAN_ID")
         
         if (reminderId == -1) return
 
         Log.d(TAG, "Reminder alarm triggered for: $plantName ($careType)")
 
         // Trigger notification
-        showNotification(context, reminderId, plantName, careType, customMessage)
+        showNotification(context, reminderId, plantName, careType, customMessage, rootScanId)
 
         // Reschedule alarm for next day (only if not a one-shot follow-up alarm)
         if (!careType.equals("FollowUp", ignoreCase = true)) {
@@ -49,7 +50,7 @@ class ReminderReceiver : BroadcastReceiver() {
         }
     }
 
-    private fun showNotification(context: Context, id: Int, plantName: String, careType: String, customMessage: String? = null) {
+    private fun showNotification(context: Context, id: Int, plantName: String, careType: String, customMessage: String? = null, rootScanId: String? = null) {
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         // Create channel for API 26+
@@ -90,6 +91,10 @@ class ReminderReceiver : BroadcastReceiver() {
         // Intent to open MainActivity when clicked
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            if (careType.equals("FollowUp", ignoreCase = true) && !rootScanId.isNullOrBlank()) {
+                putExtra("NAVIGATE_TO", "camera")
+                putExtra("PARENT_ID", rootScanId)
+            }
         }
         val pendingIntent = PendingIntent.getActivity(
             context,
@@ -177,6 +182,7 @@ class ReminderReceiver : BroadcastReceiver() {
             val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
             val intent = Intent(context, ReminderReceiver::class.java).apply {
                 putExtra("REMINDER_ID", requestCode)
+                putExtra("ROOT_SCAN_ID", rootScanId)
                 putExtra("PLANT_NAME", plantName)
                 putExtra("CARE_TYPE", "FollowUp")
                 putExtra("CUSTOM_MESSAGE", message)

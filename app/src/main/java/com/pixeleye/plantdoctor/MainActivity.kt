@@ -26,6 +26,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -207,6 +208,11 @@ class MainActivity : ComponentActivity() {
                 getSystemService(android.content.Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
             notificationManager.createNotificationChannel(channel)
         }
+    }
+
+    override fun onNewIntent(intent: android.content.Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
     }
 }
 
@@ -443,6 +449,29 @@ fun PlantDoctorNavHost(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val uriHandler = androidx.compose.ui.platform.LocalUriHandler.current
+
+    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
+            if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
+                val activity = context.findActivity()
+                val intent = activity?.intent
+                val navigateTo = intent?.getStringExtra("NAVIGATE_TO")
+                val parentId = intent?.getStringExtra("PARENT_ID")
+                if (navigateTo == "camera" && !parentId.isNullOrBlank()) {
+                    intent.removeExtra("NAVIGATE_TO")
+                    intent.removeExtra("PARENT_ID")
+                    if (NavigationDebouncer.canNavigate()) {
+                        navController.navigate("camera?parentId=$parentId")
+                    }
+                }
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
 
     val homeUiState by homeViewModel.uiState.collectAsStateWithLifecycle()
     val reminders by reminderViewModel.reminders.collectAsStateWithLifecycle()
