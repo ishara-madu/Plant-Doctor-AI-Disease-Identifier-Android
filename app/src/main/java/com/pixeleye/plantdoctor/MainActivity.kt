@@ -38,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -128,13 +129,13 @@ class MainActivity : ComponentActivity() {
         val userPreferencesRepository = UserPreferencesRepository(applicationContext)
 
         // Read and apply saved app language locale on startup
-        try {
-            runBlocking {
+        lifecycleScope.launch {
+            try {
                 val prefs = userPreferencesRepository.userPreferences.first()
                 LanguageHelper.setAppLocale(applicationContext, prefs.selectedAiLanguage)
+            } catch (e: Exception) {
+                android.util.Log.e("MainActivity", "Failed to load locale preferences on startup", e)
             }
-        } catch (e: Exception) {
-            android.util.Log.e("MainActivity", "Failed to load locale preferences on startup", e)
         }
 
         setContent {

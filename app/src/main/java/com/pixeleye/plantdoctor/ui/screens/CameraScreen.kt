@@ -46,6 +46,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -155,7 +156,7 @@ private fun CameraContent(
 
     // ── Coordination ──────────────────────────────────────────
     val scope = rememberCoroutineScope()
-    var capturedUri by remember { mutableStateOf<Uri?>(null) }
+    var capturedUri by rememberSaveable { mutableStateOf<Uri?>(null) }
     var isConfirming by remember { mutableStateOf(false) }
 
     // ── Quota & Rewarded Ad state ─────────────────────────────
