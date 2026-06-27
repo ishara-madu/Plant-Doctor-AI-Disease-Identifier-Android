@@ -172,6 +172,7 @@
     <string name="notification_follow_up_title">Suivi de Plant Doctor</string>
     <string name="follow_up_reminders_label">Rappels de suivi de l\'IA</string>
     <string name="follow_up_reminders_desc">Recevez des notifications de suivi générées par l\'IA pour suivre les progrès de votre plante.</string>
+    <string name="notification_settings_warning">Les notifications sont désactivées. Appuyez ici pour activer les notifications dans les paramètres système afin de recevoir des rappels de soins et de suivi.</string>
 
     <!-- Paywall Screen -->
     <string name="yearly">Annuel</string>

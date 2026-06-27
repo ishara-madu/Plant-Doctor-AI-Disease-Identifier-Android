@@ -169,6 +169,7 @@
     <string name="notification_follow_up_title">Plant Doctor Check-in</string>
     <string name="follow_up_reminders_label">AI Follow-up Reminders</string>
     <string name="follow_up_reminders_desc">Get AI-generated check-in notifications to track your plant\'s progress.</string>
+    <string name="notification_settings_warning">Notifications are disabled. Tap here to enable notifications in system settings to receive care and follow-up reminders.</string>
     
     <!-- Paywall Screen -->
     <string name="yearly">Yearly</string>

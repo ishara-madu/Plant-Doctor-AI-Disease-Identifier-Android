@@ -172,6 +172,7 @@
     <string name="notification_follow_up_title">प्लांट डॉक्टर चेक-इन</string>
     <string name="follow_up_reminders_label">एआई फॉलो-अप अनुस्मारक</string>
     <string name="follow_up_reminders_desc">अपने पौधे की प्रगति को ट्रैक करने के लिए एआई-जनरेटेड चेक-इन सूचनाएं प्राप्त करें।</string>
+    <string name="notification_settings_warning">सूचनाएं अक्षम हैं। देखभाल और फॉलो-अप अनुस्मारक प्राप्त करने के लिए सिस्टम सेटिंग्स में सूचनाएं सक्षम करने के लिए यहां टैप करें।</string>
 
     <!-- Paywall Screen -->
     <string name="yearly">वार्षिक</string>

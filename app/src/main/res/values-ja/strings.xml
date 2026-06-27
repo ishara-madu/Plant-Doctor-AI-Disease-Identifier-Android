@@ -172,6 +172,7 @@
     <string name="notification_follow_up_title">プラントドクターのチェックイン</string>
     <string name="follow_up_reminders_label">AIフォローアップリマインダー</string>
     <string name="follow_up_reminders_desc">植物の進行状況を追跡するために、AIが生成したチェックイン通知を受け取ります。</string>
+    <string name="notification_settings_warning">通知が無効になっています。ケアとフォローアップのリマインダーを受け取るには、ここをタップしてシステム設定で通知を有効にしてください。</string>
 
     <!-- Paywall Screen -->
     <string name="yearly">年間</string>

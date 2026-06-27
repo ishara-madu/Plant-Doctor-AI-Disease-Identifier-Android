@@ -172,6 +172,7 @@
     <string name="notification_follow_up_title">Control de Plant Doctor</string>
     <string name="follow_up_reminders_label">Recordatorios de seguimiento de IA</string>
     <string name="follow_up_reminders_desc">Reciba notificaciones de control generadas por IA para realizar un seguimiento del progreso de su planta.</string>
+    <string name="notification_settings_warning">Las notificaciones están desactivadas. Toque aquí para activar las notificaciones en la configuración del sistema para recibir recordatorios de cuidado y seguimiento.</string>
 
     <!-- Paywall Screen -->
     <string name="yearly">Anual</string>

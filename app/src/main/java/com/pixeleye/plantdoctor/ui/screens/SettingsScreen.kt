@@ -633,9 +633,9 @@ fun NotificationSettingItem(
             )
 
             Text(
-                text = stringResource(R.string.enable_in_system_settings),
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.primary,
+                text = stringResource(R.string.notification_settings_warning),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.error,
                 modifier = Modifier.clickable {
                     val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
                         data = Uri.fromParts("package", context.packageName, null)

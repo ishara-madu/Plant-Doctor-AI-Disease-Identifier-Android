@@ -172,6 +172,7 @@
     <string name="notification_follow_up_title">ශාක වෛද්‍ය පසු විපරම</string>
     <string name="follow_up_reminders_label">AI පසු විපරම් සිහිකැඳවීම්</string>
     <string name="follow_up_reminders_desc">ඔබේ ශාකයේ වර්ධනය පරීක්ෂා කිරීමට AI මඟින් ජෙනරේට් කරන ලද පසු විපරම් සිහිකැඳවීම් ලබා ගන්න.</string>
+    <string name="notification_settings_warning">දැනුම්දීම් අක්‍රිය කර ඇත. ශාක රැකවරණ සහ පසු විපරම් සිහිකැඳවීම් ලබා ගැනීමට මෙතැන ක්ලික් කර පද්ධති සැකසුම් (system settings) හරහා දැනුම්දීම් සක්‍රිය කරන්න.</string>
 
     <!-- Paywall Screen -->
     <string name="yearly">වාර්ෂිකව</string>

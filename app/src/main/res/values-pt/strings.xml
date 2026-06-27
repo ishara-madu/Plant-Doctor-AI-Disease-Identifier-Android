@@ -172,6 +172,7 @@
     <string name="notification_follow_up_title">Acompanhamento do Plant Doctor</string>
     <string name="follow_up_reminders_label">Lembretes de acompanhamento de IA</string>
     <string name="follow_up_reminders_desc">Receba notificações de check-in geradas por IA para acompanhar o progresso de sua planta.</string>
+    <string name="notification_settings_warning">As notificações estão desativadas. Toque aqui para ativar as notificações nas configurações do sistema para receber lembretes de cuidados e acompanhamento.</string>
 
     <!-- Paywall Screen -->
     <string name="yearly">Anual</string>
