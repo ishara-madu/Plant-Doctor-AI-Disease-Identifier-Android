@@ -288,7 +288,8 @@ fun ResultScreen(
                 onAddReminders = onAddReminders,
                 existingReminders = existingReminders,
                 onGoToReminders = onGoToReminders,
-                onUpdateReminderTime = onUpdateReminderTime
+                onUpdateReminderTime = onUpdateReminderTime,
+                isSaving = isSaving
             )
         }
     }
@@ -362,7 +363,8 @@ private fun ResultContent(
     ) -> Unit,
     existingReminders: List<PlantReminderEntity>,
     onGoToReminders: () -> Unit,
-    onUpdateReminderTime: (PlantReminderEntity, Int, Int) -> Unit
+    onUpdateReminderTime: (PlantReminderEntity, Int, Int) -> Unit,
+    isSaving: Boolean
 ) {
     Column(
         modifier = modifier.verticalScroll(rememberScrollState()),
