@@ -86,12 +86,14 @@ class HomeViewModel(
     }
 
     fun savePlantNameLocal(scanId: String, name: String) {
+        val normalizedName = java.text.Normalizer.normalize(name.trim(), java.text.Normalizer.Form.NFC)
+            .replace("\\s+".toRegex(), " ")
         viewModelScope.launch {
             try {
                 val existing = repository.getHistoryByIdLocal(scanId)
-                if (existing == null || existing.plantName != name) {
-                    repository.updatePlantNameLocal(scanId, name)
-                    Log.d(TAG, "Successfully saved plant name locally: $scanId -> $name")
+                if (existing == null || existing.plantName != normalizedName) {
+                    repository.updatePlantNameLocal(scanId, normalizedName)
+                    Log.d(TAG, "Successfully saved plant name locally: $scanId -> $normalizedName")
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to save plant name locally: $scanId", e)

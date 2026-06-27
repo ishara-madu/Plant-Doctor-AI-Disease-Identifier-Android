@@ -99,7 +99,13 @@ fun RemindersScreen(
                     .padding(innerPadding)
             )
         } else {
-            val grouped = remember(reminders) { reminders.groupBy { it.plantName } }
+            val grouped = remember(reminders) {
+                reminders.groupBy { reminder ->
+                    java.text.Normalizer.normalize(reminder.plantName.trim(), java.text.Normalizer.Form.NFC)
+                        .lowercase(java.util.Locale.ROOT)
+                        .replace("\\s+".toRegex(), " ")
+                }
+            }
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
@@ -107,10 +113,11 @@ fun RemindersScreen(
                     .padding(horizontal = 16.dp, vertical = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                grouped.forEach { (plantName, plantReminders) ->
-                    item(key = "header_$plantName") {
+                grouped.forEach { (normalizedKey, plantReminders) ->
+                    val displayHeaderName = plantReminders.firstOrNull()?.plantName ?: ""
+                    item(key = "header_$normalizedKey") {
                         Text(
-                            text = plantName,
+                            text = displayHeaderName,
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.primary,
