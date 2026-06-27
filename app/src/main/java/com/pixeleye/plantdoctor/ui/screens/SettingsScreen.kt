@@ -90,8 +90,7 @@ fun SettingsScreen(
     var areFollowUpRemindersEnabled by remember(currentPrefs) { mutableStateOf(currentPrefs.areFollowUpRemindersEnabled) }
     var aiLanguageExpanded by remember { mutableStateOf(false) }
 
-    val hasChanges = selectedAiLanguage != currentPrefs.selectedAiLanguage ||
-            areFollowUpRemindersEnabled != currentPrefs.areFollowUpRemindersEnabled
+    val hasChanges = selectedAiLanguage != currentPrefs.selectedAiLanguage
 
     val context = LocalContext.current
     var hasLocationPermission by remember {
@@ -313,21 +312,6 @@ fun SettingsScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // ── Notification Settings ───────────────────────────
-            SettingLabel(
-                painter = painterResource(id = R.drawable.bell),
-                text = stringResource(R.string.notifications)
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            NotificationSettingItem(
-                areFollowUpRemindersEnabled = areFollowUpRemindersEnabled,
-                onFollowUpRemindersToggled = { areFollowUpRemindersEnabled = it }
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
             // ── Save Button ──────────────────────────────────────
             Button(
                 onClick = {
@@ -357,6 +341,25 @@ fun SettingsScreen(
                     )
                 }
             }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // ── Notification Settings ───────────────────────────
+            SettingLabel(
+                painter = painterResource(id = R.drawable.bell),
+                text = stringResource(R.string.notifications)
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            NotificationSettingItem(
+                areFollowUpRemindersEnabled = areFollowUpRemindersEnabled,
+                onFollowUpRemindersToggled = {
+                    areFollowUpRemindersEnabled = it
+                    // Auto-save notification updates immediately!
+                    onSave("", "", selectedAiLanguage, it)
+                }
+            )
 
             Spacer(modifier = Modifier.height(32.dp))
 
