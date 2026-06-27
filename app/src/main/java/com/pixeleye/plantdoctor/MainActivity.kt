@@ -554,17 +554,21 @@ fun PlantDoctorNavHost(
                     homeViewModel.showSnackbar(msg, type)
                 },
                 onScanPlantClick = {
-                    navController.navigate("camera")
+                    if (NavigationDebouncer.canNavigate()) {
+                        navController.navigate("camera")
+                    }
                 },
                 onViewResult = { scan: PlantScanDto ->
-                    val encodedUrl = Uri.encode(scan.imageUrl)
-                    val encodedTitle = Uri.encode(scan.diseaseTitle)
-                    val encodedPlan = Uri.encode(scan.treatmentPlan)
-                    val scanId = scan.id
-                    val parentId = scan.parentId
-                    navController.navigate(
-                        "result?imageUrl=$encodedUrl&title=$encodedTitle&plan=$encodedPlan&id=$scanId&parentId=$parentId"
-                    )
+                    if (NavigationDebouncer.canNavigate()) {
+                        val encodedUrl = Uri.encode(scan.imageUrl)
+                        val encodedTitle = Uri.encode(scan.diseaseTitle)
+                        val encodedPlan = Uri.encode(scan.treatmentPlan)
+                        val scanId = scan.id
+                        val parentId = scan.parentId
+                        navController.navigate(
+                            "result?imageUrl=$encodedUrl&title=$encodedTitle&plan=$encodedPlan&id=$scanId&parentId=$parentId"
+                        )
+                    }
                 },
                 onDeleteScan = { scan ->
                     homeViewModel.deleteScan(scan)
@@ -615,16 +619,18 @@ fun PlantDoctorNavHost(
                 diagnosisViewModel = diagnosisViewModel,
                 isPremium = isPremium,
                 onImageCaptured = { uri ->
-                    Log.d("PlantDoctor", "Image captured: $uri, parentId: $parentId")
-                    diagnosisViewModel.resetState()
-                    val encodedUri = Uri.encode(uri.toString())
-                    val dest = if (parentId != null) {
-                        "result?imageUri=$encodedUri&showAd=true&parentId=$parentId"
-                    } else {
-                        "result?imageUri=$encodedUri&showAd=true"
-                    }
-                    navController.navigate(dest) {
-                        popUpTo("camera") { inclusive = true }
+                    if (NavigationDebouncer.canNavigate()) {
+                        Log.d("PlantDoctor", "Image captured: $uri, parentId: $parentId")
+                        diagnosisViewModel.resetState()
+                        val encodedUri = Uri.encode(uri.toString())
+                        val dest = if (parentId != null) {
+                            "result?imageUri=$encodedUri&showAd=true&parentId=$parentId"
+                        } else {
+                            "result?imageUri=$encodedUri&showAd=true"
+                        }
+                        navController.navigate(dest) {
+                            popUpTo("camera") { inclusive = true }
+                        }
                     }
                 },
                 onError = { errorMessage ->
@@ -809,8 +815,10 @@ fun PlantDoctorNavHost(
                     diagnosisViewModel.resetState()
                     homeViewModel.clearThreadScans()
                     try {
-                        navController.navigate("camera") {
-                            popUpTo("home")
+                        if (NavigationDebouncer.canNavigate()) {
+                            navController.navigate("camera") {
+                                popUpTo("home")
+                            }
                         }
                     } catch (e: Exception) {
                         Log.e("PlantDoctor", "Navigation error on new scan: ${e.message}")
@@ -842,17 +850,19 @@ fun PlantDoctorNavHost(
                     }
                 },
                 onViewResult = { scan ->
-                    val encodedUrl = Uri.encode(scan.imageUrl)
-                    val encodedTitle = Uri.encode(scan.diseaseTitle)
-                    val encodedPlan = Uri.encode(scan.treatmentPlan)
-                    val scanId = scan.id
-                    val scanParentId = scan.parentId
-                    val currentRoute = navController.currentBackStackEntry?.destination?.route
-                    navController.navigate(
-                        "result?imageUrl=$encodedUrl&title=$encodedTitle&plan=$encodedPlan&id=$scanId&parentId=$scanParentId"
-                    ) {
-                        if (currentRoute != null) {
-                            popUpTo(currentRoute) { inclusive = true }
+                    if (NavigationDebouncer.canNavigate()) {
+                        val encodedUrl = Uri.encode(scan.imageUrl)
+                        val encodedTitle = Uri.encode(scan.diseaseTitle)
+                        val encodedPlan = Uri.encode(scan.treatmentPlan)
+                        val scanId = scan.id
+                        val scanParentId = scan.parentId
+                        val currentRoute = navController.currentBackStackEntry?.destination?.route
+                        navController.navigate(
+                            "result?imageUrl=$encodedUrl&title=$encodedTitle&plan=$encodedPlan&id=$scanId&parentId=$scanParentId"
+                        ) {
+                            if (currentRoute != null) {
+                                popUpTo(currentRoute) { inclusive = true }
+                            }
                         }
                     }
                 }
@@ -990,8 +1000,10 @@ fun PlantDoctorNavHost(
                 onNewScan = {
                     homeViewModel.clearThreadScans()
                     try {
-                        navController.navigate("camera") {
-                            popUpTo("home")
+                        if (NavigationDebouncer.canNavigate()) {
+                            navController.navigate("camera") {
+                                popUpTo("home")
+                            }
                         }
                     } catch (e: Exception) {
                         Log.e("PlantDoctor", "Navigation error on new scan: ${e.message}")
@@ -1018,17 +1030,19 @@ fun PlantDoctorNavHost(
                     }
                 },
                 onViewResult = { scan ->
-                    val encodedUrl = Uri.encode(scan.imageUrl)
-                    val encodedTitle = Uri.encode(scan.diseaseTitle)
-                    val encodedPlan = Uri.encode(scan.treatmentPlan)
-                    val scanId = scan.id
-                    val scanParentId = scan.parentId
-                    val currentRoute = navController.currentBackStackEntry?.destination?.route
-                    navController.navigate(
-                        "result?imageUrl=$encodedUrl&title=$encodedTitle&plan=$encodedPlan&id=$scanId&parentId=$scanParentId"
-                    ) {
-                        if (currentRoute != null) {
-                            popUpTo(currentRoute) { inclusive = true }
+                    if (NavigationDebouncer.canNavigate()) {
+                        val encodedUrl = Uri.encode(scan.imageUrl)
+                        val encodedTitle = Uri.encode(scan.diseaseTitle)
+                        val encodedPlan = Uri.encode(scan.treatmentPlan)
+                        val scanId = scan.id
+                        val scanParentId = scan.parentId
+                        val currentRoute = navController.currentBackStackEntry?.destination?.route
+                        navController.navigate(
+                            "result?imageUrl=$encodedUrl&title=$encodedTitle&plan=$encodedPlan&id=$scanId&parentId=$scanParentId"
+                        ) {
+                            if (currentRoute != null) {
+                                popUpTo(currentRoute) { inclusive = true }
+                            }
                         }
                     }
                 }
