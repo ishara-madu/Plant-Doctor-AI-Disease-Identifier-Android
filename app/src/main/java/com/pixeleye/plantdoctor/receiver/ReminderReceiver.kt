@@ -110,6 +110,7 @@ class ReminderReceiver : BroadcastReceiver() {
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
+            .setGroup("com.pixeleye.plantdoctor.FOLLOW_UP")
             .build()
 
         notificationManager.notify(id, notification)
@@ -198,8 +199,16 @@ class ReminderReceiver : BroadcastReceiver() {
             val calendar = Calendar.getInstance().apply {
                 // FOR TESTING: Trigger follow-up notification in 10 seconds
                 add(Calendar.SECOND, 10)
-                // PRODUCTION LOGIC:
+                // PRODUCTION LOGIC (uncomment for production release):
                 // add(Calendar.DAY_OF_YEAR, daysToWait)
+                // // Normalize to 9:00 AM on the target day to prevent waking up users at night:
+                // set(Calendar.HOUR_OF_DAY, 9)
+                // set(Calendar.MINUTE, 0)
+                // set(Calendar.SECOND, 0)
+                // set(Calendar.MILLISECOND, 0)
+                // if (timeInMillis <= System.currentTimeMillis()) {
+                //     add(Calendar.DAY_OF_YEAR, 1)
+                // }
             }
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
