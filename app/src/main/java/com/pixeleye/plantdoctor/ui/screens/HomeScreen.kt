@@ -850,19 +850,36 @@ private fun ScanCard(
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.primary
                     )
+
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Box(
+                        modifier = Modifier
+                            .background(
+                                color = progressColor.copy(alpha = 0.15f),
+                                shape = RoundedCornerShape(4.dp)
+                            )
+                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.health_level_label, healthPct),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = progressColor,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
             }
         }
 
-        // Subtle progress bar accent at bottom
+        // Dynamic progress bar accent at bottom
         LinearProgressIndicator(
-            progress = { 1f },
+            progress = { healthProgress },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(3.dp)
                 .clip(RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp)),
-            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
-            trackColor = Color.Transparent,
+            color = progressColor,
+            trackColor = progressColor.copy(alpha = 0.15f),
         )
     }
 }
