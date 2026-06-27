@@ -27,5 +27,7 @@ data class PlantScanDto(
     @Transient
     val healthStatusPercentage: Int? = null,
     @Transient
-    val progressReminderMessage: String? = null
+    val progressReminderMessage: String? = null,
+    @Transient
+    val progressReminderDays: Int? = null
 )

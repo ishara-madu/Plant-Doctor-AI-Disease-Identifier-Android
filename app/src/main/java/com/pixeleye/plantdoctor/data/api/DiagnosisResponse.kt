@@ -11,7 +11,8 @@ data class DiagnosisResponse(
     val wateringTime: String? = null,
     val fertilizingTime: String? = null,
     val healthStatusPercentage: Int? = null,
-    val progressReminderMessage: String? = null
+    val progressReminderMessage: String? = null,
+    val progressReminderDays: Int? = null
 ) {
     val actionPlan: List<String>
         get() = organicTreatments + chemicalTreatments
