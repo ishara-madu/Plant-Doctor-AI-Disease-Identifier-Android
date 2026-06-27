@@ -735,20 +735,21 @@ fun PlantDoctorNavHost(
 
             val threadScans by homeViewModel.threadScans.collectAsStateWithLifecycle()
 
-            LaunchedEffect(currentScanId, diagnosisData) {
-                if (parentId.isNullOrBlank() && currentScanId != null && diagnosisData != null) {
-                    val name = diagnosisData.plantName
-                    if (!name.isNullOrBlank()) {
-                        homeViewModel.savePlantNameLocal(currentScanId, name)
-                    }
-                }
-            }
-
             val isLoading = diagnosisState is DiagnosisState.Loading
             val diagnosisData = when (val state = diagnosisState) {
                 is DiagnosisState.Success -> state.result
                 is DiagnosisState.Error -> com.pixeleye.plantdoctor.data.api.DiagnosisResponse("Analysis failed: ${state.message}", emptyList())
                 else -> null
+            }
+
+            LaunchedEffect(currentScanId, diagnosisData) {
+                val scanId = currentScanId
+                if (parentId.isNullOrBlank() && scanId != null && diagnosisData != null) {
+                    val name = diagnosisData.plantName
+                    if (name != null && name.isNotBlank()) {
+                        homeViewModel.savePlantNameLocal(scanId, name)
+                    }
+                }
             }
 
             ResultScreen(
@@ -926,7 +927,7 @@ fun PlantDoctorNavHost(
             LaunchedEffect(id, diagnosisData) {
                 if (parentId.isNullOrBlank() && id != null && diagnosisData != null) {
                     val name = diagnosisData.plantName
-                    if (!name.isNullOrBlank()) {
+                    if (name != null && name.isNotBlank()) {
                         homeViewModel.savePlantNameLocal(id, name)
                     }
                 }
