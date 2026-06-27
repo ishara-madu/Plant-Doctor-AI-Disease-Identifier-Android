@@ -785,8 +785,10 @@ private fun ScanCard(
             Spacer(modifier = Modifier.width(16.dp))
 
             Column(modifier = Modifier.weight(1f)) {
+                val displayName = scan.plantName?.takeIf { it.isNotBlank() }
+                    ?: scan.diseaseTitle.ifBlank { stringResource(R.string.unknown_diagnosis) }
                 Text(
-                    text = scan.diseaseTitle.ifBlank { stringResource(R.string.unknown_diagnosis) },
+                    text = displayName,
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface,
