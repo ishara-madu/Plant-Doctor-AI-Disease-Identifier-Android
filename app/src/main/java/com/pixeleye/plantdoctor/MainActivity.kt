@@ -1085,8 +1085,8 @@ fun PlantDoctorNavHost(
             SettingsScreen(
                 currentPrefs = currentPrefs,
                 isSaving = isSaving,
-                onSave = { country, language, aiLanguage ->
-                    settingsViewModel.savePreferences(country, language, aiLanguage) {
+                onSave = { country, language, aiLanguage, areFollowUpRemindersEnabled ->
+                    settingsViewModel.savePreferences(country, language, aiLanguage, areFollowUpRemindersEnabled) {
                         LanguageHelper.setAppLocale(context, aiLanguage)
                     }
                 },

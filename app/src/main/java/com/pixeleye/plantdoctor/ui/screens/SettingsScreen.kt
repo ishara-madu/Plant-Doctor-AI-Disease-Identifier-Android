@@ -82,14 +82,16 @@ import com.pixeleye.plantdoctor.R
 fun SettingsScreen(
     currentPrefs: UserPreferences,
     isSaving: Boolean,
-    onSave: (country: String, language: String, aiLanguage: String) -> Unit,
+    onSave: (country: String, language: String, aiLanguage: String, areFollowUpRemindersEnabled: Boolean) -> Unit,
     onLogout: () -> Unit,
     onBack: () -> Unit
 ) {
     var selectedAiLanguage by remember(currentPrefs) { mutableStateOf(currentPrefs.selectedAiLanguage) }
+    var areFollowUpRemindersEnabled by remember(currentPrefs) { mutableStateOf(currentPrefs.areFollowUpRemindersEnabled) }
     var aiLanguageExpanded by remember { mutableStateOf(false) }
 
-    val hasChanges = selectedAiLanguage != currentPrefs.selectedAiLanguage
+    val hasChanges = selectedAiLanguage != currentPrefs.selectedAiLanguage ||
+            areFollowUpRemindersEnabled != currentPrefs.areFollowUpRemindersEnabled
 
     val context = LocalContext.current
     var hasLocationPermission by remember {
@@ -319,14 +321,17 @@ fun SettingsScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            NotificationSettingItem()
+            NotificationSettingItem(
+                areFollowUpRemindersEnabled = areFollowUpRemindersEnabled,
+                onFollowUpRemindersToggled = { areFollowUpRemindersEnabled = it }
+            )
 
             Spacer(modifier = Modifier.height(24.dp))
 
             // ── Save Button ──────────────────────────────────────
             Button(
                 onClick = {
-                    onSave("", "", selectedAiLanguage)
+                    onSave("", "", selectedAiLanguage, areFollowUpRemindersEnabled)
                 },
                 enabled = hasChanges && !isSaving,
                 modifier = Modifier
@@ -513,7 +518,10 @@ private fun SettingLabel(
 }
 
 @Composable
-fun NotificationSettingItem() {
+fun NotificationSettingItem(
+    areFollowUpRemindersEnabled: Boolean,
+    onFollowUpRemindersToggled: (Boolean) -> Unit
+) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
 
@@ -538,57 +546,96 @@ fun NotificationSettingItem() {
         }
     }
 
-    Row(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(14.dp))
             .background(MaterialTheme.colorScheme.surface)
-            .padding(16.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .padding(16.dp)
     ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = stringResource(R.string.push_notifications),
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            Spacer(modifier = Modifier.height(2.dp))
-            Text(
-                text = stringResource(R.string.push_notifications_desc),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-
-            if (!areNotificationsEnabled) {
-                Spacer(modifier = Modifier.height(6.dp))
+        // Row 1: Push Notifications (News, Updates)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = stringResource(R.string.enable_in_system_settings),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.clickable {
-                        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                            data = Uri.fromParts("package", context.packageName, null)
-                        }
-                        context.startActivity(intent)
-                    }
+                    text = stringResource(R.string.push_notifications),
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = stringResource(R.string.push_notifications_desc),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                if (!areNotificationsEnabled) {
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(
+                        text = stringResource(R.string.enable_in_system_settings),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.clickable {
+                            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                data = Uri.fromParts("package", context.packageName, null)
+                            }
+                            context.startActivity(intent)
+                        }
+                    )
+                }
             }
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Switch(
+                checked = isSubscribed,
+                onCheckedChange = { checked ->
+                    isSubscribed = checked
+                    if (checked) {
+                        OneSignal.User.pushSubscription.optIn()
+                    } else {
+                        OneSignal.User.pushSubscription.optOut()
+                    }
+                },
+                enabled = areNotificationsEnabled
+            )
         }
 
-        Spacer(modifier = Modifier.width(16.dp))
-
-        Switch(
-            checked = isSubscribed,
-            onCheckedChange = { checked ->
-                isSubscribed = checked
-                if (checked) {
-                    OneSignal.User.pushSubscription.optIn()
-                } else {
-                    OneSignal.User.pushSubscription.optOut()
-                }
-            },
-            enabled = areNotificationsEnabled
+        // Row 2: AI Follow-up Reminders
+        HorizontalDivider(
+            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f),
+            modifier = Modifier.padding(vertical = 14.dp)
         )
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = stringResource(R.string.follow_up_reminders_label),
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = stringResource(R.string.follow_up_reminders_desc),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Switch(
+                checked = areFollowUpRemindersEnabled,
+                onCheckedChange = onFollowUpRemindersToggled,
+                enabled = areNotificationsEnabled
+            )
+        }
     }
 }

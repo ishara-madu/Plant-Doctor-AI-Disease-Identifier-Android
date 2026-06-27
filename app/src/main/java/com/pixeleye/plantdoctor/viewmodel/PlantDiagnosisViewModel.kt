@@ -592,7 +592,8 @@ Rules:
                     context?.let { ctx ->
                         val rootScanId = parentId ?: inserted.id ?: scanDto.id ?: ""
                         com.pixeleye.plantdoctor.receiver.ReminderReceiver.cancelFollowUpAlarm(ctx, rootScanId)
-                        if (!progressReminderMessage.isNullOrBlank()) {
+                        val prefs = userPreferencesRepository.userPreferences.first()
+                        if (prefs.areFollowUpRemindersEnabled && !progressReminderMessage.isNullOrBlank()) {
                             com.pixeleye.plantdoctor.receiver.ReminderReceiver.scheduleFollowUpAlarm(
                                 ctx,
                                 rootScanId,
@@ -634,7 +635,8 @@ Rules:
                     context?.let { ctx ->
                         val rootScanId = parentId ?: fallbackScanId
                         com.pixeleye.plantdoctor.receiver.ReminderReceiver.cancelFollowUpAlarm(ctx, rootScanId)
-                        if (!progressReminderMessage.isNullOrBlank()) {
+                        val prefs = userPreferencesRepository.userPreferences.first()
+                        if (prefs.areFollowUpRemindersEnabled && !progressReminderMessage.isNullOrBlank()) {
                             com.pixeleye.plantdoctor.receiver.ReminderReceiver.scheduleFollowUpAlarm(
                                 ctx,
                                 rootScanId,
