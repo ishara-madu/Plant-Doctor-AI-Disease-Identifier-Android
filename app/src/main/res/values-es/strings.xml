@@ -166,6 +166,9 @@
     <string name="redeem_button">Canjear</string>
     <string name="notification_warning_title">Activar notificaciones</string>
     <string name="notification_warning_desc">Las notificaciones están desactivadas para esta aplicación. Actívalas en la configuración de tu dispositivo para recibir recordatorios de riego y fertilización.</string>
+    <string name="notification_banner_title">Notificaciones bloqueadas</string>
+    <string name="notification_banner_desc">No recibirás alertas de cuidado. Toca para activarlas en la configuración.</string>
+    <string name="enable_action">Activar</string>
 
     <!-- Paywall Screen -->
     <string name="yearly">Anual</string>

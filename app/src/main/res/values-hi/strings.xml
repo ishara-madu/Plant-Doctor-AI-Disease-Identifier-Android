@@ -166,6 +166,9 @@
     <string name="redeem_button">रिडीम करें</string>
     <string name="notification_warning_title">सूचनाएं सक्षम करें</string>
     <string name="notification_warning_desc">इस ऐप के लिए सूचनाएं अक्षम हैं। पानी देने और उर्वरक देने के अनुस्मारक प्राप्त करने के लिए कृपया अपने डिवाइस की सेटिंग्स में सूचनाएं सक्षम करें।</string>
+    <string name="notification_banner_title">सूचनाएं अवरुद्ध हैं</string>
+    <string name="notification_banner_desc">आपको देखभाल अलर्ट प्राप्त नहीं होंगे। सेटिंग्स में सक्षम करने के लिए टैप करें।</string>
+    <string name="enable_action">सक्षम करें</string>
 
     <!-- Paywall Screen -->
     <string name="yearly">वार्षिक</string>

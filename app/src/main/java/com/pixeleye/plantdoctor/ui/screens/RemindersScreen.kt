@@ -25,6 +25,11 @@ import androidx.compose.material.icons.filled.Grass
 import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import android.content.Intent
+import android.provider.Settings
+import android.net.Uri
+import androidx.core.app.NotificationManagerCompat
+import androidx.compose.material.icons.filled.WarningAmber
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api

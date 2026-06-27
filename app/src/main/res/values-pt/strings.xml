@@ -166,6 +166,9 @@
     <string name="redeem_button">Resgatar</string>
     <string name="notification_warning_title">Ativar notificações</string>
     <string name="notification_warning_desc">As notificações estão desativadas para este aplicativo. Ative-as nas configurações do seu dispositivo para receber lembretes de rega e fertilização.</string>
+    <string name="notification_banner_title">Notificações bloqueadas</string>
+    <string name="notification_banner_desc">Você não receberá alertas de cuidados. Toque para ativá-las nas configurações.</string>
+    <string name="enable_action">Ativar</string>
 
     <!-- Paywall Screen -->
     <string name="yearly">Anual</string>

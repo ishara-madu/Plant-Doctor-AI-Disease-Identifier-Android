@@ -166,6 +166,9 @@
     <string name="redeem_button">Utiliser</string>
     <string name="notification_warning_title">Activer les notifications</string>
     <string name="notification_warning_desc">Les notifications sont désactivées pour cette application. Veuillez les activer dans les paramètres de votre appareil pour recevoir les rappels d\'arrosage et d\'engrais.</string>
+    <string name="notification_banner_title">Notifications bloquées</string>
+    <string name="notification_banner_desc">Vous ne recevrez pas d\'alertes. Appuyez pour les activer dans les paramètres.</string>
+    <string name="enable_action">Activer</string>
 
     <!-- Paywall Screen -->
     <string name="yearly">Annuel</string>

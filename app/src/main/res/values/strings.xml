@@ -163,6 +163,9 @@
     <string name="redeem_button">Redeem</string>
     <string name="notification_warning_title">Enable Notifications</string>
     <string name="notification_warning_desc">Notifications are disabled for this app. Please enable them in your device settings to receive watering and fertilizing reminders.</string>
+    <string name="notification_banner_title">Notifications Blocked</string>
+    <string name="notification_banner_desc">You won\'t receive care alerts. Tap to enable notifications in settings.</string>
+    <string name="enable_action">Enable</string>
     
     <!-- Paywall Screen -->
     <string name="yearly">Yearly</string>
