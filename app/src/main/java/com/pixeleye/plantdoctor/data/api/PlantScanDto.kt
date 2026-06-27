@@ -3,6 +3,7 @@ package com.pixeleye.plantdoctor.data.api
 import androidx.annotation.Keep
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 
 @Keep
 @Serializable
@@ -23,6 +24,6 @@ data class PlantScanDto(
     val parentId: String? = null,
     @SerialName("plant_name")
     val plantName: String? = null,
-    @SerialName("health_status_percentage")
+    @Transient
     val healthStatusPercentage: Int? = null
 )

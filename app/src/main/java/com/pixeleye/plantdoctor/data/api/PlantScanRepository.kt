@@ -50,8 +50,23 @@ class PlantScanRepository(
                 .sortedByDescending { it.createdAt }
             Log.d(TAG, "Fetched ${results.size} scans from remote")
             
+            // Fetch local history to merge local-only fields (plantName, healthStatusPercentage)
+            val localHistory = historyDao.getAllHistoryOnce().associateBy { it.id }
+            val mergedResults = results.map { remoteDto ->
+                val entity = remoteDto.toEntity()
+                val localEntity = localHistory[entity.id]
+                if (localEntity != null) {
+                    entity.copy(
+                        healthStatusPercentage = localEntity.healthStatusPercentage ?: entity.healthStatusPercentage,
+                        plantName = localEntity.plantName ?: entity.plantName
+                    )
+                } else {
+                    entity
+                }
+            }
+            
             // Insert into local DB
-            historyDao.insertAllAndEnforceLimit(results.map { it.toEntity() })
+            historyDao.insertAllAndEnforceLimit(mergedResults)
         } catch (e: Exception) {
             Log.e(TAG, "Failed to refresh history from remote", e)
             throw e
@@ -70,8 +85,14 @@ class PlantScanRepository(
                 }
                 .decodeSingleOrNull<PlantScanDto>() ?: scan
             
-            historyDao.insertHistoryAndEnforceLimit(inserted.toEntity())
-            inserted
+            // Retain the local healthStatusPercentage from the original scan object
+            val entityToInsert = inserted.toEntity().copy(
+                healthStatusPercentage = scan.healthStatusPercentage
+            )
+            historyDao.insertHistoryAndEnforceLimit(entityToInsert)
+            
+            // Return DTO with original healthStatusPercentage populated
+            inserted.copy(healthStatusPercentage = scan.healthStatusPercentage)
         } catch (e: Exception) {
             Log.e(TAG, "Failed to insert new scan to remote", e)
             throw e
