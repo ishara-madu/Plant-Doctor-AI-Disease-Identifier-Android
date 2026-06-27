@@ -574,21 +574,6 @@ fun NotificationSettingItem(
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-
-                if (!areNotificationsEnabled) {
-                    Spacer(modifier = Modifier.height(6.dp))
-                    Text(
-                        text = stringResource(R.string.enable_in_system_settings),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.clickable {
-                            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                                data = Uri.fromParts("package", context.packageName, null)
-                            }
-                            context.startActivity(intent)
-                        }
-                    )
-                }
             }
 
             Spacer(modifier = Modifier.width(16.dp))
@@ -638,6 +623,25 @@ fun NotificationSettingItem(
                 checked = areFollowUpRemindersEnabled,
                 onCheckedChange = onFollowUpRemindersToggled,
                 enabled = areNotificationsEnabled
+            )
+        }
+
+        if (!areNotificationsEnabled) {
+            HorizontalDivider(
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f),
+                modifier = Modifier.padding(vertical = 14.dp)
+            )
+
+            Text(
+                text = stringResource(R.string.enable_in_system_settings),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.clickable {
+                    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                        data = Uri.fromParts("package", context.packageName, null)
+                    }
+                    context.startActivity(intent)
+                }
             )
         }
     }
