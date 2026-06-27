@@ -94,7 +94,10 @@ import com.pixeleye.plantdoctor.utils.showInterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
+import android.provider.Settings
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.app.NotificationManagerCompat
 
 import androidx.compose.ui.res.stringResource
 import com.pixeleye.plantdoctor.R
@@ -1355,6 +1358,7 @@ private fun CareReminderCard(
     var fertilizingMinute by remember { mutableStateOf(defaultFertilizing.second) }
     var activePicker by remember { mutableStateOf<String?>(null) }
     var isAdded by remember { mutableStateOf(false) }
+    var showNotificationWarning by remember { mutableStateOf(false) }
 
     if (isAdded) {
         Card(modifier = modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f))) {
@@ -1504,7 +1508,17 @@ private fun CareReminderCard(
                 stringResource(R.string.schedule_care_reminders)
             }
             Button(
-                onClick = { if (plantName.isNotBlank() && (wateringEnabled || fertilizingEnabled) && scanId != null) { onAddReminders(plantName, wateringEnabled, wateringHour, wateringMinute, fertilizingEnabled, fertilizingHour, fertilizingMinute); isAdded = true } },
+                onClick = {
+                    if (plantName.isNotBlank() && (wateringEnabled || fertilizingEnabled) && scanId != null) {
+                        val isNotificationsEnabled = NotificationManagerCompat.from(context).areNotificationsEnabled()
+                        if (!isNotificationsEnabled) {
+                            showNotificationWarning = true
+                        } else {
+                            onAddReminders(plantName, wateringEnabled, wateringHour, wateringMinute, fertilizingEnabled, fertilizingHour, fertilizingMinute)
+                            isAdded = true
+                        }
+                    }
+                },
                 enabled = scanId != null && !isSaving && plantName.isNotBlank() && !isNameDuplicate && (wateringEnabled || fertilizingEnabled),
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
@@ -1512,6 +1526,59 @@ private fun CareReminderCard(
                 Text(buttonText)
             }
         }
+    }
+
+    if (showNotificationWarning) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { showNotificationWarning = false },
+            title = {
+                Text(
+                    text = stringResource(R.string.notification_warning_title),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Text(
+                    text = stringResource(R.string.notification_warning_desc),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showNotificationWarning = false
+                        try {
+                            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                data = Uri.fromParts("package", context.packageName, null)
+                            }
+                            context.startActivity(intent)
+                        } catch (e: Exception) {
+                            try {
+                                val intent = Intent(Settings.ACTION_SETTINGS)
+                                context.startActivity(intent)
+                            } catch (_: Exception) {}
+                        }
+                    }
+                ) {
+                    Text(
+                        text = stringResource(R.string.settings_title),
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { showNotificationWarning = false }
+                ) {
+                    Text(
+                        text = stringResource(R.string.cancel),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        )
     }
 
     if (activePicker != null) {
