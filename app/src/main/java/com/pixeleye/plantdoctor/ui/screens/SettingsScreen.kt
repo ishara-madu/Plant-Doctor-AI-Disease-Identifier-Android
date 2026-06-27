@@ -461,6 +461,15 @@ fun SettingsScreen(
                 )
             }
 
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text(
+                text = "Weather data provided by OpenWeather",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
+
             Spacer(modifier = Modifier.height(32.dp))
         }
     }
