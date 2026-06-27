@@ -275,6 +275,7 @@ Rules:
                             appendLine("- You MUST provide your final JSON structured diagnosis ONLY in $aiLanguage.")
                             appendLine("- The 'plant_name' field MUST also be in $aiLanguage (e.g. 'තක්කාලි' or 'රෝස' if language is Sinhala, 'தக்காளி' or 'ரோஜா' if Tamil). Do not provide the plant name in English if language is $aiLanguage.")
                             appendLine("- CRITICAL: Translate ONLY the values (text content) of the JSON fields. The JSON keys ('is_plant', 'plant_name', 'watering_time', 'fertilizing_time', 'diagnosis_summary', 'organic_treatments', 'chemical_treatments') MUST remain exactly in English as specified in the system instructions. Do not translate the keys.")
+                            appendLine("- JSON SAFETY: Do NOT use unescaped double quotes (\") inside any of the JSON string values (especially in 'diagnosis_summary' or 'plant_name'). If you want to quote or highlight a word, use single quotes (') instead. This prevents JSON parsing errors.")
                             if (aiLanguage.equals("Sinhala", ignoreCase = true)) {
                                 appendLine("- SAFETY & COMPLIANCE: In Sinhala, describe chemical and organic treatments using mild, safe terminology (e.g., use 'පාලනය සදහා' (for control) or 'ප්‍රතිකාර' (treatments) instead of words meaning poison/toxin like 'විෂ' or 'වස'). Avoid copying long passages verbatim from external websites to prevent automated copyright/citation blocks.")
                             }
