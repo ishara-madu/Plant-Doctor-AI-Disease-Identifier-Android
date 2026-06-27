@@ -135,9 +135,11 @@ class HomeViewModel(
     fun fetchHistory() {
         viewModelScope.launch {
             try {
+                repository.syncPlantNamesFromReminders()
                 val result = withTimeoutOrNull(10_000L) {
                     repository.refreshHistory()
                 }
+                repository.syncPlantNamesFromReminders()
                 if (result == null) {
                     Log.w(TAG, "History fetch timed out after 10 seconds")
                     _snackbarEvent.value = com.pixeleye.plantdoctor.ui.components.SnackbarState(

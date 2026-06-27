@@ -165,6 +165,22 @@ class PlantScanRepository(
         return historyDao.getHistoryById(id)?.toDto()
     }
 
+    suspend fun syncPlantNamesFromReminders() {
+        try {
+            val reminders = reminderDao.getAllRemindersList()
+            reminders.forEach { reminder ->
+                if (reminder.plantName.isNotBlank()) {
+                    val normalizedName = java.text.Normalizer.normalize(reminder.plantName.trim(), java.text.Normalizer.Form.NFC)
+                        .replace("\\s+".toRegex(), " ")
+                    historyDao.updatePlantName(reminder.scanId, normalizedName)
+                }
+            }
+            Log.d(TAG, "Synced plant names from reminders to history table")
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to sync plant names from reminders", e)
+        }
+    }
+
     /**
      * Extracts the storage object path from a Supabase public URL.
      *

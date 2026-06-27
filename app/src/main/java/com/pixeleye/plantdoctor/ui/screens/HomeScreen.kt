@@ -785,7 +785,10 @@ private fun ScanCard(
             Spacer(modifier = Modifier.width(16.dp))
 
             Column(modifier = Modifier.weight(1f)) {
-                val displayName = scan.plantName?.takeIf { it.isNotBlank() }
+                val parsedName = remember(scan.plantName, scan.treatmentPlan) {
+                    scan.plantName?.takeIf { it.isNotBlank() } ?: """Plant Name:\s*(.*)""".toRegex().find(scan.treatmentPlan)?.groupValues?.getOrNull(1)?.substringBefore("\n")?.trim()
+                }
+                val displayName = parsedName?.takeIf { it.isNotBlank() }
                     ?: scan.diseaseTitle.ifBlank { stringResource(R.string.unknown_diagnosis) }
                 Text(
                     text = displayName,
