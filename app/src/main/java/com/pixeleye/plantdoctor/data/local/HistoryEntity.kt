@@ -35,6 +35,8 @@ data class HistoryEntity(
 fun PlantScanDto.toEntity(): HistoryEntity {
     val nameRegex = """Plant Name:\s*(.*)""".toRegex()
     val parsedPlantName = plantName?.takeIf { it.isNotBlank() } ?: nameRegex.find(treatmentPlan)?.groupValues?.getOrNull(1)?.substringBefore("\n")?.trim()
+    val healthRegex = """Health Level:\s*(\d+)%""".toRegex()
+    val parsedHealth = healthStatusPercentage ?: healthRegex.find(treatmentPlan)?.groupValues?.getOrNull(1)?.toIntOrNull()
     return HistoryEntity(
         id = id ?: java.util.UUID.randomUUID().toString(),
         userId = userId,
@@ -44,6 +46,6 @@ fun PlantScanDto.toEntity(): HistoryEntity {
         createdAt = createdAt ?: "",
         parentId = parentId,
         plantName = parsedPlantName,
-        healthStatusPercentage = healthStatusPercentage
+        healthStatusPercentage = parsedHealth
     )
 }

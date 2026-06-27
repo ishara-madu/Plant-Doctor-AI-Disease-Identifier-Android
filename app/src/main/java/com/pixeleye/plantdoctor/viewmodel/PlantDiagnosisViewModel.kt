@@ -475,6 +475,9 @@ Rules:
                     if (!geminiResult.fertilizingTime.isNullOrBlank()) {
                         append("\nFertilizing Time: ${geminiResult.fertilizingTime}")
                     }
+                    if (geminiResult.healthStatusPercentage != null) {
+                        append("\nHealth Level: ${geminiResult.healthStatusPercentage}%")
+                    }
                 }.trim()
 
                 // ── SUCCESS! Universal Increment ────────────

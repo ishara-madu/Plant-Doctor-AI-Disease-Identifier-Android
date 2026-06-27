@@ -41,7 +41,14 @@ class HomeViewModel(
             if (rootScans.isEmpty()) {
                 HomeUiState.Empty
             } else {
-                HomeUiState.Success(rootScans)
+                val updatedRootScans = rootScans.map { rootScan ->
+                    val thread = scans.filter { it.parentId == rootScan.id || it.id == rootScan.id }
+                    val latestScan = thread.maxByOrNull { it.createdAt ?: "" } ?: rootScan
+                    rootScan.copy(
+                        healthStatusPercentage = latestScan.healthStatusPercentage
+                    )
+                }
+                HomeUiState.Success(updatedRootScans)
             }
         }
         .stateIn(
