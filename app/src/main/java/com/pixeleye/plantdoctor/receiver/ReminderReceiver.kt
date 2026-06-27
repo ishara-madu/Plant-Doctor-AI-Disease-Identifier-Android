@@ -196,7 +196,10 @@ class ReminderReceiver : BroadcastReceiver() {
             )
 
             val calendar = Calendar.getInstance().apply {
-                add(Calendar.DAY_OF_YEAR, daysToWait)
+                // FOR TESTING: Trigger follow-up notification in 10 seconds
+                add(Calendar.SECOND, 10)
+                // PRODUCTION LOGIC:
+                // add(Calendar.DAY_OF_YEAR, daysToWait)
             }
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -212,7 +215,7 @@ class ReminderReceiver : BroadcastReceiver() {
                     pendingIntent
                 )
             }
-            Log.d(TAG, "Scheduled AI follow-up alarm for $plantName in $daysToWait days at ${calendar.time} with request code $requestCode")
+            Log.d(TAG, "Scheduled AI follow-up alarm for $plantName in 10 seconds (testing mode) with request code $requestCode")
         }
 
         fun cancelFollowUpAlarm(context: Context, rootScanId: String) {
