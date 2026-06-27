@@ -48,6 +48,7 @@ import java.io.IOException
 import java.time.LocalDate
 import java.util.UUID
 import com.pixeleye.plantdoctor.utils.LocationHelper
+import androidx.annotation.Keep
 
 sealed class DiagnosisState {
     data object Idle : DiagnosisState()
@@ -67,7 +68,8 @@ sealed class UploadState {
  * Intermediate model for parsing Gemini's structured JSON response.
  * Determines whether the image is a plant before committing to storage/DB writes.
  */
-private data class GeminiAnalysisResponse(
+@Keep
+internal data class GeminiAnalysisResponse(
     @SerializedName("is_plant") val isPlant: Boolean,
     @SerializedName("plant_name") val plantName: String?,
     @SerializedName("watering_time") val wateringTime: String?,
