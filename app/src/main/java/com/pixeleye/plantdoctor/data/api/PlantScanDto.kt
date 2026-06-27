@@ -25,5 +25,7 @@ data class PlantScanDto(
     @SerialName("plant_name")
     val plantName: String? = null,
     @Transient
-    val healthStatusPercentage: Int? = null
+    val healthStatusPercentage: Int? = null,
+    @Transient
+    val progressReminderMessage: String? = null
 )

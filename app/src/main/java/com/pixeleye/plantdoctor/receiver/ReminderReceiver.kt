@@ -27,26 +27,29 @@ class ReminderReceiver : BroadcastReceiver() {
         val reminderId = intent.getIntExtra("REMINDER_ID", -1)
         val plantName = intent.getStringExtra("PLANT_NAME") ?: "Plant"
         val careType = intent.getStringExtra("CARE_TYPE") ?: "Watering"
+        val customMessage = intent.getStringExtra("CUSTOM_MESSAGE")
         
         if (reminderId == -1) return
 
         Log.d(TAG, "Reminder alarm triggered for: $plantName ($careType)")
 
         // Trigger notification
-        showNotification(context, reminderId, plantName, careType)
+        showNotification(context, reminderId, plantName, careType, customMessage)
 
-        // Reschedule alarm for next day
-        val db = AppDatabase.getDatabase(context)
-        val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-        scope.launch {
-            val reminder = db.reminderDao().getReminderById(reminderId)
-            if (reminder != null && reminder.isEnabled) {
-                scheduleAlarm(context, reminder)
+        // Reschedule alarm for next day (only if not a one-shot follow-up alarm)
+        if (!careType.equals("FollowUp", ignoreCase = true)) {
+            val db = AppDatabase.getDatabase(context)
+            val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+            scope.launch {
+                val reminder = db.reminderDao().getReminderById(reminderId)
+                if (reminder != null && reminder.isEnabled) {
+                    scheduleAlarm(context, reminder)
+                }
             }
         }
     }
 
-    private fun showNotification(context: Context, id: Int, plantName: String, careType: String) {
+    private fun showNotification(context: Context, id: Int, plantName: String, careType: String, customMessage: String? = null) {
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         // Create channel for API 26+
@@ -63,9 +66,16 @@ class ReminderReceiver : BroadcastReceiver() {
             notificationManager.createNotificationChannel(channel)
         }
 
-        val title = context.getString(R.string.notification_title)
+        val title = if (careType.equals("FollowUp", ignoreCase = true)) {
+            context.getString(R.string.notification_follow_up_title)
+        } else {
+            context.getString(R.string.notification_title)
+        }
 
         val body = when {
+            careType.equals("FollowUp", ignoreCase = true) -> {
+                customMessage ?: context.getString(R.string.notification_body_default, plantName)
+            }
             careType.equals("Watering", ignoreCase = true) -> {
                 context.getString(R.string.notification_body_watering, plantName)
             }
@@ -158,6 +168,62 @@ class ReminderReceiver : BroadcastReceiver() {
                 alarmManager.cancel(pendingIntent)
                 pendingIntent.cancel()
                 Log.d(TAG, "Cancelled alarm for reminder $reminderId")
+            }
+        }
+
+        fun scheduleFollowUpAlarm(context: Context, rootScanId: String, plantName: String, message: String) {
+            if (rootScanId.isBlank() || message.isBlank()) return
+            val requestCode = rootScanId.hashCode()
+            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            val intent = Intent(context, ReminderReceiver::class.java).apply {
+                putExtra("REMINDER_ID", requestCode)
+                putExtra("PLANT_NAME", plantName)
+                putExtra("CARE_TYPE", "FollowUp")
+                putExtra("CUSTOM_MESSAGE", message)
+            }
+            
+            val pendingIntent = PendingIntent.getBroadcast(
+                context,
+                requestCode,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+
+            val calendar = Calendar.getInstance().apply {
+                add(Calendar.DAY_OF_YEAR, 3)
+            }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                alarmManager.setAndAllowWhileIdle(
+                    AlarmManager.RTC_WAKEUP,
+                    calendar.timeInMillis,
+                    pendingIntent
+                )
+            } else {
+                alarmManager.set(
+                    AlarmManager.RTC_WAKEUP,
+                    calendar.timeInMillis,
+                    pendingIntent
+                )
+            }
+            Log.d(TAG, "Scheduled AI follow-up alarm for $plantName at ${calendar.time} with request code $requestCode")
+        }
+
+        fun cancelFollowUpAlarm(context: Context, rootScanId: String) {
+            if (rootScanId.isBlank()) return
+            val requestCode = rootScanId.hashCode()
+            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            val intent = Intent(context, ReminderReceiver::class.java)
+            val pendingIntent = PendingIntent.getBroadcast(
+                context,
+                requestCode,
+                intent,
+                PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
+            )
+            if (pendingIntent != null) {
+                alarmManager.cancel(pendingIntent)
+                pendingIntent.cancel()
+                Log.d(TAG, "Cancelled follow-up alarm for plant $rootScanId (requestCode $requestCode)")
             }
         }
     }

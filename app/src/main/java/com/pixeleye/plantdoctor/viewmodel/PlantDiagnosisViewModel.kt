@@ -77,7 +77,8 @@ internal data class GeminiAnalysisResponse(
     @SerializedName("diagnosis_summary") val diagnosisSummary: String,
     @SerializedName("organic_treatments") val organicTreatments: List<String>,
     @SerializedName("chemical_treatments") val chemicalTreatments: List<String>,
-    @SerializedName("health_status_percentage") val healthStatusPercentage: Int? = null
+    @SerializedName("health_status_percentage") val healthStatusPercentage: Int? = null,
+    @SerializedName("progress_reminder_message") val progressReminderMessage: String? = null
 )
 
 class PlantDiagnosisViewModel(
@@ -121,7 +122,8 @@ You MUST return ONLY a single valid JSON object. No markdown, no prose. The JSON
   "fertilizing_time": "The recommended daily time for applying treatment/fertilizer/medicine in 'HH:mm' format (e.g., '09:00' or '16:30') or null if not a plant",
   "diagnosis_summary": "A detailed explanation of the disease, pest, or nutrient deficiency.",
   "organic_treatments": ["Organic step 1", "Natural step 2"],
-  "chemical_treatments": ["Chemical step 1", "Agrochemical step 2"]
+  "chemical_treatments": ["Chemical step 1", "Agrochemical step 2"],
+  "progress_reminder_message": "A friendly 1-sentence follow-up message in the user's preferred language reminding them to check on this plant's specific disease in 3 days (e.g. 'Let\'s check if the powdery mildew on your rose leaves has reduced today. Scan again!') or null if not a plant"
 }
 
 Rules:
@@ -136,7 +138,8 @@ Rules:
    - If Indoors: Tailor recommendations for indoor environments (e.g. emphasize airflow/ventilation to prevent fungal buildup, ensure proper light, and warn against overwatering). Clarify that the outdoor weather has less direct impact but still affects ambient conditions.
    - If visual context is ambiguous or a close-up: State this in the "diagnosis_summary" and provide conditional advice (e.g., "If this plant is outdoors, do X; if it is indoors, do Y").
 8. "health_status_percentage": An integer between 0 and 100 representing the estimated health/recovery percentage of the plant (0 = completely dead/severely diseased, 100 = perfectly healthy). If this is a follow-up/progress check-in (when historical timeline is provided below), analyze the new image, compare it with the history log, and increase or decrease this percentage based on signs of recovery or worsening compared to the previous check-in. If it is a first/initial scan, estimate the initial health level (e.g. 30% if heavily diseased, 80% if minor spots). Set to null if not a plant.
-9. Translate only values, keep JSON keys unchanged. """.trimIndent())
+9. "progress_reminder_message": A highly personalized, encouraging 1-sentence follow-up reminder message in the user's preferred language. This will be shown to the user in 3 days. Tailor it to the specific disease or plant (e.g., if diagnosing Late Blight on Tomato, write a follow-up asking if the dark leaf spots have dried or stopped spreading). Do not make it generic. Set to null if not a plant.
+10. Translate only values, keep JSON keys unchanged. """.trimIndent())
             },
             generationConfig = generationConfig {
                 temperature = 0.7f
@@ -446,7 +449,8 @@ Rules:
                     plantName = geminiResult.plantName,
                     wateringTime = geminiResult.wateringTime,
                     fertilizingTime = geminiResult.fertilizingTime,
-                    healthStatusPercentage = geminiResult.healthStatusPercentage
+                    healthStatusPercentage = geminiResult.healthStatusPercentage,
+                    progressReminderMessage = geminiResult.progressReminderMessage
                 )
 
                 _diagnosisState.value = DiagnosisState.Success(diagnosisResponse)
@@ -477,6 +481,9 @@ Rules:
                     }
                     if (geminiResult.healthStatusPercentage != null) {
                         append("\nHealth Level: ${geminiResult.healthStatusPercentage}%")
+                    }
+                    if (!geminiResult.progressReminderMessage.isNullOrBlank()) {
+                        append("\nProgress Reminder: ${geminiResult.progressReminderMessage}")
                     }
                 }.trim()
 
