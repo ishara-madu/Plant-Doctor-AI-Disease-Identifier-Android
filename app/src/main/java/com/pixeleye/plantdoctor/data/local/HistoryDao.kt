@@ -61,4 +61,10 @@ interface HistoryDao {
 
     @Query("SELECT * FROM history_table WHERE parentId = :parentId")
     suspend fun getFollowUps(parentId: String): List<HistoryEntity>
+
+    @Query("SELECT * FROM history_table WHERE id = :id")
+    suspend fun getHistoryById(id: String): HistoryEntity?
+
+    @Query("UPDATE history_table SET plantName = :plantName WHERE id = :id")
+    suspend fun updatePlantName(id: String, plantName: String)
 }

@@ -157,6 +157,14 @@ class PlantScanRepository(
         }
     }
 
+    suspend fun updatePlantNameLocal(id: String, plantName: String) {
+        historyDao.updatePlantName(id, plantName)
+    }
+
+    suspend fun getHistoryByIdLocal(id: String): PlantScanDto? {
+        return historyDao.getHistoryById(id)?.toDto()
+    }
+
     /**
      * Extracts the storage object path from a Supabase public URL.
      *

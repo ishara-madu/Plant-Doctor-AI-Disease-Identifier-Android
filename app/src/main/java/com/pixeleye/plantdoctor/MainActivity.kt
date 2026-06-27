@@ -735,6 +735,15 @@ fun PlantDoctorNavHost(
 
             val threadScans by homeViewModel.threadScans.collectAsStateWithLifecycle()
 
+            LaunchedEffect(currentScanId, diagnosisData) {
+                if (parentId.isNullOrBlank() && currentScanId != null && diagnosisData != null) {
+                    val name = diagnosisData.plantName
+                    if (!name.isNullOrBlank()) {
+                        homeViewModel.savePlantNameLocal(currentScanId, name)
+                    }
+                }
+            }
+
             val isLoading = diagnosisState is DiagnosisState.Loading
             val diagnosisData = when (val state = diagnosisState) {
                 is DiagnosisState.Success -> state.result
@@ -755,8 +764,9 @@ fun PlantDoctorNavHost(
                 threadScans = threadScans,
                 trackProgressEnabled = isOnline && (authState is AuthState.Authenticated),
                 onAddReminders = { plantName, wateringEnabled, wateringHour, wateringMinute, fertilizingEnabled, fertilizingHour, fertilizingMinute ->
+                    val targetParent = currentParentId ?: currentScanId ?: ""
                     reminderViewModel.addReminders(
-                        scanId = currentParentId ?: currentScanId ?: "",
+                        scanId = targetParent,
                         plantName = plantName,
                         wateringEnabled = wateringEnabled,
                         wateringHour = wateringHour,
@@ -765,6 +775,9 @@ fun PlantDoctorNavHost(
                         fertilizingHour = fertilizingHour,
                         fertilizingMinute = fertilizingMinute
                     )
+                    if (targetParent.isNotBlank()) {
+                        homeViewModel.savePlantNameLocal(targetParent, plantName)
+                    }
                 },
                 existingReminders = reminders,
                 onGoToReminders = {
@@ -910,6 +923,15 @@ fun PlantDoctorNavHost(
                 com.pixeleye.plantdoctor.data.api.DiagnosisResponse(summary = legacySummary, organicTreatments = legacyList)
             }
 
+            LaunchedEffect(id, diagnosisData) {
+                if (parentId.isNullOrBlank() && id != null && diagnosisData != null) {
+                    val name = diagnosisData.plantName
+                    if (!name.isNullOrBlank()) {
+                        homeViewModel.savePlantNameLocal(id, name)
+                    }
+                }
+            }
+
             val imageUri = imageUrl?.let {
                 try { Uri.parse(it) } catch (_: Exception) { null }
             }
@@ -926,8 +948,9 @@ fun PlantDoctorNavHost(
                 threadScans = threadScans,
                 trackProgressEnabled = isOnline && (authState is AuthState.Authenticated),
                 onAddReminders = { plantName, wateringEnabled, wateringHour, wateringMinute, fertilizingEnabled, fertilizingHour, fertilizingMinute ->
+                    val targetParent = parentId ?: id ?: ""
                     reminderViewModel.addReminders(
-                        scanId = parentId ?: id ?: "",
+                        scanId = targetParent,
                         plantName = plantName,
                         wateringEnabled = wateringEnabled,
                         wateringHour = wateringHour,
@@ -936,6 +959,9 @@ fun PlantDoctorNavHost(
                         fertilizingHour = fertilizingHour,
                         fertilizingMinute = fertilizingMinute
                     )
+                    if (targetParent.isNotBlank()) {
+                        homeViewModel.savePlantNameLocal(targetParent, plantName)
+                    }
                 },
                 existingReminders = reminders,
                 onGoToReminders = {

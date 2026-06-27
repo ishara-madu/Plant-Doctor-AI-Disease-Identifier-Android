@@ -79,6 +79,20 @@ class HomeViewModel(
         _threadScans.value = emptyList()
     }
 
+    fun savePlantNameLocal(scanId: String, name: String) {
+        viewModelScope.launch {
+            try {
+                val existing = repository.getHistoryByIdLocal(scanId)
+                if (existing == null || existing.plantName != name) {
+                    repository.updatePlantNameLocal(scanId, name)
+                    Log.d(TAG, "Successfully saved plant name locally: $scanId -> $name")
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to save plant name locally: $scanId", e)
+            }
+        }
+    }
+
     private var isPremiumUser: Boolean = false
 
     fun setPremiumStatus(isPremium: Boolean) {

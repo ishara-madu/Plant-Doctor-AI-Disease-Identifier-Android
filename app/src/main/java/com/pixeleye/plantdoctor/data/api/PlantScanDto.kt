@@ -20,5 +20,7 @@ data class PlantScanDto(
     @SerialName("created_at")
     val createdAt: String? = null,
     @SerialName("parent_id")
-    val parentId: String? = null
+    val parentId: String? = null,
+    @SerialName("plant_name")
+    val plantName: String? = null
 )

@@ -435,11 +435,16 @@ private fun ResultContent(
 
             // ── Care Reminder Card ─────────────────────────────────
             if (hasAnyTreatment) {
+                val parentScan = threadScans.firstOrNull { it.parentId.isNullOrBlank() } ?: threadScans.firstOrNull()
+                val firstResultName = parentScan?.plantName ?: parentScan?.treatmentPlan?.let { plan ->
+                    """Plant Name:\s*(.*)""".toRegex().find(plan)?.groupValues?.getOrNull(1)?.substringBefore("\n")?.trim()
+                }
+
                 CareReminderCard(
                     scanId = currentScanId,
                     parentId = parentId,
                     plantNameDefault = if (diagnosisTitle == "Plant Analysis" || diagnosisTitle == "Plant Progress Update" || diagnosisTitle == "Plant Timeline Update") {
-                        diagnosisData.plantName ?: "My Plant"
+                        firstResultName ?: diagnosisData.plantName ?: "My Plant"
                     } else {
                         if (diagnosisTitle.contains(" - ")) {
                             diagnosisTitle.substringBefore(" - ").trim()
