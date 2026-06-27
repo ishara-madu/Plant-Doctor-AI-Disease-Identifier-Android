@@ -38,6 +38,7 @@ class SettingsViewModel(
         selectedAiLanguage: String,
         areFollowUpRemindersEnabled: Boolean? = null,
         customMessage: String? = null,
+        snackbarType: com.pixeleye.plantdoctor.ui.components.SnackbarType = com.pixeleye.plantdoctor.ui.components.SnackbarType.SUCCESS,
         onSuccess: () -> Unit = {}
     ) {
         viewModelScope.launch {
@@ -50,7 +51,7 @@ class SettingsViewModel(
                 areFollowUpRemindersEnabled = areFollowUpRemindersEnabled
             )
             _isSaving.value = false
-            showSnackbar(customMessage ?: "Preferences saved successfully", com.pixeleye.plantdoctor.ui.components.SnackbarType.SUCCESS)
+            showSnackbar(customMessage ?: "Preferences saved successfully", snackbarType)
             onSuccess()
         }
     }

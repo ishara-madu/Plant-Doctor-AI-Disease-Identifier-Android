@@ -1085,8 +1085,15 @@ fun PlantDoctorNavHost(
             SettingsScreen(
                 currentPrefs = currentPrefs,
                 isSaving = isSaving,
-                onSave = { country, language, aiLanguage, areFollowUpRemindersEnabled, customMessage ->
-                    settingsViewModel.savePreferences(country, language, aiLanguage, areFollowUpRemindersEnabled, customMessage) {
+                onSave = { country, language, aiLanguage, areFollowUpRemindersEnabled, customMessage, snackbarType ->
+                    settingsViewModel.savePreferences(
+                        country = country,
+                        language = language,
+                        selectedAiLanguage = aiLanguage,
+                        areFollowUpRemindersEnabled = areFollowUpRemindersEnabled,
+                        customMessage = customMessage,
+                        snackbarType = snackbarType ?: com.pixeleye.plantdoctor.ui.components.SnackbarType.SUCCESS
+                    ) {
                         LanguageHelper.setAppLocale(context, aiLanguage)
                     }
                 },

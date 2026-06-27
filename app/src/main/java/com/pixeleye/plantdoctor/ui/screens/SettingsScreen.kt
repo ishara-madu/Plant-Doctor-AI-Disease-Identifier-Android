@@ -82,7 +82,7 @@ import com.pixeleye.plantdoctor.R
 fun SettingsScreen(
     currentPrefs: UserPreferences,
     isSaving: Boolean,
-    onSave: (country: String, language: String, aiLanguage: String, areFollowUpRemindersEnabled: Boolean, customMessage: String?) -> Unit,
+    onSave: (country: String, language: String, aiLanguage: String, areFollowUpRemindersEnabled: Boolean, customMessage: String?, snackbarType: com.pixeleye.plantdoctor.ui.components.SnackbarType?) -> Unit,
     onTriggerSnackbar: (String, com.pixeleye.plantdoctor.ui.components.SnackbarType) -> Unit,
     onLogout: () -> Unit,
     onBack: () -> Unit
@@ -316,7 +316,7 @@ fun SettingsScreen(
             // ── Save Button ──────────────────────────────────────
             Button(
                 onClick = {
-                    onSave("", "", selectedAiLanguage, areFollowUpRemindersEnabled, null)
+                    onSave("", "", selectedAiLanguage, areFollowUpRemindersEnabled, null, null)
                 },
                 enabled = hasChanges && !isSaving,
                 modifier = Modifier
@@ -358,7 +358,8 @@ fun SettingsScreen(
                 onFollowUpRemindersToggled = { enabled ->
                     areFollowUpRemindersEnabled = enabled
                     val msg = if (enabled) "AI reminders enabled" else "AI reminders disabled"
-                    onSave("", "", selectedAiLanguage, enabled, msg)
+                    val type = if (enabled) com.pixeleye.plantdoctor.ui.components.SnackbarType.SUCCESS else com.pixeleye.plantdoctor.ui.components.SnackbarType.INFO
+                    onSave("", "", selectedAiLanguage, enabled, msg, type)
                 },
                 onTriggerSnackbar = onTriggerSnackbar
             )
