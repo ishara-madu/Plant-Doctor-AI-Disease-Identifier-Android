@@ -71,6 +71,23 @@ fun RemindersScreen(
     val reminders by viewModel.reminders.collectAsState()
     val context = LocalContext.current
 
+    var areNotificationsEnabled by remember {
+        mutableStateOf(NotificationManagerCompat.from(context).areNotificationsEnabled())
+    }
+
+    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+    androidx.compose.runtime.DisposableEffect(lifecycleOwner) {
+        val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
+            if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
+                areNotificationsEnabled = NotificationManagerCompat.from(context).areNotificationsEnabled()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -97,49 +114,116 @@ fun RemindersScreen(
         },
         containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
-        if (reminders.isEmpty()) {
-            EmptyRemindersState(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-            )
-        } else {
-            val grouped = remember(reminders) {
-                reminders.groupBy { reminder ->
-                    reminder.plantName.trim().lowercase()
-                }
-            }
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                grouped.forEach { (normalizedKey, plantReminders) ->
-                    val displayHeaderName = plantReminders.firstOrNull()?.plantName ?: ""
-                    item(key = "header_$normalizedKey") {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
+            if (!areNotificationsEnabled) {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .clickable {
+                            try {
+                                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                    data = Uri.fromParts("package", context.packageName, null)
+                                }
+                                context.startActivity(intent)
+                            } catch (e: Exception) {
+                                try {
+                                    val intent = Intent(Settings.ACTION_SETTINGS)
+                                    context.startActivity(intent)
+                                } catch (_: Exception) {}
+                            }
+                        },
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.15f)
+                    ),
+                    border = androidx.compose.foundation.BorderStroke(
+                        1.dp,
+                        MaterialTheme.colorScheme.error.copy(alpha = 0.3f)
+                    )
+                ) {
+                    Row(
+                        modifier = Modifier.padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.WarningAmber,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.size(24.dp)
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = stringResource(R.string.notification_banner_title),
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.error
+                            )
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = stringResource(R.string.notification_banner_desc),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.error.copy(alpha = 0.8f)
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = displayHeaderName,
-                            style = MaterialTheme.typography.titleMedium,
+                            text = stringResource(R.string.enable_action),
+                            style = MaterialTheme.typography.labelLarge,
                             fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.padding(top = 12.dp, bottom = 4.dp)
+                            color = MaterialTheme.colorScheme.error,
+                            textDecoration = androidx.compose.ui.text.style.TextDecoration.Underline
                         )
                     }
-                    items(plantReminders, key = { it.id }) { reminder ->
-                        ReminderItemCard(
-                            reminder = reminder,
-                            onToggle = { isChecked ->
-                                viewModel.toggleReminder(reminder, isChecked)
-                            },
-                            onTimeClick = { hour, minute ->
-                                viewModel.updateReminderTime(reminder, hour, minute)
-                            },
-                            onDelete = {
-                                viewModel.deleteReminder(reminder)
-                            }
-                        )
+                }
+            }
+
+            if (reminders.isEmpty()) {
+                EmptyRemindersState(
+                    modifier = Modifier.fillMaxSize()
+                )
+            } else {
+                val grouped = remember(reminders) {
+                    reminders.groupBy { reminder ->
+                        reminder.plantName.trim().lowercase()
+                    }
+                }
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    grouped.forEach { (normalizedKey, plantReminders) ->
+                        val displayHeaderName = plantReminders.firstOrNull()?.plantName ?: ""
+                        item(key = "header_$normalizedKey") {
+                            Text(
+                                text = displayHeaderName,
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.padding(top = 12.dp, bottom = 4.dp)
+                            )
+                        }
+                        items(plantReminders, key = { it.id }) { reminder ->
+                            ReminderItemCard(
+                                reminder = reminder,
+                                onToggle = { isChecked ->
+                                    viewModel.toggleReminder(reminder, isChecked)
+                                },
+                                onTimeClick = { hour, minute ->
+                                    viewModel.updateReminderTime(reminder, hour, minute)
+                                },
+                                onDelete = {
+                                    viewModel.deleteReminder(reminder)
+                                }
+                            )
+                        }
                     }
                 }
             }
