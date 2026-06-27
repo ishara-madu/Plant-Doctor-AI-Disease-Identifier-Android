@@ -170,6 +170,8 @@
     <string name="notification_banner_desc">Vous ne recevrez pas d\'alertes. Appuyez pour les activer dans les paramètres.</string>
     <string name="enable_action">Activer</string>
     <string name="notification_follow_up_title">Suivi de Plant Doctor</string>
+    <string name="follow_up_reminders_label">Rappels de suivi de l\'IA</string>
+    <string name="follow_up_reminders_desc">Recevez des notifications de suivi générées par l\'IA pour suivre les progrès de votre plante.</string>
 
     <!-- Paywall Screen -->
     <string name="yearly">Annuel</string>

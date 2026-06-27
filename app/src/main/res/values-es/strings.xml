@@ -170,6 +170,8 @@
     <string name="notification_banner_desc">No recibirás alertas de cuidado. Toca para activarlas en la configuración.</string>
     <string name="enable_action">Activar</string>
     <string name="notification_follow_up_title">Control de Plant Doctor</string>
+    <string name="follow_up_reminders_label">Recordatorios de seguimiento de IA</string>
+    <string name="follow_up_reminders_desc">Reciba notificaciones de control generadas por IA para realizar un seguimiento del progreso de su planta.</string>
 
     <!-- Paywall Screen -->
     <string name="yearly">Anual</string>

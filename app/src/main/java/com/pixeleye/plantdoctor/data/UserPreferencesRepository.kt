@@ -21,7 +21,8 @@ data class UserPreferences(
     val selectedAiLanguage: String = "English",
     val onboardingCompleted: Boolean = false,
     val hasSeenCameraShowcase: Boolean = false,
-    val hasSeenLongPressShowcase: Boolean = false
+    val hasSeenLongPressShowcase: Boolean = false,
+    val areFollowUpRemindersEnabled: Boolean = true
 )
 
 class UserPreferencesRepository(private val context: Context) {
@@ -33,6 +34,7 @@ class UserPreferencesRepository(private val context: Context) {
         val ONBOARDING_COMPLETED = booleanPreferencesKey("onboarding_completed")
         val HAS_SEEN_CAMERA_SHOWCASE = booleanPreferencesKey("has_seen_camera_showcase")
         val HAS_SEEN_LONG_PRESS_SHOWCASE = booleanPreferencesKey("has_seen_long_press_showcase")
+        val FOLLOW_UP_REMINDERS_ENABLED = booleanPreferencesKey("follow_up_reminders_enabled")
     }
 
     val userPreferences: Flow<UserPreferences> = context.dataStore.data
@@ -50,7 +52,8 @@ class UserPreferencesRepository(private val context: Context) {
                 selectedAiLanguage = preferences[Keys.SELECTED_AI_LANGUAGE] ?: "English",
                 onboardingCompleted = preferences[Keys.ONBOARDING_COMPLETED] ?: false,
                 hasSeenCameraShowcase = preferences[Keys.HAS_SEEN_CAMERA_SHOWCASE] ?: false,
-                hasSeenLongPressShowcase = preferences[Keys.HAS_SEEN_LONG_PRESS_SHOWCASE] ?: false
+                hasSeenLongPressShowcase = preferences[Keys.HAS_SEEN_LONG_PRESS_SHOWCASE] ?: false,
+                areFollowUpRemindersEnabled = preferences[Keys.FOLLOW_UP_REMINDERS_ENABLED] ?: true
             )
         }
 
@@ -58,13 +61,17 @@ class UserPreferencesRepository(private val context: Context) {
         country: String,
         language: String,
         selectedAiLanguage: String,
-        onboardingCompleted: Boolean
+        onboardingCompleted: Boolean,
+        areFollowUpRemindersEnabled: Boolean? = null
     ) {
         context.dataStore.edit { preferences ->
             preferences[Keys.USER_COUNTRY] = country
             preferences[Keys.USER_LANGUAGE] = language
             preferences[Keys.SELECTED_AI_LANGUAGE] = selectedAiLanguage
             preferences[Keys.ONBOARDING_COMPLETED] = onboardingCompleted
+            if (areFollowUpRemindersEnabled != null) {
+                preferences[Keys.FOLLOW_UP_REMINDERS_ENABLED] = areFollowUpRemindersEnabled
+            }
         }
     }
 

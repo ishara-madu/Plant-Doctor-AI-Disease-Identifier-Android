@@ -170,6 +170,8 @@
     <string name="notification_banner_desc">ケアアラートを受信できません。設定で通知を有効にするにはタップしてください。</string>
     <string name="enable_action">有効にする</string>
     <string name="notification_follow_up_title">プラントドクターのチェックイン</string>
+    <string name="follow_up_reminders_label">AIフォローアップリマインダー</string>
+    <string name="follow_up_reminders_desc">植物の進行状況を追跡するために、AIが生成したチェックイン通知を受け取ります。</string>
 
     <!-- Paywall Screen -->
     <string name="yearly">年間</string>

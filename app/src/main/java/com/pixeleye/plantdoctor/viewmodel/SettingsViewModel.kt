@@ -32,14 +32,21 @@ class SettingsViewModel(
         }
     }
 
-    fun savePreferences(country: String, language: String, selectedAiLanguage: String, onSuccess: () -> Unit = {}) {
+    fun savePreferences(
+        country: String,
+        language: String,
+        selectedAiLanguage: String,
+        areFollowUpRemindersEnabled: Boolean? = null,
+        onSuccess: () -> Unit = {}
+    ) {
         viewModelScope.launch {
             _isSaving.value = true
             repository.saveUserPreferences(
                 country = country,
                 language = language,
                 selectedAiLanguage = selectedAiLanguage,
-                onboardingCompleted = true
+                onboardingCompleted = true,
+                areFollowUpRemindersEnabled = areFollowUpRemindersEnabled
             )
             _isSaving.value = false
             showSnackbar("Preferences saved successfully", com.pixeleye.plantdoctor.ui.components.SnackbarType.SUCCESS)

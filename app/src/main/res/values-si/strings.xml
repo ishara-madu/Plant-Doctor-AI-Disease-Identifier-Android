@@ -170,6 +170,8 @@
     <string name="notification_banner_desc">ඔබට ශාක රැකවරණ ඇඟවීම් ලැබෙන්නේ නැත. Settings හරහා සක්‍රිය කිරීමට ක්ලික් කරන්න.</string>
     <string name="enable_action">සක්‍රිය කරන්න</string>
     <string name="notification_follow_up_title">ශාක වෛද්‍ය පසු විපරම</string>
+    <string name="follow_up_reminders_label">AI පසු විපරම් සිහිකැඳවීම්</string>
+    <string name="follow_up_reminders_desc">ඔබේ ශාකයේ වර්ධනය පරීක්ෂා කිරීමට AI මඟින් ජෙනරේට් කරන ලද පසු විපරම් සිහිකැඳවීම් ලබා ගන්න.</string>
 
     <!-- Paywall Screen -->
     <string name="yearly">වාර්ෂිකව</string>

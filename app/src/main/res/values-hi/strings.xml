@@ -170,6 +170,8 @@
     <string name="notification_banner_desc">आपको देखभाल अलर्ट प्राप्त नहीं होंगे। सेटिंग्स में सक्षम करने के लिए टैप करें।</string>
     <string name="enable_action">सक्षम करें</string>
     <string name="notification_follow_up_title">प्लांट डॉक्टर चेक-इन</string>
+    <string name="follow_up_reminders_label">एआई फॉलो-अप अनुस्मारक</string>
+    <string name="follow_up_reminders_desc">अपने पौधे की प्रगति को ट्रैक करने के लिए एआई-जनरेटेड चेक-इन सूचनाएं प्राप्त करें।</string>
 
     <!-- Paywall Screen -->
     <string name="yearly">वार्षिक</string>
