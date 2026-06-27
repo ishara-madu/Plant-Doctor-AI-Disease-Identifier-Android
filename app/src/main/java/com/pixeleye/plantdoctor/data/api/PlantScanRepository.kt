@@ -151,6 +151,14 @@ class PlantScanRepository(
                     } catch (e: Exception) {
                         Log.e(TAG, "Failed to delete reminders for scan: $scanId", e)
                     }
+
+                    // Cancel follow-up reminders
+                    try {
+                        ReminderReceiver.cancelFollowUpAlarm(context, scanId)
+                        Log.d(TAG, "Cancelled follow-up alarm associated with root scan: $scanId")
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Failed to cancel follow-up alarm for scan: $scanId", e)
+                    }
                 }
             }
             // Finally delete the scan itself
