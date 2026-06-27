@@ -453,7 +453,8 @@ Rules:
                     wateringTime = geminiResult.wateringTime,
                     fertilizingTime = geminiResult.fertilizingTime,
                     healthStatusPercentage = geminiResult.healthStatusPercentage,
-                    progressReminderMessage = geminiResult.progressReminderMessage
+                    progressReminderMessage = geminiResult.progressReminderMessage,
+                    progressReminderDays = geminiResult.progressReminderDays
                 )
 
                 _diagnosisState.value = DiagnosisState.Success(diagnosisResponse)
@@ -485,6 +486,9 @@ Rules:
                     if (geminiResult.healthStatusPercentage != null) {
                         append("\nHealth Level: ${geminiResult.healthStatusPercentage}%")
                     }
+                    if (geminiResult.progressReminderDays != null) {
+                        append("\nReminder Interval: ${geminiResult.progressReminderDays} days")
+                    }
                     if (!geminiResult.progressReminderMessage.isNullOrBlank()) {
                         append("\nProgress Reminder: ${geminiResult.progressReminderMessage}")
                     }
@@ -508,6 +512,7 @@ Rules:
                     parentId = parentId,
                     healthStatusPercentage = geminiResult.healthStatusPercentage,
                     progressReminderMessage = geminiResult.progressReminderMessage,
+                    progressReminderDays = geminiResult.progressReminderDays,
                     plantName = geminiResult.plantName
                 )
 
@@ -543,6 +548,7 @@ Rules:
         parentId: String? = null,
         healthStatusPercentage: Int? = null,
         progressReminderMessage: String? = null,
+        progressReminderDays: Int? = null,
         plantName: String? = null
     ) {
         viewModelScope.launch {
@@ -577,7 +583,8 @@ Rules:
                         treatmentPlan = treatmentPlan,
                         parentId = parentId,
                         healthStatusPercentage = healthStatusPercentage,
-                        progressReminderMessage = progressReminderMessage
+                        progressReminderMessage = progressReminderMessage,
+                        progressReminderDays = progressReminderDays
                     )
                     val inserted = plantScanRepository.insertScan(scanDto)
                     Log.d(TAG, "Record inserted into repository and local DB")
@@ -590,7 +597,8 @@ Rules:
                                 ctx,
                                 rootScanId,
                                 plantName ?: "Plant",
-                                progressReminderMessage
+                                progressReminderMessage,
+                                progressReminderDays ?: 3
                             )
                         }
                     }
@@ -616,7 +624,8 @@ Rules:
                         treatmentPlan = treatmentPlan,
                         parentId = parentId,
                         healthStatusPercentage = healthStatusPercentage,
-                        progressReminderMessage = progressReminderMessage
+                        progressReminderMessage = progressReminderMessage,
+                        progressReminderDays = progressReminderDays
                     )
 
                     plantScanRepository.insertScanLocal(fallbackScanDto)
@@ -630,7 +639,8 @@ Rules:
                                 ctx,
                                 rootScanId,
                                 plantName ?: "Plant",
-                                progressReminderMessage
+                                progressReminderMessage,
+                                progressReminderDays ?: 3
                             )
                         }
                     }

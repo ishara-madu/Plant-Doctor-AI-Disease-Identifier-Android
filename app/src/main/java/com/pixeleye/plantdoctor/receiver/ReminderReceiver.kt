@@ -171,7 +171,7 @@ class ReminderReceiver : BroadcastReceiver() {
             }
         }
 
-        fun scheduleFollowUpAlarm(context: Context, rootScanId: String, plantName: String, message: String) {
+        fun scheduleFollowUpAlarm(context: Context, rootScanId: String, plantName: String, message: String, daysToWait: Int = 3) {
             if (rootScanId.isBlank() || message.isBlank()) return
             val requestCode = rootScanId.hashCode()
             val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
@@ -190,7 +190,7 @@ class ReminderReceiver : BroadcastReceiver() {
             )
 
             val calendar = Calendar.getInstance().apply {
-                add(Calendar.DAY_OF_YEAR, 3)
+                add(Calendar.DAY_OF_YEAR, daysToWait)
             }
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -206,7 +206,7 @@ class ReminderReceiver : BroadcastReceiver() {
                     pendingIntent
                 )
             }
-            Log.d(TAG, "Scheduled AI follow-up alarm for $plantName at ${calendar.time} with request code $requestCode")
+            Log.d(TAG, "Scheduled AI follow-up alarm for $plantName in $daysToWait days at ${calendar.time} with request code $requestCode")
         }
 
         fun cancelFollowUpAlarm(context: Context, rootScanId: String) {
