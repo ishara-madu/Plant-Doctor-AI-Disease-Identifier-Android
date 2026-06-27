@@ -38,13 +38,12 @@ class ReminderViewModel(
         fertilizingHour: Int,
         fertilizingMinute: Int
     ) {
-        val normalizedName = java.text.Normalizer.normalize(plantName.trim(), java.text.Normalizer.Form.NFC)
-            .replace("\\s+".toRegex(), " ")
+        val trimmedName = plantName.trim()
         viewModelScope.launch {
             if (wateringEnabled) {
                 val entity = PlantReminderEntity(
                     scanId = scanId,
-                    plantName = normalizedName,
+                    plantName = trimmedName,
                     careType = "Watering",
                     hour = wateringHour,
                     minute = wateringMinute,
@@ -56,7 +55,7 @@ class ReminderViewModel(
             if (fertilizingEnabled) {
                 val entity = PlantReminderEntity(
                     scanId = scanId,
-                    plantName = normalizedName,
+                    plantName = trimmedName,
                     careType = "Fertilizing",
                     hour = fertilizingHour,
                     minute = fertilizingMinute,

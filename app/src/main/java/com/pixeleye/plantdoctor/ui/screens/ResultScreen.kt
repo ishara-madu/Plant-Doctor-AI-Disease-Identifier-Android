@@ -1342,7 +1342,7 @@ private fun CareReminderCard(
         }
     }
     var plantName by remember(uniquePlantName) { mutableStateOf(uniquePlantName) }
-    val isNameDuplicate = remember(plantName, plantFamilyScanId, existingReminders) { val trimmed = plantName.trim(); trimmed.isNotBlank() && existingReminders.any { it.scanId != plantFamilyScanId && areNamesEqual(it.plantName, trimmed) } }
+    val isNameDuplicate = remember(plantName, plantFamilyScanId, existingReminders) { val trimmed = plantName.trim(); trimmed.isNotBlank() && existingReminders.any { it.scanId != plantFamilyScanId && it.plantName.trim().equals(trimmed, ignoreCase = true) } }
     var wateringEnabled by remember(parentWatering) { mutableStateOf(parentWatering == null) }
     var wateringHour by remember { mutableStateOf(defaultWatering.first) }
     var wateringMinute by remember { mutableStateOf(defaultWatering.second) }
@@ -1519,30 +1519,22 @@ private fun parseTimeString(timeStr: String?, defaultHour: Int, defaultMinute: I
     }
 }
 
-private fun areNamesEqual(name1: String, name2: String): Boolean {
-    val norm1 = java.text.Normalizer.normalize(name1.trim(), java.text.Normalizer.Form.NFC)
-    val norm2 = java.text.Normalizer.normalize(name2.trim(), java.text.Normalizer.Form.NFC)
-    return norm1.equals(norm2, ignoreCase = true) || 
-           norm1.lowercase(java.util.Locale.ROOT) == norm2.lowercase(java.util.Locale.ROOT)
-}
-
 private fun generateUniquePlantName(baseName: String, currentScanId: String?, existing: List<PlantReminderEntity>, defaultName: String): String {
-    val baseNormalized = java.text.Normalizer.normalize(baseName.trim(), java.text.Normalizer.Form.NFC)
-    if (baseNormalized.isBlank()) return defaultName
+    val baseTrimmed = baseName.trim()
+    if (baseTrimmed.isBlank()) return defaultName
     
     val otherPlantNames = existing
         .filter { it.scanId != currentScanId }
-        .map { java.text.Normalizer.normalize(it.plantName.trim(), java.text.Normalizer.Form.NFC).lowercase(java.util.Locale.ROOT) }
+        .map { it.plantName.trim().lowercase() }
         .toSet()
         
-    val baseLower = baseNormalized.lowercase(java.util.Locale.ROOT)
-    if (baseLower !in otherPlantNames) {
-        return baseNormalized
+    if (baseTrimmed.lowercase() !in otherPlantNames) {
+        return baseTrimmed
     }
     var counter = 2
     while (true) {
-        val proposedName = "$baseNormalized $counter"
-        if (proposedName.lowercase(java.util.Locale.ROOT) !in otherPlantNames) {
+        val proposedName = "$baseTrimmed $counter"
+        if (proposedName.lowercase() !in otherPlantNames) {
             return proposedName
         }
         counter++

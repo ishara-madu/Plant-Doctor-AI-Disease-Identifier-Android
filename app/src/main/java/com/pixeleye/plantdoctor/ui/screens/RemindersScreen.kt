@@ -101,9 +101,7 @@ fun RemindersScreen(
         } else {
             val grouped = remember(reminders) {
                 reminders.groupBy { reminder ->
-                    java.text.Normalizer.normalize(reminder.plantName.trim(), java.text.Normalizer.Form.NFC)
-                        .lowercase(java.util.Locale.ROOT)
-                        .replace("\\s+".toRegex(), " ")
+                    reminder.plantName.trim().lowercase()
                 }
             }
             LazyColumn(

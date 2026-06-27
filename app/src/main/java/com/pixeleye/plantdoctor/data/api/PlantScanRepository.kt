@@ -172,9 +172,8 @@ class PlantScanRepository(
             val reminders = reminderDao.getAllRemindersList()
             reminders.forEach { reminder ->
                 if (reminder.plantName.isNotBlank()) {
-                    val normalizedName = java.text.Normalizer.normalize(reminder.plantName.trim(), java.text.Normalizer.Form.NFC)
-                        .replace("\\s+".toRegex(), " ")
-                    historyDao.updatePlantName(reminder.scanId, normalizedName)
+                    val trimmedName = reminder.plantName.trim()
+                    historyDao.updatePlantName(reminder.scanId, trimmedName)
                 }
             }
             Log.d(TAG, "Synced plant names from reminders to history table")
