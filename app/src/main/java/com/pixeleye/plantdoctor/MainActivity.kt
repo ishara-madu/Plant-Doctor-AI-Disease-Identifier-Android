@@ -1110,26 +1110,32 @@ fun PlantDoctorNavHost(
                     }
                 },
                 onSubscribe = { plan ->
-                    premiumViewModel.startPurchase(
-                        activity = context as ComponentActivity,
-                        billingManager = billingManager,
-                        planId = plan,
-                        onSuccess = {
-                            premiumViewModel.upgradeToPremium()
-                            premiumViewModel.showSnackbar("Welcome to PRO!", com.pixeleye.plantdoctor.ui.components.SnackbarType.SUCCESS)
-                            try {
-                                if (NavigationDebouncer.canNavigate()) {
-                                    navController.popBackStack()
+                    val activity = context.findActivity()
+                    if (activity != null) {
+                        premiumViewModel.startPurchase(
+                            activity = activity,
+                            billingManager = billingManager,
+                            planId = plan,
+                            onSuccess = {
+                                premiumViewModel.upgradeToPremium()
+                                premiumViewModel.showSnackbar("Welcome to PRO!", com.pixeleye.plantdoctor.ui.components.SnackbarType.SUCCESS)
+                                try {
+                                    if (NavigationDebouncer.canNavigate()) {
+                                        navController.popBackStack()
+                                    }
+                                } catch (e: Exception) {
+                                    Log.e("PlantDoctor", "Navigation error after purchase: ${e.message}")
                                 }
-                            } catch (e: Exception) {
-                                Log.e("PlantDoctor", "Navigation error after purchase: ${e.message}")
+                            },
+                            onError = { message ->
+                                Log.e("PlantDoctor", "Purchase error: $message")
+                                premiumViewModel.showSnackbar(message, com.pixeleye.plantdoctor.ui.components.SnackbarType.ERROR)
                             }
-                        },
-                        onError = { message ->
-                            Log.e("PlantDoctor", "Purchase error: $message")
-                            premiumViewModel.showSnackbar(message, com.pixeleye.plantdoctor.ui.components.SnackbarType.ERROR)
-                        }
-                    )
+                        )
+                    } else {
+                        Log.e("PlantDoctor", "Cannot start purchase: Activity is null")
+                        premiumViewModel.showSnackbar("Unable to initiate purchase process.", com.pixeleye.plantdoctor.ui.components.SnackbarType.ERROR)
+                    }
                 },
                 onRestorePurchases = {
                     try {
@@ -1208,4 +1214,13 @@ fun RequestNotificationPermission() {
             }
         }
     }
+}
+
+fun android.content.Context.findActivity(): ComponentActivity? {
+    var context = this
+    while (context is android.content.ContextWrapper) {
+        if (context is ComponentActivity) return context
+        context = context.baseContext
+    }
+    return null
 }
