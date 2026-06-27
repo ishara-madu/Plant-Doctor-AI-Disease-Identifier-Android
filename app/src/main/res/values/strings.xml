@@ -152,6 +152,7 @@
     <string name="my_plant_default">My Plant</string>
     <string name="reminders_scheduled_success">Care reminders scheduled successfully! 🌿</string>
     <string name="schedule_care_reminders">Schedule Care Reminders</string>
+    <string name="health_level_label">Health: %1$d%%</string>
     <string name="plant_name_label">Plant Name</string>
     <string name="plant_name_duplicate_error">A plant with this name already exists</string>
     <string name="plant_name_display">Plant: %1$s</string>

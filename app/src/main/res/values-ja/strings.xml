@@ -155,6 +155,7 @@
     <string name="my_plant_default">私の植物</string>
     <string name="reminders_scheduled_success">ケアリマインダーが正常にスケジュールされました！ 🌿</string>
     <string name="schedule_care_reminders">ケアリマインダーをスケジュールする</string>
+    <string name="health_level_label">健康度: %1$d%%</string>
     <string name="plant_name_label">植物の名前</string>
     <string name="plant_name_duplicate_error">この名前の植物は既に存在します</string>
     <string name="plant_name_display">植物: %1$s</string>

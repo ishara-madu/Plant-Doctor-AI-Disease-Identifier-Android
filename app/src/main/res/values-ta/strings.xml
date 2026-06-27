@@ -155,6 +155,7 @@
     <string name="my_plant_default">என் தாவரம்</string>
     <string name="reminders_scheduled_success">பராமரிப்பு நினைவூட்டல்கள் வெற்றிகரமாகத் திட்டமிடப்பட்டன! 🌿</string>
     <string name="schedule_care_reminders">பராமரிப்பு நினைவூட்டல்களைத் திட்டமிடு</string>
+    <string name="health_level_label">ஆரோக்கியம்: %1$d%%</string>
     <string name="plant_name_label">தாவரத்தின் பெயர்</string>
     <string name="plant_name_duplicate_error">இந்தப் பெயரில் ஒரு தாவரம் ஏற்கனவே உள்ளது</string>
     <string name="plant_name_display">தாவரம்: %1$s</string>

@@ -740,6 +740,14 @@ private fun ScanCard(
         label = "card_press_scale"
     )
 
+    val healthPct = scan.healthStatusPercentage ?: 0
+    val healthProgress = healthPct.toFloat() / 100f
+    val progressColor = when {
+        healthPct >= 80 -> MaterialTheme.colorScheme.primary
+        healthPct >= 50 -> Color(0xFFE5A93C) // Orange/Warning
+        else -> Color(0xFFD9534F) // Red/Danger
+    }
+
     Card(
         modifier = modifier
             .fillMaxWidth()

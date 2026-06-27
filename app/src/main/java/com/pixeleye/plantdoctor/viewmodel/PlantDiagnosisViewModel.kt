@@ -525,7 +525,8 @@ Rules:
         imageUri: Uri?,
         diseaseTitle: String,
         treatmentPlan: String,
-        parentId: String? = null
+        parentId: String? = null,
+        healthStatusPercentage: Int? = null
     ) {
         viewModelScope.launch {
             _uploadState.value = UploadState.Uploading
@@ -557,7 +558,8 @@ Rules:
                         imageUrl = imageUrl,
                         diseaseTitle = diseaseTitle,
                         treatmentPlan = treatmentPlan,
-                        parentId = parentId
+                        parentId = parentId,
+                        healthStatusPercentage = healthStatusPercentage
                     )
                     val inserted = plantScanRepository.insertScan(scanDto)
                     Log.d(TAG, "Record inserted into repository and local DB")
@@ -581,7 +583,8 @@ Rules:
                         imageUrl = localImageUrl,
                         diseaseTitle = diseaseTitle,
                         treatmentPlan = treatmentPlan,
-                        parentId = parentId
+                        parentId = parentId,
+                        healthStatusPercentage = healthStatusPercentage
                     )
 
                     plantScanRepository.insertScanLocal(fallbackScanDto)
