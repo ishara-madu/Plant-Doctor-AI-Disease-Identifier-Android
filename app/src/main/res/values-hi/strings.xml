@@ -161,6 +161,8 @@
     <string name="daily_watering_reminder_label">दैनिक पानी देने का अनुस्मारक</string>
     <string name="daily_watering_scheduled_at">%1$s बजे निर्धारित</string>
     <string name="daily_treatment_fertilizer_label">दैनिक उपचार/उर्वरक</string>
+    <string name="promo_code_label">प्रोमो कोड</string>
+    <string name="redeem_button">रिडीम करें</string>
 
     <!-- Paywall Screen -->
     <string name="yearly">वार्षिक</string>

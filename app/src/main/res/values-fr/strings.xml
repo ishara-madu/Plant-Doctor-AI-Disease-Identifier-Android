@@ -161,6 +161,8 @@
     <string name="daily_watering_reminder_label">Rappel d\'arrosage quotidien</string>
     <string name="daily_watering_scheduled_at">Programmé à %1$s</string>
     <string name="daily_treatment_fertilizer_label">Traitement/Engrais quotidien</string>
+    <string name="promo_code_label">Code promo</string>
+    <string name="redeem_button">Utiliser</string>
 
     <!-- Paywall Screen -->
     <string name="yearly">Annuel</string>
