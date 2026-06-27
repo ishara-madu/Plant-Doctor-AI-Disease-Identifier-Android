@@ -76,7 +76,8 @@ internal data class GeminiAnalysisResponse(
     @SerializedName("fertilizing_time") val fertilizingTime: String?,
     @SerializedName("diagnosis_summary") val diagnosisSummary: String,
     @SerializedName("organic_treatments") val organicTreatments: List<String>,
-    @SerializedName("chemical_treatments") val chemicalTreatments: List<String>
+    @SerializedName("chemical_treatments") val chemicalTreatments: List<String>,
+    @SerializedName("health_status_percentage") val healthStatusPercentage: Int? = null
 )
 
 class PlantDiagnosisViewModel(
@@ -115,6 +116,7 @@ You MUST return ONLY a single valid JSON object. No markdown, no prose. The JSON
 {
   "is_plant": true or false,
   "plant_name": "The common name of the plant (e.g. Tomato, Rose, Mango, etc.) in the user's preferred language or null if not a plant",
+  "health_status_percentage": 75,
   "watering_time": "The recommended daily time for watering in 'HH:mm' format (e.g., '08:00' or '17:00') or null if not a plant",
   "fertilizing_time": "The recommended daily time for applying treatment/fertilizer/medicine in 'HH:mm' format (e.g., '09:00' or '16:30') or null if not a plant",
   "diagnosis_summary": "A detailed explanation of the disease, pest, or nutrient deficiency.",
@@ -132,7 +134,9 @@ Rules:
 7. ENVIRONMENT-AWARE ANALYSIS: Analyze the visual background and lighting of the image to determine if the plant is located indoors (e.g. a room, windowsill, indoor pot) or outdoors (e.g. garden, yard, field).
    - If Outdoors: Directly align your watering schedule, treatment application times, and protection tips with the provided 5-day weather forecast.
    - If Indoors: Tailor recommendations for indoor environments (e.g. emphasize airflow/ventilation to prevent fungal buildup, ensure proper light, and warn against overwatering). Clarify that the outdoor weather has less direct impact but still affects ambient conditions.
-   - If visual context is ambiguous or a close-up: State this in the "diagnosis_summary" and provide conditional advice (e.g., "If this plant is outdoors, do X; if it is indoors, do Y").""".trimIndent())
+   - If visual context is ambiguous or a close-up: State this in the "diagnosis_summary" and provide conditional advice (e.g., "If this plant is outdoors, do X; if it is indoors, do Y").
+8. "health_status_percentage": An integer between 0 and 100 representing the estimated health/recovery percentage of the plant (0 = completely dead/severely diseased, 100 = perfectly healthy). If this is a follow-up/progress check-in (when historical timeline is provided below), analyze the new image, compare it with the history log, and increase or decrease this percentage based on signs of recovery or worsening compared to the previous check-in. If it is a first/initial scan, estimate the initial health level (e.g. 30% if heavily diseased, 80% if minor spots). Set to null if not a plant.
+9. Translate only values, keep JSON keys unchanged. """.trimIndent())
             },
             generationConfig = generationConfig {
                 temperature = 0.7f
@@ -441,7 +445,8 @@ Rules:
                     chemicalTreatments = geminiResult.chemicalTreatments,
                     plantName = geminiResult.plantName,
                     wateringTime = geminiResult.wateringTime,
-                    fertilizingTime = geminiResult.fertilizingTime
+                    fertilizingTime = geminiResult.fertilizingTime,
+                    healthStatusPercentage = geminiResult.healthStatusPercentage
                 )
 
                 _diagnosisState.value = DiagnosisState.Success(diagnosisResponse)
@@ -487,7 +492,8 @@ Rules:
                     imageUri = imageUri,
                     diseaseTitle = if (parentId != null) "Plant Progress Update" else "Plant Analysis",
                     treatmentPlan = stringifiedTreatmentPlan,
-                    parentId = parentId
+                    parentId = parentId,
+                    healthStatusPercentage = geminiResult.healthStatusPercentage
                 )
 
             } catch (e: Exception) {

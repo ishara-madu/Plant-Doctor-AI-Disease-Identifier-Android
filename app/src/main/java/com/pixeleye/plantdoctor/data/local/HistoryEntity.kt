@@ -14,7 +14,8 @@ data class HistoryEntity(
     val treatmentPlan: String,
     val createdAt: String,
     val parentId: String?,
-    val plantName: String? = null
+    val plantName: String? = null,
+    val healthStatusPercentage: Int? = null
 ) {
     fun toDto(): PlantScanDto {
         return PlantScanDto(
@@ -25,7 +26,8 @@ data class HistoryEntity(
             treatmentPlan = treatmentPlan,
             createdAt = createdAt,
             parentId = parentId,
-            plantName = plantName
+            plantName = plantName,
+            healthStatusPercentage = healthStatusPercentage
         )
     }
 }
@@ -41,6 +43,7 @@ fun PlantScanDto.toEntity(): HistoryEntity {
         treatmentPlan = treatmentPlan,
         createdAt = createdAt ?: "",
         parentId = parentId,
-        plantName = parsedPlantName
+        plantName = parsedPlantName,
+        healthStatusPercentage = healthStatusPercentage
     )
 }
