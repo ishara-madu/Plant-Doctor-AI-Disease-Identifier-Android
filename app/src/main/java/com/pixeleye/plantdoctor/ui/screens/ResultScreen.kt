@@ -460,6 +460,7 @@ private fun ResultContent(
                     onAddReminders = onAddReminders,
                     onGoToReminders = onGoToReminders,
                     onUpdateReminderTime = onUpdateReminderTime,
+                    isSaving = isSaving,
                     modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)
                 )
             }
@@ -1178,6 +1179,7 @@ private fun CareReminderCard(
     ) -> Unit,
     onGoToReminders: () -> Unit,
     onUpdateReminderTime: (PlantReminderEntity, Int, Int) -> Unit,
+    isSaving: Boolean,
     modifier: Modifier = Modifier
 ) {
     val defaultWatering = remember(wateringTimeDefault) { parseTimeString(wateringTimeDefault, 8, 0) }
@@ -1319,7 +1321,7 @@ private fun CareReminderCard(
         }
     }
 
-    if (parentWatering != null && parentFertilizing != null) {
+    if (familyReminders.isNotEmpty()) {
         Card(modifier = modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)), border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)) {
             Column(modifier = Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(text = stringResource(R.string.care_reminders_scheduled_title), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant)
