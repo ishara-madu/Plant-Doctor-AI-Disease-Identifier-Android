@@ -57,9 +57,14 @@ class HomeViewModel(
     private val _threadScans = MutableStateFlow<List<PlantScanDto>>(emptyList())
     val threadScans: StateFlow<List<PlantScanDto>> = _threadScans.asStateFlow()
 
+    private var currentThreadParentId: String? = null
+
     fun loadThreadScans(parentId: String) {
         viewModelScope.launch {
-            _threadScans.value = emptyList()
+            if (currentThreadParentId != parentId) {
+                currentThreadParentId = parentId
+                _threadScans.value = emptyList()
+            }
             try {
                 val local = repository.getThreadScansLocal(parentId)
                 if (local.isNotEmpty()) {
@@ -76,6 +81,7 @@ class HomeViewModel(
     }
 
     fun clearThreadScans() {
+        currentThreadParentId = null
         _threadScans.value = emptyList()
     }
 
