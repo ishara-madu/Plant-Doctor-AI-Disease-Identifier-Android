@@ -164,6 +164,8 @@
     <string name="daily_treatment_fertilizer_label">Traitement/Engrais quotidien</string>
     <string name="promo_code_label">Code promo</string>
     <string name="redeem_button">Utiliser</string>
+    <string name="notification_warning_title">Activer les notifications</string>
+    <string name="notification_warning_desc">Les notifications sont désactivées pour cette application. Veuillez les activer dans les paramètres de votre appareil pour recevoir les rappels d\'arrosage et d\'engrais.</string>
 
     <!-- Paywall Screen -->
     <string name="yearly">Annuel</string>

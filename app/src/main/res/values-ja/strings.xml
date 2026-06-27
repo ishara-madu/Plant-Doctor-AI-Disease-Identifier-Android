@@ -164,6 +164,8 @@
     <string name="daily_treatment_fertilizer_label">毎日の治療/肥料</string>
     <string name="promo_code_label">プロモーションコード</string>
     <string name="redeem_button">適用する</string>
+    <string name="notification_warning_title">通知を有効にする</string>
+    <string name="notification_warning_desc">このアプリの通知は無効になっています。水やりや肥料のリマインダーを受け取るには、デバイスの設定で通知を有効にしてください。</string>
 
     <!-- Paywall Screen -->
     <string name="yearly">年間</string>

@@ -164,6 +164,8 @@
     <string name="daily_treatment_fertilizer_label">Tratamento/Fertilizante Diário</string>
     <string name="promo_code_label">Código promocional</string>
     <string name="redeem_button">Resgatar</string>
+    <string name="notification_warning_title">Ativar notificações</string>
+    <string name="notification_warning_desc">As notificações estão desativadas para este aplicativo. Ative-as nas configurações do seu dispositivo para receber lembretes de rega e fertilização.</string>
 
     <!-- Paywall Screen -->
     <string name="yearly">Anual</string>

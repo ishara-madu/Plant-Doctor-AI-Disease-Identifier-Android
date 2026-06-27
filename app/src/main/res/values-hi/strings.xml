@@ -164,6 +164,8 @@
     <string name="daily_treatment_fertilizer_label">दैनिक उपचार/उर्वरक</string>
     <string name="promo_code_label">प्रोमो कोड</string>
     <string name="redeem_button">रिडीम करें</string>
+    <string name="notification_warning_title">सूचनाएं सक्षम करें</string>
+    <string name="notification_warning_desc">इस ऐप के लिए सूचनाएं अक्षम हैं। पानी देने और उर्वरक देने के अनुस्मारक प्राप्त करने के लिए कृपया अपने डिवाइस की सेटिंग्स में सूचनाएं सक्षम करें।</string>
 
     <!-- Paywall Screen -->
     <string name="yearly">वार्षिक</string>

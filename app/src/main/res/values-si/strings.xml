@@ -164,6 +164,8 @@
     <string name="daily_treatment_fertilizer_label">දිනපතා ප්‍රතිකාර/පොහොර යෙදීම</string>
     <string name="promo_code_label">ප්‍රවර්ධන කේතය (Promo Code)</string>
     <string name="redeem_button">භාවිත කරන්න</string>
+    <string name="notification_warning_title">දැනුම්දීම් සක්‍රිය කරන්න</string>
+    <string name="notification_warning_desc">මෙම යෙදුම සඳහා දැනුම්දීම් අක්‍රිය කර ඇත. වතුර දැමීමේ සහ පොහොර යෙදීමේ සිහිකැඳවීම් ලබා ගැනීමට කරුණාකර දුරකථන සැකසුම් (settings) හරහා දැනුම්දීම් සක්‍රිය කරන්න.</string>
 
     <!-- Paywall Screen -->
     <string name="yearly">වාර්ෂිකව</string>
