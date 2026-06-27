@@ -1498,7 +1498,19 @@ private fun CareReminderCard(
             }
 
             Spacer(modifier = Modifier.height(8.dp))
-            Button(onClick = { if (plantName.isNotBlank() && (wateringEnabled || fertilizingEnabled)) { onAddReminders(plantName, wateringEnabled, wateringHour, wateringMinute, fertilizingEnabled, fertilizingHour, fertilizingMinute); isAdded = true } }, enabled = plantName.isNotBlank() && !isNameDuplicate && (wateringEnabled || fertilizingEnabled), modifier = Modifier.fillMaxWidth(), colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)) { Text(stringResource(R.string.schedule_care_reminders)) }
+            val buttonText = if (scanId == null || isSaving) {
+                stringResource(R.string.saving)
+            } else {
+                stringResource(R.string.schedule_care_reminders)
+            }
+            Button(
+                onClick = { if (plantName.isNotBlank() && (wateringEnabled || fertilizingEnabled) && scanId != null) { onAddReminders(plantName, wateringEnabled, wateringHour, wateringMinute, fertilizingEnabled, fertilizingHour, fertilizingMinute); isAdded = true } },
+                enabled = scanId != null && !isSaving && plantName.isNotBlank() && !isNameDuplicate && (wateringEnabled || fertilizingEnabled),
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+            ) {
+                Text(buttonText)
+            }
         }
     }
 
