@@ -1085,10 +1085,13 @@ fun PlantDoctorNavHost(
             SettingsScreen(
                 currentPrefs = currentPrefs,
                 isSaving = isSaving,
-                onSave = { country, language, aiLanguage, areFollowUpRemindersEnabled ->
-                    settingsViewModel.savePreferences(country, language, aiLanguage, areFollowUpRemindersEnabled) {
+                onSave = { country, language, aiLanguage, areFollowUpRemindersEnabled, customMessage ->
+                    settingsViewModel.savePreferences(country, language, aiLanguage, areFollowUpRemindersEnabled, customMessage) {
                         LanguageHelper.setAppLocale(context, aiLanguage)
                     }
+                },
+                onTriggerSnackbar = { message, type ->
+                    settingsViewModel.showSnackbar(message, type)
                 },
                 onLogout = {
                     premiumViewModel.setPremium(false)

@@ -82,7 +82,8 @@ import com.pixeleye.plantdoctor.R
 fun SettingsScreen(
     currentPrefs: UserPreferences,
     isSaving: Boolean,
-    onSave: (country: String, language: String, aiLanguage: String, areFollowUpRemindersEnabled: Boolean) -> Unit,
+    onSave: (country: String, language: String, aiLanguage: String, areFollowUpRemindersEnabled: Boolean, customMessage: String?) -> Unit,
+    onTriggerSnackbar: (String, com.pixeleye.plantdoctor.ui.components.SnackbarType) -> Unit,
     onLogout: () -> Unit,
     onBack: () -> Unit
 ) {
@@ -315,7 +316,7 @@ fun SettingsScreen(
             // ── Save Button ──────────────────────────────────────
             Button(
                 onClick = {
-                    onSave("", "", selectedAiLanguage, areFollowUpRemindersEnabled)
+                    onSave("", "", selectedAiLanguage, areFollowUpRemindersEnabled, null)
                 },
                 enabled = hasChanges && !isSaving,
                 modifier = Modifier
@@ -354,11 +355,12 @@ fun SettingsScreen(
 
             NotificationSettingItem(
                 areFollowUpRemindersEnabled = areFollowUpRemindersEnabled,
-                onFollowUpRemindersToggled = {
-                    areFollowUpRemindersEnabled = it
-                    // Auto-save notification updates immediately!
-                    onSave("", "", selectedAiLanguage, it)
-                }
+                onFollowUpRemindersToggled = { enabled ->
+                    areFollowUpRemindersEnabled = enabled
+                    val msg = if (enabled) "AI reminders enabled" else "AI reminders disabled"
+                    onSave("", "", selectedAiLanguage, enabled, msg)
+                },
+                onTriggerSnackbar = onTriggerSnackbar
             )
 
             Spacer(modifier = Modifier.height(32.dp))
@@ -523,7 +525,8 @@ private fun SettingLabel(
 @Composable
 fun NotificationSettingItem(
     areFollowUpRemindersEnabled: Boolean,
-    onFollowUpRemindersToggled: (Boolean) -> Unit
+    onFollowUpRemindersToggled: (Boolean) -> Unit,
+    onTriggerSnackbar: (String, com.pixeleye.plantdoctor.ui.components.SnackbarType) -> Unit
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -584,8 +587,10 @@ fun NotificationSettingItem(
                     isSubscribed = checked
                     if (checked) {
                         OneSignal.User.pushSubscription.optIn()
+                        onTriggerSnackbar("Push notifications enabled", com.pixeleye.plantdoctor.ui.components.SnackbarType.SUCCESS)
                     } else {
                         OneSignal.User.pushSubscription.optOut()
+                        onTriggerSnackbar("Push notifications disabled", com.pixeleye.plantdoctor.ui.components.SnackbarType.INFO)
                     }
                 },
                 enabled = areNotificationsEnabled
