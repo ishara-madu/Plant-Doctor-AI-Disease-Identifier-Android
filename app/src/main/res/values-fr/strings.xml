@@ -169,6 +169,7 @@
     <string name="notification_banner_title">Notifications bloquées</string>
     <string name="notification_banner_desc">Vous ne recevrez pas d\'alertes. Appuyez pour les activer dans les paramètres.</string>
     <string name="enable_action">Activer</string>
+    <string name="notification_follow_up_title">Suivi de Plant Doctor</string>
 
     <!-- Paywall Screen -->
     <string name="yearly">Annuel</string>

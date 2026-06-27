@@ -166,6 +166,7 @@
     <string name="notification_banner_title">Notifications Blocked</string>
     <string name="notification_banner_desc">You won\'t receive care alerts. Tap to enable notifications in settings.</string>
     <string name="enable_action">Enable</string>
+    <string name="notification_follow_up_title">Plant Doctor Check-in</string>
     
     <!-- Paywall Screen -->
     <string name="yearly">Yearly</string>

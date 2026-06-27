@@ -503,7 +503,9 @@ Rules:
                     diseaseTitle = if (parentId != null) "Plant Progress Update" else "Plant Analysis",
                     treatmentPlan = stringifiedTreatmentPlan,
                     parentId = parentId,
-                    healthStatusPercentage = geminiResult.healthStatusPercentage
+                    healthStatusPercentage = geminiResult.healthStatusPercentage,
+                    progressReminderMessage = geminiResult.progressReminderMessage,
+                    plantName = geminiResult.plantName
                 )
 
             } catch (e: Exception) {
@@ -536,7 +538,9 @@ Rules:
         diseaseTitle: String,
         treatmentPlan: String,
         parentId: String? = null,
-        healthStatusPercentage: Int? = null
+        healthStatusPercentage: Int? = null,
+        progressReminderMessage: String? = null,
+        plantName: String? = null
     ) {
         viewModelScope.launch {
             _uploadState.value = UploadState.Uploading
@@ -569,10 +573,24 @@ Rules:
                         diseaseTitle = diseaseTitle,
                         treatmentPlan = treatmentPlan,
                         parentId = parentId,
-                        healthStatusPercentage = healthStatusPercentage
+                        healthStatusPercentage = healthStatusPercentage,
+                        progressReminderMessage = progressReminderMessage
                     )
                     val inserted = plantScanRepository.insertScan(scanDto)
                     Log.d(TAG, "Record inserted into repository and local DB")
+
+                    context?.let { ctx ->
+                        val rootScanId = parentId ?: inserted.id ?: scanDto.id ?: ""
+                        com.pixeleye.plantdoctor.receiver.ReminderReceiver.cancelFollowUpAlarm(ctx, rootScanId)
+                        if (!progressReminderMessage.isNullOrBlank()) {
+                            com.pixeleye.plantdoctor.receiver.ReminderReceiver.scheduleFollowUpAlarm(
+                                ctx,
+                                rootScanId,
+                                plantName ?: "Plant",
+                                progressReminderMessage
+                            )
+                        }
+                    }
 
                     _uploadState.value = UploadState.Success(
                         imageUrl = imageUrl,
@@ -594,11 +612,25 @@ Rules:
                         diseaseTitle = diseaseTitle,
                         treatmentPlan = treatmentPlan,
                         parentId = parentId,
-                        healthStatusPercentage = healthStatusPercentage
+                        healthStatusPercentage = healthStatusPercentage,
+                        progressReminderMessage = progressReminderMessage
                     )
 
                     plantScanRepository.insertScanLocal(fallbackScanDto)
                     Log.d(TAG, "Successfully saved scan locally as fallback")
+
+                    context?.let { ctx ->
+                        val rootScanId = parentId ?: fallbackScanId
+                        com.pixeleye.plantdoctor.receiver.ReminderReceiver.cancelFollowUpAlarm(ctx, rootScanId)
+                        if (!progressReminderMessage.isNullOrBlank()) {
+                            com.pixeleye.plantdoctor.receiver.ReminderReceiver.scheduleFollowUpAlarm(
+                                ctx,
+                                rootScanId,
+                                plantName ?: "Plant",
+                                progressReminderMessage
+                            )
+                        }
+                    }
 
                     _uploadState.value = UploadState.Success(
                         imageUrl = localImageUrl,

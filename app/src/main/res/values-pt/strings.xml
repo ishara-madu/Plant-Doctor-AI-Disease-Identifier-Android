@@ -169,6 +169,7 @@
     <string name="notification_banner_title">Notificações bloqueadas</string>
     <string name="notification_banner_desc">Você não receberá alertas de cuidados. Toque para ativá-las nas configurações.</string>
     <string name="enable_action">Ativar</string>
+    <string name="notification_follow_up_title">Acompanhamento do Plant Doctor</string>
 
     <!-- Paywall Screen -->
     <string name="yearly">Anual</string>

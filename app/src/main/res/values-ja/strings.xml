@@ -169,6 +169,7 @@
     <string name="notification_banner_title">通知がブロックされています</string>
     <string name="notification_banner_desc">ケアアラートを受信できません。設定で通知を有効にするにはタップしてください。</string>
     <string name="enable_action">有効にする</string>
+    <string name="notification_follow_up_title">プラントドクターのチェックイン</string>
 
     <!-- Paywall Screen -->
     <string name="yearly">年間</string>

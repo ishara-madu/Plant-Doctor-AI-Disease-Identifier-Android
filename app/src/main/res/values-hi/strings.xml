@@ -169,6 +169,7 @@
     <string name="notification_banner_title">सूचनाएं अवरुद्ध हैं</string>
     <string name="notification_banner_desc">आपको देखभाल अलर्ट प्राप्त नहीं होंगे। सेटिंग्स में सक्षम करने के लिए टैप करें।</string>
     <string name="enable_action">सक्षम करें</string>
+    <string name="notification_follow_up_title">प्लांट डॉक्टर चेक-इन</string>
 
     <!-- Paywall Screen -->
     <string name="yearly">वार्षिक</string>
