@@ -323,16 +323,23 @@ fun PaywallScreen(
                         Button(
                             onClick = {
                                 val code = promoCode.trim()
-                                val url = if (code.isNotEmpty()) {
-                                    "https://play.google.com/redeem?code=$code"
-                                } else {
-                                    "https://play.google.com/redeem"
-                                }
                                 try {
-                                    val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(url))
+                                    val intent = android.content.Intent("com.google.android.gms.actions.REDEEM_GIFT_CARD").apply {
+                                        putExtra("cardPayload", code)
+                                        setPackage("com.android.vending")
+                                    }
                                     context.startActivity(intent)
-                                } catch (e: Exception) {
-                                    // Fallback
+                                } catch (e: android.content.ActivityNotFoundException) {
+                                    // Fallback to web link
+                                    val url = if (code.isNotEmpty()) {
+                                        "https://play.google.com/redeem?code=$code"
+                                    } else {
+                                        "https://play.google.com/redeem"
+                                    }
+                                    try {
+                                        val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(url))
+                                        context.startActivity(intent)
+                                    } catch (_: Exception) {}
                                 }
                             },
                             shape = RoundedCornerShape(12.dp),
