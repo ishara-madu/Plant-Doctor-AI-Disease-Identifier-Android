@@ -161,6 +161,8 @@
     <string name="daily_watering_reminder_label">毎日の水やりリマインダー</string>
     <string name="daily_watering_scheduled_at">%1$s にスケジュール済み</string>
     <string name="daily_treatment_fertilizer_label">毎日の治療/肥料</string>
+    <string name="promo_code_label">プロモーションコード</string>
+    <string name="redeem_button">適用する</string>
 
     <!-- Paywall Screen -->
     <string name="yearly">年間</string>

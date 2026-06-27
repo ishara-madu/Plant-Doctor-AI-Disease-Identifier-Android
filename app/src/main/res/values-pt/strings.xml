@@ -161,6 +161,8 @@
     <string name="daily_watering_reminder_label">Lembrete Diário de Rega</string>
     <string name="daily_watering_scheduled_at">Agendado para as %1$s</string>
     <string name="daily_treatment_fertilizer_label">Tratamento/Fertilizante Diário</string>
+    <string name="promo_code_label">Código promocional</string>
+    <string name="redeem_button">Resgatar</string>
 
     <!-- Paywall Screen -->
     <string name="yearly">Anual</string>

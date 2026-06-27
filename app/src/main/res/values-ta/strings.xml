@@ -161,6 +161,8 @@
     <string name="daily_watering_reminder_label">தினசரி நீர்ப்பாசன நினைவூட்டல்</string>
     <string name="daily_watering_scheduled_at">%1$s மணிக்குத் திட்டமிடப்பட்டுள்ளது</string>
     <string name="daily_treatment_fertilizer_label">தினசரி சிகிச்சை/உரம்</string>
+    <string name="promo_code_label">சலுகைக் குறியீடு (Promo Code)</string>
+    <string name="redeem_button">மீட்டெடுக்கவும்</string>
 
     <!-- Paywall Screen -->
     <string name="yearly">ஆண்டுக்கு</string>
