@@ -158,6 +158,8 @@
     <string name="daily_watering_reminder_label">Daily Watering Reminder</string>
     <string name="daily_watering_scheduled_at">Scheduled at %1$s</string>
     <string name="daily_treatment_fertilizer_label">Daily Treatment/Fertilizer</string>
+    <string name="promo_code_label">Promo Code</string>
+    <string name="redeem_button">Redeem</string>
     
     <!-- Paywall Screen -->
     <string name="yearly">Yearly</string>

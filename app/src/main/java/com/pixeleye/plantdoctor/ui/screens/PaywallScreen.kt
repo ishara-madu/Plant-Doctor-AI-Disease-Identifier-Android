@@ -266,6 +266,57 @@ fun PaywallScreen(
                     onClick = { selectedPlan = "monthly" }
                 )
 
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // ── Promo Code Section ──────────────────────────
+                val context = androidx.compose.ui.platform.LocalContext.current
+                var promoCode by remember { mutableStateOf("") }
+                
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    androidx.compose.material3.OutlinedTextField(
+                        value = promoCode,
+                        onValueChange = { promoCode = it },
+                        label = { Text(stringResource(R.string.promo_code_label)) },
+                        modifier = Modifier.weight(1f),
+                        singleLine = true,
+                        shape = RoundedCornerShape(12.dp),
+                        colors = androidx.compose.material3.OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline
+                        )
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Button(
+                        onClick = {
+                            val code = promoCode.trim()
+                            val url = if (code.isNotEmpty()) {
+                                "https://play.google.com/redeem?code=$code"
+                            } else {
+                                "https://play.google.com/redeem"
+                            }
+                            try {
+                                val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(url))
+                                context.startActivity(intent)
+                            } catch (e: Exception) {
+                                // Fallback
+                            }
+                        },
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier.height(56.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                        )
+                    ) {
+                        Text(stringResource(R.string.redeem_button), fontWeight = FontWeight.Bold)
+                    }
+                }
+
                 Spacer(modifier = Modifier.height(28.dp))
             }
 

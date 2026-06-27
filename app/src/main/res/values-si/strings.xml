@@ -161,6 +161,8 @@
     <string name="daily_watering_reminder_label">දිනපතා වතුර දැමීමේ සිහිකැඳවීම</string>
     <string name="daily_watering_scheduled_at">%1$s ට උපලේඛනගත කර ඇත</string>
     <string name="daily_treatment_fertilizer_label">දිනපතා ප්‍රතිකාර/පොහොර යෙදීම</string>
+    <string name="promo_code_label">ප්‍රවර්ධන කේතය (Promo Code)</string>
+    <string name="redeem_button">භාවිත කරන්න</string>
 
     <!-- Paywall Screen -->
     <string name="yearly">වාර්ෂිකව</string>
