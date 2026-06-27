@@ -7,6 +7,8 @@ import io.github.jan.supabase.storage.storage
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import com.pixeleye.plantdoctor.data.local.HistoryDao
 import com.pixeleye.plantdoctor.data.local.ReminderDao
 import com.pixeleye.plantdoctor.data.local.toEntity
@@ -165,7 +167,7 @@ class PlantScanRepository(
         return historyDao.getHistoryById(id)?.toDto()
     }
 
-    suspend fun syncPlantNamesFromReminders() {
+    suspend fun syncPlantNamesFromReminders() = withContext(Dispatchers.IO) {
         try {
             val reminders = reminderDao.getAllRemindersList()
             reminders.forEach { reminder ->
