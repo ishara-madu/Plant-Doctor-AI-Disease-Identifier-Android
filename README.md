@@ -39,49 +39,40 @@ Plant Doctor is an Android application that uses Google's Gemini AI to analyze p
 ## Features
 
 ### Core Functionality
-- **AI Plant Disease Diagnosis** — Capture or select a plant photo; Gemini 2.5 Flash analyzes the image and returns a structured diagnosis
-- **Categorized Treatment Plans** — Diagnoses are split into **Organic & Natural Treatments** and **Chemical Treatments & Fertilizers** with distinct UI sections
-- **Location-Aware Recommendations** — Uses device GPS to tailor treatment suggestions to the user's region
-- **Multi-Language AI Output** — Configurable AI response language (English, Sinhala, Tamil, etc.)
-- **Scan History** — Locally cached with Room Database and synced to Supabase cloud storage (up to 10 items)
-- **Offline Detection** — Real-time network monitoring blocks the app with a full-screen "No Internet Connection" screen when offline
+- **AI Plant Disease Diagnosis** — Capture or select a plant photo; Google Gemini 2.5 Flash analyzes the image and returns a structured JSON diagnosis.
+- **ML Kit Pre-Filtering** — Fast, local image classification using Google's ML Kit to detect if the image actually contains a plant before sending it to Gemini, saving user bandwidth and reducing API costs.
+- **Weather-Integrated Recommendations** — Integrated with the **OpenWeather API** to fetch a 5-day weather forecast at the user's location. The AI factors this forecast into treatment schedules (e.g., warning about rain/wash-off, adjusting watering times).
+- **Environment-Aware Care** — Dynamically analyzes whether the plant is indoors or outdoors. Outdoor recommendations are aligned with weather forecasts, while indoor recommendations focus on airflow, light, and overwatering warnings.
+- **Progress Tracking & Follow-up** — Supports follow-up scans for specific plants to track disease recovery over a timeline. The AI compares new scans with historical timelines and calculates a dynamic recovery percentage (Health Status Percentage).
+- **Scheduled Treatment Reminders** — Uses **OneSignal Push Notifications** to prompt users with scheduled, personalized progress check-in reminders (e.g., check-in on late blight spots after 3 days).
+- **Categorized Treatment Plans** — Diagnosis outputs are split into **Organic & Natural Treatments** and **Chemical Treatments & Fertilizers** with distinct user interface controls.
+- **Location-Aware Recommendations** — Uses device GPS to personalize treatment plans using regional resources and local chemical availability.
+- **Multi-Language AI Output** — Supports configurable AI output languages (English, Sinhala, Tamil, etc.) to suit localized user needs.
+- **Scan History** — Cached locally in a Room database and synced securely to Supabase cloud storage (max 10 items per user).
+- **Offline Detection** — Active network connectivity monitor triggers a full-screen "No Internet Connection" overlay when offline, safeguarding API requests.
 
 ### Camera & Image
-- **CameraX Integration** — Live camera preview with tap-to-focus and focus ring animation
-- **Gallery Picker** — Select existing photos from the device gallery
-- **High-Quality Image Compression** — Automatic compression for upload efficiency while preserving diagnostic quality
+- **CameraX Integration** — Live camera preview with tap-to-focus and focus ring animation.
+- **Gallery Picker** — Select existing photos from the device gallery using the modern Photo Picker.
+- **High-Quality Image Compression** — Automatic compression to JPEG (85% quality) and downscaling for upload efficiency while preserving diagnostic quality.
 
-### Freemium Model
-- **Free Tier** — Limited daily scans (quota enforced via Supabase), AdMob interstitial/banner ads, history capped at 5 items, chemical treatments blurred
-- **PRO Tier** — Unlimited scans, no ads, full history, chemical treatments unlocked
-- **RevenueCat Integration** — Yearly ($29.99) and Monthly ($4.99) subscription plans
-- **Restore Purchases** — Properly validates active entitlement before restoring
-
-### Monetization & Gating
-- **History Limit** — Free users see only the 5 most recent scans with a "Unlock your full scan history with PRO" CTA card
-- **Chemical Treatment Blur** — Gated with a 12dp blur overlay, Lock icon, and "Unlock Chemical Treatments with PRO" clickable overlay
-- **Interstitial Ads** — Shown after scan completion for free users
-- **Banner Ads** — Persistent bottom banner on the Home screen for free users
+### Freemium Model & Gating
+- **Free Tier** — Enforced daily quota of 6 scans per day (synced with Supabase database). Includes persistent bottom AdMob banner ads on the Home screen and interstitial ads shown immediately after scan completion. Local scan history is capped at 5 visible items, and chemical treatments are locked behind a blurry overlay (12dp blur + Lock CTA).
+- **PRO Tier** — Access to up to 50 scans per day (fair-use limit), ad-free experience, unlimited scan history access, and chemical treatments fully unlocked.
+- **RevenueCat Integration** — Handles secure subscription validation with support for Yearly ($29.99/year with "Save 50%" badge) and Monthly ($4.99/month) tiers.
+- **Double-Source Entitlement Validation** — Double checks premium status using Supabase `is_premium` flag as primary source of truth and RevenueCat SDK as fallback. Automatically repairs/backfills discrepancies dynamically.
+- **Restore Purchases** — Secure verification flow validating active Store receipts.
+- **Flexible In-App Updates** — Uses the Google Play In-App Updates library to prompt users to update to the latest version seamlessly inside the app.
 
 ---
 
 ## Screenshots
 
-| Home Screen | Camera Screen | Diagnosis Result |
-|:-----------:|:-------------:|:----------------:|
-| ![Home Screen](screenshots/home_screen.png) | ![Camera Screen](screenshots/camera_screen.png) | ![Diagnosis Result](screenshots/result_screen.png) |
+| Welcome / Onboarding & Home Screen | Camera Scanner | AI Diagnosis & Treatment Plan |
+|:---:|:---:|:---:|
+| <img src="portfolio_images/img1.jpg" width="260" alt="Welcome / Onboarding & Home Screen"/> | <img src="portfolio_images/img2.jpg" width="260" alt="Camera Scanner"/> | <img src="portfolio_images/img3.jpg" width="260" alt="AI Diagnosis & Treatment Plan"/> |
 
-| Organic Treatments | Chemical Treatments (Free) | Chemical Treatments (PRO) |
-|:------------------:|:-------------------------:|:-------------------------:|
-| ![Organic](screenshots/organic_treatments.png) | ![Chemical Free](screenshots/chemical_blurred.png) | ![Chemical PRO](screenshots/chemical_pro.png) |
-
-| Paywall Screen | Settings Screen | No Internet Screen |
-|:--------------:|:---------------:|:------------------:|
-| ![Paywall](screenshots/paywall_screen.png) | ![Settings](screenshots/settings_screen.png) | ![No Internet](screenshots/no_internet_screen.png) |
-
-| Login Screen | Onboarding Screen | History Gated |
-|:------------:|:-----------------:|:-------------:|
-| ![Login](screenshots/login_screen.png) | ![Onboarding](screenshots/onboarding_screen.png) | ![History Gated](screenshots/history_gated.png) |
+*Note: The images above showcase the core onboarding, camera scanning, and detailed AI diagnosis interfaces from the current version of the application.*
 
 ---
 
@@ -131,9 +122,16 @@ The app follows the **MVVM (Model-View-ViewModel)** pattern with Jetpack Compose
 ### AI & Backend
 | Technology | Version | Purpose |
 |---|---|---|
-| Google Gemini AI | 0.9.0 | Plant image analysis |
+| Google Gemini AI | 0.9.0 | Plant image analysis (gemini-2.5-flash) |
+| Google ML Kit | 16.0.8 | Local image pre-filtering (plant detection) |
 | Supabase (GoTrue, PostgREST, Storage) | 2.6.1 | Auth, database, image storage |
 | Ktor Client | 2.3.12 | HTTP engine for Supabase |
+| OpenWeather API | v2.5 | 5-day weather forecast integration |
+
+### Push Notifications
+| Technology | Version | Purpose |
+|---|---|---|
+| OneSignal SDK | 5.1.x | Push notifications & check-in reminders |
 
 ### Local Storage
 | Technology | Version | Purpose |
@@ -162,9 +160,10 @@ The app follows the **MVVM (Model-View-ViewModel)** pattern with Jetpack Compose
 ### Other
 | Technology | Version | Purpose |
 |---|---|---|
+| Google Play In-App Updates | 2.1.0 | Flexible in-app updates |
 | Navigation Compose | 2.8.5 | Screen navigation |
 | Play Services Location | 21.3.0 | GPS location |
-| Retrofit + Gson | 2.11.0 | HTTP client |
+| Retrofit + Gson | 2.11.0 | HTTP client (OpenWeather integration) |
 | KSP | 2.0.21-1.0.27 | Kotlin Symbol Processing |
 | Kotlin Serialization | 1.7.3 | JSON serialization |
 
@@ -541,12 +540,16 @@ The app is configured to load AdMob IDs from `local.properties`.
 | Service | Purpose | Endpoint / SDK |
 |---|---|---|
 | **Google Gemini AI** | Plant image analysis | `generativeai:0.9.0` — `gemini-2.5-flash` |
+| **Google ML Kit** | Fast, local plant pre-filtering | `play-services-mlkit-image-labeling` |
 | **Supabase Auth** | User authentication | GoTrue SDK |
 | **Supabase PostgREST** | Database CRUD | PostgREST SDK |
 | **Supabase Storage** | Image hosting | Storage SDK (`plant-images` bucket) |
+| **OpenWeather API** | Local 5-day weather forecasts | Retrofit REST API integration |
+| **OneSignal** | Push notifications & reminders | OneSignal Android SDK (v5.x) |
 | **RevenueCat** | In-app subscriptions | `purchases:8.25.0` |
 | **Google AdMob** | Advertising | `play-services-ads:23.0.0` |
 | **Google Play Services** | Location (GPS) | `play-services-location:21.3.0` |
+| **Google Play In-App Updates** | Flexible app updates | `app-update-ktx:2.1.0` |
 | **Android Credential Manager** | Google Sign-In | `credentials:1.3.0` |
 
 ---
