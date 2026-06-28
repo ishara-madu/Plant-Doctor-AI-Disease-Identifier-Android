@@ -3,7 +3,10 @@
 > AI-Powered Plant Health Scanner for Android
 
 <p align="center">
-  <img src="screenshots/app_icon.png" alt="Plant Doctor Icon" width="120" />
+  <img src="screenshots/app_icon.png" alt="Plant Doctor Icon" width="120" /><br><br>
+  <a href="https://play.google.com/store/apps/details?id=com.pixeleye.plantdoctor">
+    <img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play" height="50" />
+  </a>
 </p>
 
 Plant Doctor is an Android application that uses Google's Gemini AI to analyze plant images, diagnose diseases, pests, and nutrient deficiencies, and provide categorized treatment plans (Organic & Natural + Chemical). The app features a freemium model powered by RevenueCat, with AdMob integration for free-tier users.
