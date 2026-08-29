@@ -23,8 +23,8 @@ android {
         applicationId = "com.pixeleye.plantdoctor"
         minSdk = 24
         targetSdk = 36
-        versionCode = 8
-        versionName = "1.7"
+        versionCode = 9
+        versionName = "1.8"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField("String", "GEMINI_API_KEY", "\"${localProperties.getProperty("GEMINI_API_KEY", "")}\"")
@@ -55,12 +55,15 @@ android {
         }
     }
 
-    signingConfigs {
-        getByName("debug") {
-            storeFile = rootProject.file("debug.keystore")
-            storePassword = "android"
-            keyAlias = "androiddebugkey"
-            keyPassword = "android"
+    val customDebugKeystore = rootProject.file("debug.keystore")
+    if (customDebugKeystore.exists()) {
+        signingConfigs {
+            getByName("debug") {
+                storeFile = customDebugKeystore
+                storePassword = "android"
+                keyAlias = "androiddebugkey"
+                keyPassword = "android"
+            }
         }
     }
 
@@ -194,8 +197,8 @@ dependencies {
     // AdMob SDK
     implementation("com.google.android.gms:play-services-ads:23.0.0")
 
-    // RevenueCat (In-App Purchases)
-    implementation("com.revenuecat.purchases:purchases:8.25.0")
+    // RevenueCat (In-App Purchases) - Includes latest Google Play Billing Library
+    implementation("com.revenuecat.purchases:purchases:10.16.2")
 
     // Google Play In-App Updates
     implementation("com.google.android.play:app-update-ktx:2.1.0")
